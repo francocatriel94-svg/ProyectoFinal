@@ -1,7 +1,7 @@
 package Modelo;
 
 public class Colectivo {
-    private int idColectivo;
+    private int ID_colectivo;
     private int matricula;
     private String marca;
     private String modelo;
@@ -13,7 +13,7 @@ public class Colectivo {
     }
 
     public Colectivo(int idColectivo, int matricula, String marca, String modelo, int capacidad, String chofer, int estado) {
-        this.idColectivo = idColectivo;
+        this.ID_colectivo = idColectivo;
         this.matricula = matricula;
         this.marca = marca;
         this.modelo = modelo;
@@ -31,12 +31,12 @@ public class Colectivo {
         this.estado = estado;
     }
 
-    public int getIdColectivo() {
-        return idColectivo;
+    public int getID_colectivo() {
+        return ID_colectivo;
     }
 
-    public void setIdColectivo(int idColectivo) {
-        this.idColectivo = idColectivo;
+    public void setID_colectivo(int ID_colectivo) {
+        this.ID_colectivo = ID_colectivo;
     }
 
     public int getMatricula() {
@@ -90,7 +90,7 @@ public class Colectivo {
     @Override
     public String toString() {
         return "Colectivo: " + 
-                "\n idColectivo: " + idColectivo 
+                "\n idColectivo: " + ID_colectivo 
                 + "\n matricula: " + matricula 
                 + "\n modelo: " + modelo 
                 + "\n marca: " + marca 

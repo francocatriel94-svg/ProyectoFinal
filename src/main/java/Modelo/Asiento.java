@@ -1,8 +1,8 @@
 package Modelo;
 
 public class Asiento {
-    private int idLugar;
-    private Colectivo colectivo;
+    private int ID_lugar;
+    private Colectivo ID_colectivo;
     private int numeroAsiento;
     private int estado;
 
@@ -10,32 +10,32 @@ public class Asiento {
     }
 
     public Asiento(int idLugar, Colectivo colectivo, int numeroAsiento, int estado) {
-        this.idLugar = idLugar;
-        this.colectivo = colectivo;
+        this.ID_lugar = idLugar;
+        this.ID_colectivo = colectivo;
         this.numeroAsiento = numeroAsiento;
         this.estado = estado;
     }
 
     public Asiento(Colectivo colectivo, int numeroAsiento, int estado) {
-        this.colectivo = colectivo;
+        this.ID_colectivo = colectivo;
         this.numeroAsiento = numeroAsiento;
         this.estado = estado;
     }
 
-    public int getIdLugar() {
-        return idLugar;
+    public int getID_lugar() {
+        return ID_lugar;
     }
 
-    public void setIdLugar(int idLugar) {
-        this.idLugar = idLugar;
+    public void setID_lugar(int ID_lugar) {
+        this.ID_lugar = ID_lugar;
     }
 
-    public Colectivo getColectivo() {
-        return colectivo;
+    public Colectivo getID_colectivo() {
+        return ID_colectivo;
     }
 
-    public void setColectivo(Colectivo colectivo) {
-        this.colectivo = colectivo;
+    public void setID_colectivo(Colectivo ID_colectivo) {
+        this.ID_colectivo = ID_colectivo;
     }
 
     public int getNumeroAsiento() {
@@ -57,8 +57,8 @@ public class Asiento {
     @Override
     public String toString() {
         return "Asiento: " + 
-                "\n idPasajero: " + idLugar
-                + "\n Colectivo: " + colectivo 
+                "\n idPasajero: " + ID_lugar
+                + "\n Colectivo: " + ID_colectivo 
                 + "\n numeroAsiento: " + numeroAsiento 
                 + "\n estado: " + estado;
     }

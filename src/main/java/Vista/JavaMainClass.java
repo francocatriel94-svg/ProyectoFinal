@@ -1,5 +1,6 @@
 package Vista;
 
+import Modelo.Pasajero;
 import Persistencia.PasajeroData;
 
 public class JavaMainClass extends javax.swing.JFrame {
@@ -43,6 +44,17 @@ public class JavaMainClass extends javax.swing.JFrame {
      */
     public static void main(String args[]) {
         PasajeroData pasajeroData = new PasajeroData();
+
+        Pasajero p1 = new Pasajero();
+        p1.setDni("10000001");
+        p1.setNombre("Facundo");
+        p1.setApellido("Bartoloni");
+        p1.setCorreo("facubarto2005@gmail.com");
+        p1.setTelefono("2657111111");
+        p1.setEstado(1);
+        
+        System.out.println("Guardando pasajero...");
+        pasajeroData.guardarPasajero(p1);
         
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

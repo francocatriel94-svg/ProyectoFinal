@@ -1,18 +1,18 @@
 package Modelo;
 
 public class Pasajero {
-    private int idPasajero;
-    private int dni;
+    private int ID_pasajero;
+    private String dni;
     private String nombre;
     private String apellido;
     private String correo;
-    private int telefono;
+    private String telefono;
     private int estado;
 
     public Pasajero(){}
 
-    public Pasajero(int idPasajero, int dni, String nombre, String apellido, String correo, int telefono, int estado) {
-        this.idPasajero = idPasajero;
+    public Pasajero(int idPasajero, String dni, String nombre, String apellido, String correo, String telefono, int estado) {
+        this.ID_pasajero = idPasajero;
         this.dni = dni;
         this.nombre = nombre;
         this.apellido = apellido;
@@ -21,7 +21,7 @@ public class Pasajero {
         this.estado = estado;
     }
     
-    public Pasajero(int dni, String nombre, String apellido, String correo, int telefono, int estado) {
+    public Pasajero(String dni, String nombre, String apellido, String correo, String telefono, int estado) {
         this.dni = dni;
         this.nombre = nombre;
         this.apellido = apellido;
@@ -30,19 +30,19 @@ public class Pasajero {
         this.estado = estado;
     }
     
-    public int getIdPasajero() {
-        return idPasajero;
+    public int getID_pasajero() {
+        return ID_pasajero;
     }
 
-    public void setIdPasajero(int idPasajero) {
-        this.idPasajero = idPasajero;
+    public void setID_pasajero(int ID_pasajero) {
+        this.ID_pasajero = ID_pasajero;
     }
 
-    public int getDni() {
+    public String getDni() {
         return dni;
     }
 
-    public void setDni(int dni) {
+    public void setDni(String dni) {
         this.dni = dni;
     }
 
@@ -70,11 +70,11 @@ public class Pasajero {
         this.correo = correo;
     }
 
-    public int getTelefono() {
+    public String getTelefono() {
         return telefono;
     }
 
-    public void setTelefono(int telefono) {
+    public void setTelefono(String telefono) {
         this.telefono = telefono;
     }
 
@@ -89,7 +89,7 @@ public class Pasajero {
     @Override
     public String toString() {
         return "Pasajero: " + 
-                "\n idPasajero: " + idPasajero 
+                "\n idPasajero: " + ID_pasajero 
                 + "\n dni: " + dni 
                 + "\n nombre: " + nombre 
                 + "\n apellido: " + apellido 

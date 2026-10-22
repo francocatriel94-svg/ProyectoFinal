@@ -3,45 +3,45 @@ package Modelo;
 import java.time.LocalTime;
 
 public class RutaViaje {
-    private int idRuta;
+    private int ID_ruta;
     private String origen;
     private String destino;
     private LocalTime horaSalida;
     private LocalTime horaLlegada;
-    private Colectivo colectivo;
-    private int precio;
+    private Colectivo ID_colectivo;
+    private double precio;
     private int estado;
 
     public RutaViaje() {
     }
 
-    public RutaViaje(int idRuta, String origen, String destino, LocalTime horaSalida, LocalTime horaLlegada, Colectivo colectivo, int precio, int estado) {
-        this.idRuta = idRuta;
+    public RutaViaje(int idRuta, String origen, String destino, LocalTime horaSalida, LocalTime horaLlegada, Colectivo colectivo, double precio, int estado) {
+        this.ID_ruta = idRuta;
         this.origen = origen;
         this.destino = destino;
         this.horaSalida = horaSalida;
         this.horaLlegada = horaLlegada;
-        this.colectivo = colectivo;
+        this.ID_colectivo = colectivo;
         this.precio = precio;
         this.estado = estado;
     }
 
-    public RutaViaje(String origen, String destino, LocalTime horaSalida, LocalTime horaLlegada, Colectivo colectivo, int precio, int estado) {
+    public RutaViaje(String origen, String destino, LocalTime horaSalida, LocalTime horaLlegada, Colectivo colectivo, double precio, int estado) {
         this.origen = origen;
         this.destino = destino;
         this.horaSalida = horaSalida;
         this.horaLlegada = horaLlegada;
-        this.colectivo = colectivo;
+        this.ID_colectivo = colectivo;
         this.precio = precio;
         this.estado = estado;
     }
 
-    public int getIdRuta() {
-        return idRuta;
+    public int getID_ruta() {
+        return ID_ruta;
     }
 
-    public void setIdRuta(int idRuta) {
-        this.idRuta = idRuta;
+    public void setID_ruta(int ID_ruta) {
+        this.ID_ruta = ID_ruta;
     }
 
     public String getOrigen() {
@@ -76,19 +76,19 @@ public class RutaViaje {
         this.horaLlegada = horaLlegada;
     }
 
-    public Colectivo getColectivo() {
-        return colectivo;
+    public Colectivo getID_colectivo() {
+        return ID_colectivo;
     }
 
-    public void setColectivo(Colectivo colectivo) {
-        this.colectivo = colectivo;
+    public void setID_colectivo(Colectivo ID_colectivo) {
+        this.ID_colectivo = ID_colectivo;
     }
 
-    public int getPrecio() {
+    public double getPrecio() {
         return precio;
     }
 
-    public void setPrecio(int precio) {
+    public void setPrecio(double precio) {
         this.precio = precio;
     }
 
@@ -103,12 +103,12 @@ public class RutaViaje {
     @Override
     public String toString() {
         return "Pasajero: " + 
-                "\n idRuta: " + idRuta 
+                "\n idRuta: " + ID_ruta 
                 + "\n origen: " + origen 
                 + "\n destino: " + destino 
                 + "\n horaSalida: " + horaSalida 
                 + "\n horaLlegada: " + horaLlegada 
-                + "\n colectivo: " + colectivo 
+                + "\n colectivo: " + ID_colectivo 
                 + "\n precio: " + precio
                 + "\n estado: " + estado;
     }
