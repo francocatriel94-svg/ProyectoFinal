@@ -1,7 +1,11 @@
 package Vista;
 
+import Modelo.Colectivo;
 import Modelo.Pasajero;
+import Modelo.RutaViaje;
 import Persistencia.PasajeroData;
+import Persistencia.RutaViajeData;
+import java.time.LocalTime;
 
 public class JavaMainClass extends javax.swing.JFrame {
     
@@ -55,6 +59,21 @@ public class JavaMainClass extends javax.swing.JFrame {
         
         System.out.println("Guardando pasajero...");
         pasajeroData.guardarPasajero(p1);
+        
+        RutaViajeData rutaData= new RutaViajeData();
+        Colectivo c=new Colectivo();
+        c.setID_colectivo(1);
+        
+        RutaViaje nuevaRuta= new RutaViaje();
+        nuevaRuta.setOrigen("La Toma");
+        nuevaRuta.setDestino("Villa Mercedes");
+        nuevaRuta.setHoraSalida(LocalTime.of(9, 30));
+        nuevaRuta.setHoraLlegada(LocalTime.of(12, 00));
+        nuevaRuta.setID_colectivo(c);
+        nuevaRuta.setPrecio(1000);
+        nuevaRuta.setEstado(1);
+  
+        rutaData.guardarRutaViaje(nuevaRuta);
         
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
