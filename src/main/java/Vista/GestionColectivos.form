@@ -145,16 +145,16 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="label_id" alignment="0" min="-2" max="-2" attributes="0"/>
-                      <Component id="label_nombre" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="label_marca" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Component id="label_estado" alignment="0" min="-2" max="-2" attributes="0"/>
-                      <Component id="label_correo" min="-2" max="-2" attributes="0"/>
+                      <Component id="label_capacidad" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="103" alignment="0" groupAlignment="0" max="-2" attributes="0">
                           <Component id="dato_id" alignment="0" pref="219" max="32767" attributes="0"/>
-                          <Component id="dato_nombre" alignment="0" max="32767" attributes="0"/>
-                          <Component id="dato_correo" alignment="0" max="32767" attributes="0"/>
+                          <Component id="dato_marca" alignment="0" max="32767" attributes="0"/>
+                          <Component id="dato_capacidad" alignment="0" max="32767" attributes="0"/>
                       </Group>
                       <Component id="check_estado" alignment="0" min="-2" max="-2" attributes="0"/>
                   </Group>
@@ -162,15 +162,15 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
                           <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                              <Component id="label_apellido" alignment="0" max="32767" attributes="0"/>
-                              <Component id="label_dni" alignment="0" max="32767" attributes="0"/>
-                              <Component id="label_telefono" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="label_modelo" alignment="0" max="32767" attributes="0"/>
+                              <Component id="label_matricula" alignment="0" max="32767" attributes="0"/>
+                              <Component id="label_chofer" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="dato_apellido" alignment="1" pref="242" max="32767" attributes="0"/>
-                              <Component id="dato_dni" alignment="1" max="32767" attributes="0"/>
-                              <Component id="dato_telefono" alignment="0" max="32767" attributes="0"/>
+                              <Component id="dato_modelo" alignment="1" pref="242" max="32767" attributes="0"/>
+                              <Component id="dato_matricula" alignment="1" max="32767" attributes="0"/>
+                              <Component id="dato_chofer" alignment="0" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                       <Component id="label_telefono1" min="-2" pref="283" max="-2" attributes="0"/>
@@ -186,23 +186,23 @@
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="label_id" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="dato_id" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="dato_dni" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="label_dni" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="dato_matricula" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="label_matricula" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="label_nombre" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="dato_nombre" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="dato_apellido" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="label_apellido" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="label_marca" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="dato_marca" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="dato_modelo" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="label_modelo" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="label_correo" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="label_capacidad" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                          <Component id="dato_correo" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="dato_telefono" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="label_telefono" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="dato_capacidad" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="dato_chofer" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="label_chofer" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
@@ -224,12 +224,12 @@
             <Property name="text" type="java.lang.String" value="ID"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="label_nombre">
+        <Component class="javax.swing.JLabel" name="label_marca">
           <Properties>
             <Property name="text" type="java.lang.String" value="Marca"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="label_correo">
+        <Component class="javax.swing.JLabel" name="label_capacidad">
           <Properties>
             <Property name="text" type="java.lang.String" value="Capacidad"/>
           </Properties>
@@ -244,30 +244,30 @@
             <Property name="editable" type="boolean" value="false"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JTextField" name="dato_nombre">
+        <Component class="javax.swing.JTextField" name="dato_marca">
         </Component>
-        <Component class="javax.swing.JTextField" name="dato_correo">
+        <Component class="javax.swing.JTextField" name="dato_capacidad">
         </Component>
-        <Component class="javax.swing.JLabel" name="label_dni">
+        <Component class="javax.swing.JLabel" name="label_matricula">
           <Properties>
             <Property name="text" type="java.lang.String" value="Matr&#xed;cula"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="label_apellido">
+        <Component class="javax.swing.JLabel" name="label_modelo">
           <Properties>
             <Property name="text" type="java.lang.String" value="Modelo"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="label_telefono">
+        <Component class="javax.swing.JLabel" name="label_chofer">
           <Properties>
             <Property name="text" type="java.lang.String" value="Chofer"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JTextField" name="dato_dni">
+        <Component class="javax.swing.JTextField" name="dato_matricula">
         </Component>
-        <Component class="javax.swing.JTextField" name="dato_apellido">
+        <Component class="javax.swing.JTextField" name="dato_modelo">
         </Component>
-        <Component class="javax.swing.JTextField" name="dato_telefono">
+        <Component class="javax.swing.JTextField" name="dato_chofer">
         </Component>
         <Component class="javax.swing.JCheckBox" name="check_estado">
           <Properties>

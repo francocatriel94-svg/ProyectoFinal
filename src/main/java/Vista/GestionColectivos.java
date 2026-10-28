@@ -32,18 +32,18 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
         boton_cambiarinactivo = new javax.swing.JButton();
         escritorio = new javax.swing.JPanel();
         label_id = new javax.swing.JLabel();
-        label_nombre = new javax.swing.JLabel();
-        label_correo = new javax.swing.JLabel();
+        label_marca = new javax.swing.JLabel();
+        label_capacidad = new javax.swing.JLabel();
         label_estado = new javax.swing.JLabel();
         dato_id = new javax.swing.JTextField();
-        dato_nombre = new javax.swing.JTextField();
-        dato_correo = new javax.swing.JTextField();
-        label_dni = new javax.swing.JLabel();
-        label_apellido = new javax.swing.JLabel();
-        label_telefono = new javax.swing.JLabel();
-        dato_dni = new javax.swing.JTextField();
-        dato_apellido = new javax.swing.JTextField();
-        dato_telefono = new javax.swing.JTextField();
+        dato_marca = new javax.swing.JTextField();
+        dato_capacidad = new javax.swing.JTextField();
+        label_matricula = new javax.swing.JLabel();
+        label_modelo = new javax.swing.JLabel();
+        label_chofer = new javax.swing.JLabel();
+        dato_matricula = new javax.swing.JTextField();
+        dato_modelo = new javax.swing.JTextField();
+        dato_chofer = new javax.swing.JTextField();
         check_estado = new javax.swing.JCheckBox();
         label_telefono1 = new javax.swing.JLabel();
         boton_nuevo = new javax.swing.JButton();
@@ -76,19 +76,19 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
 
         label_id.setText("ID");
 
-        label_nombre.setText("Marca");
+        label_marca.setText("Marca");
 
-        label_correo.setText("Capacidad");
+        label_capacidad.setText("Capacidad");
 
         label_estado.setText("Estado");
 
         dato_id.setEditable(false);
 
-        label_dni.setText("Matrícula");
+        label_matricula.setText("Matrícula");
 
-        label_apellido.setText("Modelo");
+        label_modelo.setText("Modelo");
 
-        label_telefono.setText("Chofer");
+        label_chofer.setText("Chofer");
 
         check_estado.setText("Activo");
         check_estado.setEnabled(false);
@@ -104,28 +104,28 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
                 .addContainerGap()
                 .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(label_id)
-                    .addComponent(label_nombre)
+                    .addComponent(label_marca)
                     .addComponent(label_estado)
-                    .addComponent(label_correo))
+                    .addComponent(label_capacidad))
                 .addGap(15, 15, 15)
                 .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                         .addComponent(dato_id, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
-                        .addComponent(dato_nombre)
-                        .addComponent(dato_correo))
+                        .addComponent(dato_marca)
+                        .addComponent(dato_capacidad))
                     .addComponent(check_estado))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(escritorioLayout.createSequentialGroup()
                         .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(label_apellido, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(label_dni, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(label_telefono, javax.swing.GroupLayout.Alignment.LEADING))
+                            .addComponent(label_modelo, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(label_matricula, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(label_chofer, javax.swing.GroupLayout.Alignment.LEADING))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(dato_apellido, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 242, Short.MAX_VALUE)
-                            .addComponent(dato_dni, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(dato_telefono)))
+                            .addComponent(dato_modelo, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 242, Short.MAX_VALUE)
+                            .addComponent(dato_matricula, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(dato_chofer)))
                     .addComponent(label_telefono1, javax.swing.GroupLayout.PREFERRED_SIZE, 283, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(59, 59, 59))
         );
@@ -136,21 +136,21 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
                 .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(label_id)
                     .addComponent(dato_id, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(dato_dni, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(label_dni))
+                    .addComponent(dato_matricula, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(label_matricula))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(label_nombre)
-                    .addComponent(dato_nombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(dato_apellido, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(label_apellido))
+                    .addComponent(label_marca)
+                    .addComponent(dato_marca, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(dato_modelo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(label_modelo))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(label_correo)
+                    .addComponent(label_capacidad)
                     .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(dato_correo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(dato_telefono, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(label_telefono)))
+                        .addComponent(dato_capacidad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(dato_chofer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(label_chofer)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -282,23 +282,23 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
     private javax.swing.JButton boton_nuevo;
     private javax.swing.JButton boton_refrescardatos;
     private javax.swing.JCheckBox check_estado;
-    private javax.swing.JTextField dato_apellido;
     private javax.swing.JTextField dato_buscar;
-    private javax.swing.JTextField dato_correo;
-    private javax.swing.JTextField dato_dni;
+    private javax.swing.JTextField dato_capacidad;
+    private javax.swing.JTextField dato_chofer;
     private javax.swing.JTextField dato_id;
-    private javax.swing.JTextField dato_nombre;
-    private javax.swing.JTextField dato_telefono;
+    private javax.swing.JTextField dato_marca;
+    private javax.swing.JTextField dato_matricula;
+    private javax.swing.JTextField dato_modelo;
     private javax.swing.JPanel escritorio;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JLabel label_apellido;
     private javax.swing.JLabel label_busqueda;
-    private javax.swing.JLabel label_correo;
-    private javax.swing.JLabel label_dni;
+    private javax.swing.JLabel label_capacidad;
+    private javax.swing.JLabel label_chofer;
     private javax.swing.JLabel label_estado;
     private javax.swing.JLabel label_id;
-    private javax.swing.JLabel label_nombre;
-    private javax.swing.JLabel label_telefono;
+    private javax.swing.JLabel label_marca;
+    private javax.swing.JLabel label_matricula;
+    private javax.swing.JLabel label_modelo;
     private javax.swing.JLabel label_telefono1;
     private javax.swing.JTable tabla_datos;
     // End of variables declaration//GEN-END:variables
