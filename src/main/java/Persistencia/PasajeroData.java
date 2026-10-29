@@ -14,12 +14,13 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 public class PasajeroData {
+
     private Connection con = null;
 
     public PasajeroData() {
         con = Conexion.getConexion();
     }
-    
+
     public void guardarPasajero(Pasajero p) {
         String sql = "INSERT INTO pasajeros (dni, nombre, apellido, correo, telefono, estado) VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -48,7 +49,7 @@ public class PasajeroData {
             JOptionPane.showMessageDialog(null, "Error al insertar en la base de datos: " + ex.getMessage());
         }
     }
-    
+
     public void bajaLogicaPasajero(int id) {
         String sql = "UPDATE pasajeros SET estado = 0 WHERE ID_pasajero = ?";
         try {
@@ -64,7 +65,7 @@ public class PasajeroData {
             JOptionPane.showMessageDialog(null, "Error al dar de baja al pasajero: " + ex.getMessage());
         }
     }
-    
+
     public void modificarPasajero(Pasajero p) {
         String sql = "UPDATE pasajeros SET dni = ?, nombre = ?, apellido = ?, correo = ?, telefono = ? WHERE ID_pasajero = ?";
         try {
@@ -85,11 +86,11 @@ public class PasajeroData {
             JOptionPane.showMessageDialog(null, "Error al modificar pasajero: " + ex.getMessage());
         }
     }
-    
+
     public Pasajero buscarPasajero(int id) {
         String sql = "SELECT dni, nombre, apellido, correo, telefono, estado FROM pasajeros WHERE ID_pasajero = ?";
         Pasajero pasajero = null;
-        
+
         try {
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, id);
@@ -113,7 +114,7 @@ public class PasajeroData {
         }
         return pasajero;
     }
-    
+
     public List<Pasajero> listarPasajeros() {
         String sql = "SELECT ID_pasajero, dni, nombre, apellido, correo, telefono, estado FROM pasajeros WHERE estado = 1";
         List<Pasajero> pasajeros = new ArrayList<>();
@@ -130,7 +131,7 @@ public class PasajeroData {
                 p.setCorreo(rs.getString("correo"));
                 p.setTelefono(rs.getString("telefono"));
                 p.setEstado(rs.getInt("estado"));
-                
+
                 pasajeros.add(p);
             }
             ps.close();
@@ -140,5 +141,3 @@ public class PasajeroData {
         return pasajeros;
     }
 }
-    
-
