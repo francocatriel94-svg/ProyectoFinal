@@ -1,20 +1,49 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JInternalFrame.java to edit this template
- */
 package Vista;
 
-/**
- *
- * @author User
- */
+import Modelo.Pasajero;
+import Persistencia.PasajeroData;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 public class GestionPasajeros extends javax.swing.JInternalFrame {
 
-    /**
-     * Creates new form GestionPasajeros
-     */
+    private PasajeroData PasajeroData;
+    private DefaultTableModel modeloTabla;
+
     public GestionPasajeros() {
         initComponents();
+        PasajeroData = new PasajeroData();
+        modeloTabla = (DefaultTableModel) tabla_datos.getModel();
+
+        cargarTabla();
+    }
+
+    private void cargarTabla() {
+        modeloTabla.setRowCount(0); //Esto borra visualmente las filas para que no se dupliquen las filas si llamas a un metodo mas de una vez. 
+
+        List<Pasajero> listaAlumnos = PasajeroData.listarPasajeros();
+
+        for (Pasajero p : listaAlumnos) {
+            modeloTabla.addRow(new Object[]{
+                p.getID_pasajero(),
+                p.getDni(),
+                p.getApellido(),
+                p.getNombre(),
+                p.getCorreo(),
+                p.getTelefono(),
+                p.getEstado()
+            });
+        }
+    }
+
+    private void limpiarCampos() {
+        dato_dni.setText("");
+        dato_nombre.setText("");
+        dato_apellido.setText("");
+        dato_telefono.setText("");
+        dato_correo.setText("");
+        check_estado.setSelected(false);
     }
 
     /**
@@ -41,24 +70,21 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
         dato_apellido = new javax.swing.JTextField();
         dato_telefono = new javax.swing.JTextField();
         check_estado = new javax.swing.JCheckBox();
-        boton_nuevo = new javax.swing.JButton();
+        boton_limpiar = new javax.swing.JButton();
         boton_guardar = new javax.swing.JButton();
         boton_modificar = new javax.swing.JButton();
-        boton_cambiarinactivo = new javax.swing.JButton();
-        boton_cambiaractivo = new javax.swing.JButton();
-        boton_cancelar = new javax.swing.JButton();
+        boton_darBaja = new javax.swing.JButton();
         label_busqueda = new javax.swing.JLabel();
         dato_buscar = new javax.swing.JTextField();
         boton_buscar = new javax.swing.JButton();
-        boton_mostrartodo = new javax.swing.JButton();
+        boton_recargar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tabla_datos = new javax.swing.JTable();
-        boton_refrescardatos = new javax.swing.JButton();
 
         setIconifiable(true);
         setTitle("Gestión de Pasajeros");
 
-        escritorio.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos del pasajero ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(51, 51, 51))); // NOI18N
+        escritorio.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos del pasajero ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14), new java.awt.Color(255, 255, 255))); // NOI18N
         escritorio.setToolTipText("");
         escritorio.setName("asdaf"); // NOI18N
 
@@ -102,7 +128,7 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
                             .addComponent(dato_id, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
                             .addComponent(dato_nombre)
                             .addComponent(dato_correo))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 49, Short.MAX_VALUE)
                         .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(label_telefono)
                             .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -144,26 +170,25 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
                 .addContainerGap())
         );
 
-        boton_nuevo.setText("Nuevo");
+        boton_limpiar.setText("Limpiar Campos");
+        boton_limpiar.addActionListener(this::boton_limpiarActionPerformed);
 
         boton_guardar.setText("Guardar");
         boton_guardar.addActionListener(this::boton_guardarActionPerformed);
 
         boton_modificar.setText("Modificar");
+        boton_modificar.addActionListener(this::boton_modificarActionPerformed);
 
-        boton_cambiarinactivo.setForeground(new java.awt.Color(153, 0, 0));
-        boton_cambiarinactivo.setText("Cambiar a Inactivo");
+        boton_darBaja.setText("Dar De Baja");
+        boton_darBaja.addActionListener(this::boton_darBajaActionPerformed);
 
-        boton_cambiaractivo.setForeground(new java.awt.Color(0, 102, 0));
-        boton_cambiaractivo.setText("Cambiar a Activo");
-
-        boton_cancelar.setText("Cancelar");
-
-        label_busqueda.setText("Buscar por DNI o Apellido");
+        label_busqueda.setText("Buscar por DNI");
 
         boton_buscar.setText("Buscar");
+        boton_buscar.addActionListener(this::boton_buscarActionPerformed);
 
-        boton_mostrartodo.setText("Mostrar todos");
+        boton_recargar.setText("Recargar Tabla");
+        boton_recargar.addActionListener(this::boton_recargarActionPerformed);
 
         tabla_datos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -193,67 +218,61 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
         });
         jScrollPane1.setViewportView(tabla_datos);
 
-        boton_refrescardatos.setText("<html><center>Refrescar<br>Datos</center></html>");
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(escritorio, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(boton_nuevo)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(boton_guardar)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(boton_modificar)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(boton_cambiaractivo)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(boton_cambiarinactivo)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(boton_cancelar))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(label_busqueda)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(dato_buscar, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(boton_buscar)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(boton_mostrartodo)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(boton_refrescardatos, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 17, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1))
-                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(escritorio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(boton_limpiar)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(boton_guardar)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(boton_modificar))
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(label_busqueda)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(dato_buscar)))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(boton_buscar)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(boton_recargar))
+                                .addComponent(boton_darBaja)))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 725, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {boton_darBaja, boton_guardar, boton_limpiar, boton_modificar});
+
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
                 .addComponent(escritorio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(boton_buscar)
+                        .addComponent(boton_recargar))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(boton_nuevo)
+                            .addComponent(boton_limpiar)
                             .addComponent(boton_guardar)
                             .addComponent(boton_modificar)
-                            .addComponent(boton_cambiarinactivo)
-                            .addComponent(boton_cambiaractivo)
-                            .addComponent(boton_cancelar))
+                            .addComponent(boton_darBaja))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(label_busqueda)
-                            .addComponent(dato_buscar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(boton_buscar)
-                            .addComponent(boton_mostrartodo)))
-                    .addComponent(boton_refrescardatos, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(12, 12, 12)
+                            .addComponent(dato_buscar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 182, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -262,20 +281,151 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void boton_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_guardarActionPerformed
-        // TODO add your handling code here:
+        //Validamos los campos.
+        if (dato_dni.getText().isEmpty() || dato_apellido.getText().isEmpty()
+                || dato_nombre.getText().isEmpty() || dato_telefono.getText().isEmpty() || dato_correo.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debes llenar todos los campos.", "Campos Vacíos", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            //Manejamos los datos ingresados. Los int se parsean.
+            String dni = dato_dni.getText();
+            String apellido = dato_apellido.getText();
+            String nombre = dato_nombre.getText();
+            String telefono = dato_telefono.getText();
+            String correo = dato_correo.getText();
+            int estado = check_estado.isSelected() ? 1 : 0;
+
+            //Creamos y guardamos el nuevo Pasajero sin ID porque SQL lo genera solo.
+            Pasajero nuevoPasajero = new Pasajero(dni, nombre, apellido, correo, telefono, estado);
+            PasajeroData.guardarPasajero(nuevoPasajero);
+
+            //Limpiamos los campos y recargamos la tabla
+            limpiarCampos();
+            cargarTabla();
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "El DNI debe ser solo números.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_boton_guardarActionPerformed
+
+    private void boton_modificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_modificarActionPerformed
+        //Verificamos que se haya seleccionado una fila de la tabla.
+        int filaSeleccionada = tabla_datos.getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un pasajero de la tabla para actualizar sus datos.", "Ningún pasajero seleccionado", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        //Validamos los campos.
+        if (dato_dni.getText().isEmpty() || dato_apellido.getText().isEmpty()
+                || dato_nombre.getText().isEmpty() || dato_telefono.getText().isEmpty() || dato_correo.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debes llenar todos los campos.", "Campos Vacíos", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            //Obtenemos el id_alumno de la primera columna(0).
+            int ID_pasajero = (int) tabla_datos.getValueAt(filaSeleccionada, 0);
+
+            //Leemos los campos modificados
+            String dni = dato_dni.getText();
+            String apellido = dato_apellido.getText();
+            String nombre = dato_nombre.getText();
+            String telefono = dato_telefono.getText();
+            String correo = dato_correo.getText();
+            int estado = check_estado.isSelected() ? 1 : 0;
+
+            //Creamos el objeto Alumno usando el constructor que si tiene id.
+            Pasajero PasajeroModificado = new Pasajero(ID_pasajero, dni, nombre, apellido, correo, telefono, estado);
+
+            //Enviamos el alumno actualizado a la base de datos.
+            PasajeroData.modificarPasajero(PasajeroModificado);
+
+            //Limpiamos los campos y recargamos la tabla.
+            limpiarCampos();
+            cargarTabla();
+
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "El Dni debe ser solo números.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_boton_modificarActionPerformed
+
+    private void boton_limpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_limpiarActionPerformed
+        limpiarCampos();
+    }//GEN-LAST:event_boton_limpiarActionPerformed
+
+    private void boton_darBajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_darBajaActionPerformed
+        int filaSeleccionada = tabla_datos.getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un pasajero de la tabla para eliminarlo.", "Ningún pasajero seleccionado", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        //Pedimos confirmación antes de borrar.
+        int respuesta = JOptionPane.showConfirmDialog(this, "¿Estás seguro de que queres dar de baja al pasajero seleccionado?", "Confirmar Eliminación", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+        //Si se confirma:
+        if (respuesta == JOptionPane.YES_OPTION) {
+            //Obtenemos el iD_pasajero de la primera columna(0).
+            int iD_pasajero = (int) tabla_datos.getValueAt(filaSeleccionada, 0);
+            PasajeroData.bajaLogicaPasajero(iD_pasajero);
+
+            //Limpiamos los campos y recargamos la tabla.
+            limpiarCampos();
+            cargarTabla();
+        }
+    }//GEN-LAST:event_boton_darBajaActionPerformed
+
+    private void boton_buscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_buscarActionPerformed
+        //Primero validamos que el campo este correcto
+        if (dato_buscar.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debe colocar el DNI o nombre del Pasajero.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            int dni = Integer.parseInt(dato_buscar.getText());
+
+            //Consultamos a la base de datos con el metodo adecuado
+            Pasajero pasajeroEncontrado = PasajeroData.buscarPasajero(dni);
+
+            //Vemos si la base de datos nos devolvio un pasajero o no
+            if (pasajeroEncontrado != null) {
+                //Llenamoss los campos con la informacion dada
+                dato_nombre.setText(pasajeroEncontrado.getNombre());
+                dato_apellido.setText(pasajeroEncontrado.getApellido());
+                dato_dni.setText(pasajeroEncontrado.getDni());
+                dato_correo.setText(pasajeroEncontrado.getCorreo());
+                dato_telefono.setText(pasajeroEncontrado.getTelefono());
+
+                if (pasajeroEncontrado.getEstado() == 1) {
+                    check_estado.setSelected(true);
+                } else {
+                    check_estado.setSelected(false);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "No se encontró ningún pasajero con el DNI ingresado.", "Sin Resultados", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (NumberFormatException ex) { // Se ejecuta si el usuario ingresó letras o símbolos en el DNI
+            JOptionPane.showMessageDialog(this, "El DNI debe ser solo números.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_boton_buscarActionPerformed
+
+    private void boton_recargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_recargarActionPerformed
+        cargarTabla();
+    }//GEN-LAST:event_boton_recargarActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton boton_buscar;
-    private javax.swing.JButton boton_cambiaractivo;
-    private javax.swing.JButton boton_cambiarinactivo;
-    private javax.swing.JButton boton_cancelar;
+    private javax.swing.JButton boton_darBaja;
     private javax.swing.JButton boton_guardar;
+    private javax.swing.JButton boton_limpiar;
     private javax.swing.JButton boton_modificar;
-    private javax.swing.JButton boton_mostrartodo;
-    private javax.swing.JButton boton_nuevo;
-    private javax.swing.JButton boton_refrescardatos;
+    private javax.swing.JButton boton_recargar;
     private javax.swing.JCheckBox check_estado;
     private javax.swing.JTextField dato_apellido;
     private javax.swing.JTextField dato_buscar;

@@ -6,15 +6,17 @@ import java.sql.SQLException;
 import javax.swing.JOptionPane;
 
 public class Conexion {
+
     private static final String URL = "jdbc:mariadb://localhost:3306/";
-    private static final String DB = "gp8_flechaflash"; 
+    private static final String DB = "gp8_flechaflash";
     private static final String USUARIO = "root";
     private static final String PASSWORD = "";
-    
+
     private static Connection conexion = null;
 
-    public Conexion() {}
-    
+    public Conexion() {
+    }
+
     public static Connection getConexion() {
         if (conexion == null) {
             try {
