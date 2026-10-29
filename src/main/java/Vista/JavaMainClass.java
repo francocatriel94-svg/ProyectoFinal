@@ -84,7 +84,7 @@ public class JavaMainClass extends javax.swing.JFrame {
         LocalTime hora = LocalTime.now();
         Pasaje p = new Pasaje (p1,lugar,nuevaRuta,venta,hora,1500.00,1);
         pasajeData.guardarPasaje(p);
-                System.out.println("Se guardo todo.");
+        System.out.println("Se guardo todo.");
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.

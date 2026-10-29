@@ -1,6 +1,7 @@
 package Vista;
 
 import Modelo.Pasajero;
+import Persistencia.ControladorDatos;
 import Persistencia.PasajeroData;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -296,8 +297,25 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
             String telefono = dato_telefono.getText();
             String correo = dato_correo.getText();
             int estado = check_estado.isSelected() ? 1 : 0;
-
-            //Creamos y guardamos el nuevo Pasajero sin ID porque SQL lo genera solo.
+            if(ControladorDatos.ValidarDNILongitud(dni)==false)
+            {
+               JOptionPane.showMessageDialog(this,"El DNI debe tener 8 digitos. (Solo numeros)","Error de Validacion",JOptionPane.ERROR_MESSAGE);
+               return;
+            }
+            if(ControladorDatos.ValidarDNINumeros(dni))
+            {
+                JOptionPane.showMessageDialog(this,"El DNI solo puede contener numeros.","Error de Validacion",JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            if(ControladorDatos.ValidarTelefonoLongitud(telefono)==false)
+            {
+                JOptionPane.showMessageDialog(this,"El telefono debe ser Codigo de area + resto del numero \n Ejemplo: 26665064842","Error de validacion",JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            if(ControladorDatos.ValidarTelefonoNumeros(telefono)==false)
+            {
+                JOptionPane.showMessageDialog(this,"El telefono solo puede contener numeros.","Error de Validacion",JOptionPane.ERROR_MESSAGE);
+            }
             Pasajero nuevoPasajero = new Pasajero(dni, nombre, apellido, correo, telefono, estado);
             PasajeroData.guardarPasajero(nuevoPasajero);
 
