@@ -1,10 +1,16 @@
 package Vista;
-
+import Modelo.Asiento;
+import Persistencia.ColectivoData;
 import Modelo.Colectivo;
+import Modelo.Pasaje;
 import Modelo.Pasajero;
 import Modelo.RutaViaje;
+import Persistencia.AsientoData;
+import Persistencia.PasajeData;
 import Persistencia.PasajeroData;
 import Persistencia.RutaViajeData;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class JavaMainClass extends javax.swing.JFrame {
@@ -47,34 +53,38 @@ public class JavaMainClass extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        PasajeroData pasajeroData = new PasajeroData();
-
+                AsientoData asientoData=new AsientoData();
+        ColectivoData coleData= new ColectivoData();
+        RutaViajeData rutaData= new RutaViajeData();
+ PasajeroData pasajeroData = new PasajeroData();
         Pasajero p1 = new Pasajero();
-        p1.setDni("10000001");
+        p1.setDni("21564654");
         p1.setNombre("Facundo");
         p1.setApellido("Bartoloni");
         p1.setCorreo("facubarto2005@gmail.com");
         p1.setTelefono("2657111111");
         p1.setEstado(1);
-        
         System.out.println("Guardando pasajero...");
         pasajeroData.guardarPasajero(p1);
-        
-        RutaViajeData rutaData= new RutaViajeData();
-        Colectivo c=new Colectivo();
-        c.setID_colectivo(1);
-        
+        Colectivo c=new Colectivo(1,254622,"Mercedes","Transpuntano",50,"Javier",1);
+        coleData.guardarColectivo(c);
         RutaViaje nuevaRuta= new RutaViaje();
         nuevaRuta.setOrigen("La Toma");
         nuevaRuta.setDestino("Villa Mercedes");
         nuevaRuta.setHoraSalida(LocalTime.of(9, 30));
         nuevaRuta.setHoraLlegada(LocalTime.of(12, 00));
-        nuevaRuta.setID_colectivo(c);
+        nuevaRuta.setID_colectivo(c.getID_colectivo());
         nuevaRuta.setPrecio(1000);
         nuevaRuta.setEstado(1);
-  
-        rutaData.guardarRutaViaje(nuevaRuta);
-        
+        rutaData.guardarRutaViaje(nuevaRuta);   
+        Asiento lugar = new Asiento(c,17,1);
+        asientoData.guardarAsiento(lugar);
+        PasajeData pasajeData = new PasajeData();
+        LocalDate venta = LocalDate.now();
+        LocalTime hora = LocalTime.now();
+        Pasaje p = new Pasaje (p1,lugar,nuevaRuta,venta,hora,1500.00,1);
+        pasajeData.guardarPasaje(p);
+                System.out.println("Se guardo todo.");
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.

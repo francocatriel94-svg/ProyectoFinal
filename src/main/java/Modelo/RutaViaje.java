@@ -8,7 +8,7 @@ public class RutaViaje {
     private String destino;
     private LocalTime horaSalida;
     private LocalTime horaLlegada;
-    private Colectivo ID_colectivo;
+    private int ID_colectivo;
     private double precio;
     private int estado;
 
@@ -21,17 +21,7 @@ public class RutaViaje {
         this.destino = destino;
         this.horaSalida = horaSalida;
         this.horaLlegada = horaLlegada;
-        this.ID_colectivo = colectivo;
-        this.precio = precio;
-        this.estado = estado;
-    }
-
-    public RutaViaje(String origen, String destino, LocalTime horaSalida, LocalTime horaLlegada, Colectivo colectivo, double precio, int estado) {
-        this.origen = origen;
-        this.destino = destino;
-        this.horaSalida = horaSalida;
-        this.horaLlegada = horaLlegada;
-        this.ID_colectivo = colectivo;
+        this.ID_colectivo = colectivo.getID_colectivo();
         this.precio = precio;
         this.estado = estado;
     }
@@ -76,11 +66,11 @@ public class RutaViaje {
         this.horaLlegada = horaLlegada;
     }
 
-    public Colectivo getID_colectivo() {
+    public int getID_colectivo() {
         return ID_colectivo;
     }
 
-    public void setID_colectivo(Colectivo ID_colectivo) {
+    public void setID_colectivo(int ID_colectivo) {
         this.ID_colectivo = ID_colectivo;
     }
 

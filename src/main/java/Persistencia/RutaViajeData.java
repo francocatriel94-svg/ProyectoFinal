@@ -34,7 +34,7 @@ public class RutaViajeData {
          ps.setString(2, r.getDestino());
          ps.setObject(3, r.getHoraSalida());
          ps.setObject(4, r.getHoraLlegada());
-         ps.setInt(5, r.getID_colectivo().getID_colectivo());
+         ps.setInt(5, r.getID_colectivo());
          ps.setDouble(6, r.getPrecio());
          ps.setInt(7, r.getEstado());
          
@@ -91,7 +91,7 @@ public class RutaViajeData {
                 int idColect = rs.getInt("ID_colectivo");
                 Colectivo col = new Colectivo();
                 col.setID_colectivo(idColect);
-                ruta.setID_colectivo(col);
+                ruta.setID_colectivo(col.getID_colectivo());
                 ruta.setPrecio(rs.getDouble("precio"));
                 ruta.setEstado(rs.getInt("estado"));   
             }else {
@@ -121,7 +121,7 @@ public class RutaViajeData {
                 int idColect = rs.getInt("ID_colectivo");
                 Colectivo col = new Colectivo();
                 col.setID_colectivo(idColect);
-                r.setID_colectivo(col);
+                r.setID_colectivo(col.getID_colectivo());
                 r.setPrecio(rs.getDouble("precio"));
                 r.setEstado(rs.getInt("estado"));
                 rutas.add(r);

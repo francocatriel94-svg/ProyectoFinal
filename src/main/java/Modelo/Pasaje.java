@@ -5,9 +5,9 @@ import java.time.LocalTime;
 
 public class Pasaje {
     private int ID_pasaje;
-    private Pasajero ID_pasajero;
-    private Asiento ID_lugar;
-    private RutaViaje ID_ruta;
+    private int ID_pasajero;
+    private int ID_lugar;
+    private int ID_ruta;
     private LocalDate fechaVenta;
     private LocalTime horaVenta;
     private double precio;
@@ -18,9 +18,9 @@ public class Pasaje {
 
     public Pasaje(int idPasaje, Pasajero pasajero, Asiento lugar, RutaViaje rutaViaje, LocalDate fechaVenta, LocalTime horaVenta, double precio, int estado) {
         this.ID_pasaje = idPasaje;
-        this.ID_pasajero = pasajero;
-        this.ID_lugar = lugar;
-        this.ID_ruta = rutaViaje;
+        this.ID_pasajero = pasajero.getID_pasajero();
+        this.ID_lugar = lugar.getID_lugar();
+        this.ID_ruta = rutaViaje.getID_ruta();
         this.fechaVenta = fechaVenta;
         this.horaVenta = horaVenta;
         this.precio = precio;
@@ -28,9 +28,9 @@ public class Pasaje {
     }
 
     public Pasaje(Pasajero pasajero, Asiento lugar, RutaViaje rutaViaje, LocalDate fechaVenta, LocalTime horaVenta, double precio, int estado) {
-        this.ID_pasajero = pasajero;
-        this.ID_lugar = lugar;
-        this.ID_ruta = rutaViaje;
+        this.ID_pasajero = pasajero.getID_pasajero();
+        this.ID_lugar = lugar.getID_lugar();
+        this.ID_ruta = rutaViaje.getID_ruta();
         this.fechaVenta = fechaVenta;
         this.horaVenta = horaVenta;
         this.precio = precio;
@@ -45,28 +45,28 @@ public class Pasaje {
         this.ID_pasaje = ID_pasaje;
     }
 
-    public Pasajero getID_pasajero() {
+    public int getID_pasajero() {
         return ID_pasajero;
     }
 
     public void setID_pasajero(Pasajero ID_pasajero) {
-        this.ID_pasajero = ID_pasajero;
+        this.ID_pasajero = ID_pasajero.getID_pasajero();
     }
 
-    public Asiento getID_lugar() {
+    public int getID_lugar() {
         return ID_lugar;
     }
 
     public void setID_lugar(Asiento ID_lugar) {
-        this.ID_lugar = ID_lugar;
+        this.ID_lugar = ID_lugar.getID_lugar();
     }
 
-    public RutaViaje getID_ruta() {
+    public int getID_ruta() {
         return ID_ruta;
     }
 
     public void setID_ruta(RutaViaje ID_ruta) {
-        this.ID_ruta = ID_ruta;
+        this.ID_ruta = ID_ruta.getID_ruta();
     }
 
     public LocalDate getFechaVenta() {
