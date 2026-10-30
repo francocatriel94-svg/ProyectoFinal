@@ -51,9 +51,7 @@ public class AsientoData {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     asiento = armarAsiento(rs);
-                } else {
-                    JOptionPane.showMessageDialog(null, "No existe el asiento.");
-                }
+                } 
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al buscar el asiento: " + ex.getMessage());
@@ -139,9 +137,7 @@ public class AsientoData {
             ps.setInt(4, asiento.getID_lugar());
             if (ps.executeUpdate() == 1) {
                 JOptionPane.showMessageDialog(null, "Asiento modificado.");
-            } else {
-                JOptionPane.showMessageDialog(null, "No existe el asiento.");
-            }
+            } 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al modificar el asiento: " + ex.getMessage());
         }
@@ -164,9 +160,7 @@ public class AsientoData {
             ps.setInt(2, id);
             if (ps.executeUpdate() == 1) {
                 JOptionPane.showMessageDialog(null, mensaje);
-            } else {
-                JOptionPane.showMessageDialog(null, "No existe el asiento.");
-            }
+            } 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al cambiar el estado del asiento: " + ex.getMessage());
         }
@@ -179,9 +173,7 @@ public class AsientoData {
             ps.setInt(1, id);
             if (ps.executeUpdate() == 1) {
                 JOptionPane.showMessageDialog(null, "Asiento eliminado.");
-            } else {
-                JOptionPane.showMessageDialog(null, "No existe el asiento.");
-            }
+            } 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al eliminar el asiento: " + ex.getMessage());
         }

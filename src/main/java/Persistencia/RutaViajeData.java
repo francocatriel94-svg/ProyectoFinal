@@ -45,9 +45,7 @@ public class RutaViajeData {
             if (rs.next()) {
                 r.setID_ruta(rs.getInt(1));
              JOptionPane.showMessageDialog(null, "Se guardo la ruta con exito ID:"+ r.getID_ruta());
-         } else{
-             JOptionPane.showMessageDialog(null, "No se puedo obtener el id");
-            }
+         } 
          ps.close();
          
      }catch (SQLException ex) {
@@ -68,9 +66,7 @@ public class RutaViajeData {
             int filas = ps.executeUpdate();
             if (filas > 0) {
                 JOptionPane.showMessageDialog(null, "Ruta dada de baja lógicamente.");
-            } else {
-                JOptionPane.showMessageDialog(null, "No se encontro la ruta.");
-            }
+            } 
             ps.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al dar de baja a la ruta: " + ex.getMessage());
@@ -98,9 +94,7 @@ public class RutaViajeData {
                 ruta.setID_colectivo(col.getID_colectivo());
                 ruta.setPrecio(rs.getDouble("precio"));
                 ruta.setEstado(rs.getInt("estado"));
-            } else {
-                JOptionPane.showMessageDialog(null, "No existe ninguna ruta con ese ID.");
-            }
+            } 
             ps.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al buscar ruta: " + ex.getMessage());

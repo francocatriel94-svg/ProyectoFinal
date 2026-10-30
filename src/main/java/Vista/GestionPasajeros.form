@@ -27,30 +27,40 @@
               <EmptySpace max="32767" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="escritorio" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Group type="103" alignment="1" groupAlignment="1" attributes="0">
+                  <Group type="103" alignment="1" groupAlignment="1" max="-2" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Group type="102" alignment="0" attributes="0">
+                              <Group type="102" attributes="0">
                                   <Component id="boton_limpiar" linkSize="1" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="boton_guardar" linkSize="1" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="boton_modificar" linkSize="1" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <Group type="102" alignment="0" attributes="0">
+                              <Group type="102" attributes="0">
                                   <Component id="label_busqueda" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="dato_buscar" max="32767" attributes="0"/>
+                                  <Component id="dato_buscar" min="-2" pref="179" max="-2" attributes="0"/>
+                                  <EmptySpace max="32767" attributes="0"/>
+                                  <Component id="boton_buscar" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="102" attributes="0">
-                                  <Component id="boton_buscar" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <EmptySpace min="6" pref="6" max="-2" attributes="0"/>
+                                  <Component id="boton_buscarInactivo" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                  <Component id="boton_listarActivos" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                                  <Component id="boton_listarInactivos" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                              </Group>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Component id="boton_darBaja" linkSize="1" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="32767" attributes="0"/>
                                   <Component id="boton_recargar" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <Component id="boton_darBaja" linkSize="1" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                       <Component id="jScrollPane1" alignment="0" min="-2" pref="725" max="-2" attributes="0"/>
@@ -66,26 +76,23 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="escritorio" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="103" alignment="1" groupAlignment="3" attributes="0">
-                      <Component id="boton_buscar" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="boton_recargar" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="1" attributes="0">
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="boton_limpiar" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="boton_guardar" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="boton_modificar" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="boton_darBaja" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="label_busqueda" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="dato_buscar" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="boton_limpiar" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="boton_guardar" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="boton_modificar" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="boton_darBaja" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="boton_recargar" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="12" max="32767" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="label_busqueda" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="dato_buscar" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="boton_buscar" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="boton_buscarInactivo" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="boton_listarActivos" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="boton_listarInactivos" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace pref="11" max="32767" attributes="0"/>
               <Component id="jScrollPane1" min="-2" pref="182" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -357,8 +364,35 @@
               <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tabla_datosMouseClicked"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
+    <Component class="javax.swing.JButton" name="boton_buscarInactivo">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Buscar inactivo"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boton_buscarInactivoActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="boton_listarInactivos">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Listar Inactivos"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boton_listarInactivosActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="boton_listarActivos">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Listar Activos"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boton_listarActivosActionPerformed"/>
+      </Events>
+    </Component>
   </SubComponents>
 </Form>

@@ -52,9 +52,7 @@ public class ColectivoData {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     colectivo = armarColectivo(rs);
-                } else {
-                    JOptionPane.showMessageDialog(null, "No existe el colectivo.");
-                }
+                } 
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al buscar el colectivo: " + ex.getMessage());
@@ -71,9 +69,7 @@ public class ColectivoData {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     colectivo = armarColectivo(rs);
-                } else {
-                    JOptionPane.showMessageDialog(null, "No existe un colectivo con esa matrícula.");
-                }
+                } 
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al buscar el colectivo: " + ex.getMessage());
@@ -120,9 +116,7 @@ public class ColectivoData {
             ps.setInt(7, colectivo.getID_colectivo());
             if (ps.executeUpdate() == 1) {
                 JOptionPane.showMessageDialog(null, "Colectivo modificado.");
-            } else {
-                JOptionPane.showMessageDialog(null, "No existe el colectivo.");
-            }
+            } 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al modificar el colectivo: " + ex.getMessage());
         }
@@ -145,9 +139,7 @@ public class ColectivoData {
             ps.setInt(2, id);
             if (ps.executeUpdate() == 1) {
                 JOptionPane.showMessageDialog(null, mensaje);
-            } else {
-                JOptionPane.showMessageDialog(null, "No existe el colectivo.");
-            }
+            } 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al cambiar el estado del colectivo: " + ex.getMessage());
         }
@@ -160,9 +152,7 @@ public class ColectivoData {
             ps.setInt(1, id);
             if (ps.executeUpdate() == 1) {
                 JOptionPane.showMessageDialog(null, "Colectivo eliminado.");
-            } else {
-                JOptionPane.showMessageDialog(null, "No existe el colectivo.");
-            }
+            } 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al eliminar el colectivo: " + ex.getMessage());
         }

@@ -39,8 +39,6 @@ public class PasajeroData {
             if (rs.next()) {
                 p.setID_pasajero(rs.getInt(1));
                 JOptionPane.showMessageDialog(null, "Se guardo al Pasajero con éxito. ID: " + p.getID_pasajero());
-            } else {
-                JOptionPane.showMessageDialog(null, "No se pudo obtener el ID del pasajero.");
             }
             ps.close();
 
@@ -105,8 +103,6 @@ public class PasajeroData {
                 pasajero.setCorreo(rs.getString("correo"));
                 pasajero.setTelefono(rs.getString("telefono"));
                 pasajero.setEstado(rs.getInt("estado"));
-            } else {
-                JOptionPane.showMessageDialog(null, "No existe un pasajero con ese ID.");
             }
             ps.close();
         } catch (SQLException ex) {
@@ -139,5 +135,61 @@ public class PasajeroData {
             JOptionPane.showMessageDialog(null, "Error al listar pasajeros: " + ex.getMessage());
         }
         return pasajeros;
+    }
+
+    public Pasajero buscarPasajeroInactivo(int id) {
+        String sql = "SELECT dni, nombre, apellido, correo, telefono, estado FROM pasajeros WHERE ID_pasajero = ? AND estado = 0";
+        Pasajero pasajero = null;
+
+        try {
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                pasajero = new Pasajero();
+                pasajero.setID_pasajero(id);
+                pasajero.setDni(rs.getString("dni"));
+                pasajero.setNombre(rs.getString("nombre"));
+                pasajero.setApellido(rs.getString("apellido"));
+                pasajero.setCorreo(rs.getString("correo"));
+                pasajero.setTelefono(rs.getString("telefono"));
+                pasajero.setEstado(rs.getInt("estado"));
+            } else {
+                JOptionPane.showMessageDialog(null, "No existe un pasajero inactivo con ese ID.");
+            }
+            ps.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al buscar pasajero inactivo: " + ex.getMessage());
+        }
+        return pasajero;
+    }
+
+    public List<Pasajero> listarPasajerosInactivos() {
+        String sql = "SELECT ID_pasajero, dni, nombre, apellido, correo, telefono, estado FROM pasajeros WHERE estado = 0";
+        List<Pasajero> pasajerosInactivos = new ArrayList<>();
+
+        try {
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Pasajero p = new Pasajero();
+                p.setID_pasajero(rs.getInt("ID_pasajero"));
+                p.setDni(rs.getString("dni"));
+                p.setNombre(rs.getString("nombre"));
+                p.setApellido(rs.getString("apellido"));
+                p.setCorreo(rs.getString("correo"));
+                p.setTelefono(rs.getString("telefono"));
+                p.setEstado(rs.getInt("estado")); 
+
+                pasajerosInactivos.add(p);
+            }
+            ps.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al listar pasajeros inactivos: " + ex.getMessage());
+        }
+
+        return pasajerosInactivos;
     }
 }

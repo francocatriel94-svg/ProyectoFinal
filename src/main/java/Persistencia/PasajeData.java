@@ -56,9 +56,7 @@ public class PasajeData {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     pasaje = armarPasaje(rs);
-                } else {
-                    JOptionPane.showMessageDialog(null, "No existe el pasaje.");
-                }
+                } 
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al buscar el pasaje: " + ex.getMessage());
@@ -123,9 +121,7 @@ public class PasajeData {
             ps.setInt(8, pasaje.getID_pasaje());
             if (ps.executeUpdate() == 1) {
                 JOptionPane.showMessageDialog(null, "Pasaje modificado.");
-            } else {
-                JOptionPane.showMessageDialog(null, "No existe el pasaje.");
-            }
+            } 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al modificar el pasaje: " + ex.getMessage());
         }
@@ -148,9 +144,7 @@ public class PasajeData {
             ps.setInt(2, id);
             if (ps.executeUpdate() == 1) {
                 JOptionPane.showMessageDialog(null, mensaje);
-            } else {
-                JOptionPane.showMessageDialog(null, "No existe el pasaje.");
-            }
+            } 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al cambiar el estado del pasaje: " + ex.getMessage());
         }
@@ -163,9 +157,7 @@ public class PasajeData {
             ps.setInt(1, id);
             if (ps.executeUpdate() == 1) {
                 JOptionPane.showMessageDialog(null, "Pasaje eliminado.");
-            } else {
-                JOptionPane.showMessageDialog(null, "No existe el pasaje.");
-            }
+            } 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al eliminar el pasaje: " + ex.getMessage());
         }
