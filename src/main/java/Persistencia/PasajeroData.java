@@ -64,6 +64,19 @@ public class PasajeroData {
         }
     }
 
+    public void altaLogicaPasajero(int id) {
+        String sql = "UPDATE pasajeros SET estado = 1 WHERE ID_pasajero = ?";
+        try {
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, id);
+            ps.executeUpdate();
+            ps.close();
+            JOptionPane.showMessageDialog(null, "Pasajero reactivado con éxito.");
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al dar de alta al pasajero: " + ex.getMessage());
+        }
+    }
+
     public void modificarPasajero(Pasajero p) {
         String sql = "UPDATE pasajeros SET dni = ?, nombre = ?, apellido = ?, correo = ?, telefono = ? WHERE ID_pasajero = ?";
         try {
@@ -181,7 +194,7 @@ public class PasajeroData {
                 p.setApellido(rs.getString("apellido"));
                 p.setCorreo(rs.getString("correo"));
                 p.setTelefono(rs.getString("telefono"));
-                p.setEstado(rs.getInt("estado")); 
+                p.setEstado(rs.getInt("estado"));
 
                 pasajerosInactivos.add(p);
             }
