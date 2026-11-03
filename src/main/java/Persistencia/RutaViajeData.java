@@ -72,6 +72,21 @@ public class RutaViajeData {
             JOptionPane.showMessageDialog(null, "Error al dar de baja a la ruta: " + ex.getMessage());
         }
     }
+    
+    public void altaLogicaRuta(int id) {
+        String sql = "UPDATE rutas SET estado=1 WHERE ID_ruta = ?";
+        try {
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, id);
+            int filas = ps.executeUpdate();
+            if (filas > 0) {
+                JOptionPane.showMessageDialog(null, "Ruta activada con éxito.");
+            }
+            ps.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al activar la ruta: " + ex.getMessage());
+        }
+    }
 
     public RutaViaje buscarRuta(int id) {
         String sql = "SELECT * FROM rutas WHERE ID_ruta = ?";
@@ -103,7 +118,7 @@ public class RutaViajeData {
     }
 
     public List<RutaViaje> listarRutas() {
-        String sql = "SELECT * FROM rutas WHERE estado = 1";
+        String sql = "SELECT * FROM rutas ";
         List<RutaViaje> rutas = new ArrayList<>();
 
         try {
@@ -127,6 +142,54 @@ public class RutaViajeData {
             ps.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al listar las rutas: " + ex.getMessage());
+        }
+        return rutas;
+    }
+    
+    public void modificarRutaViaje(RutaViaje ruta) {
+        String sql = "UPDATE rutas SET origen = ?, destino = ?, horaSalida = ?, horaLlegada = ?, ID_colectivo = ?, precio = ?, estado = ? WHERE ID_ruta = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, ruta.getOrigen());
+            ps.setString(2, ruta.getDestino());
+            ps.setTime(3, Time.valueOf(ruta.getHoraSalida()));
+            ps.setTime(4, Time.valueOf(ruta.getHoraLlegada()));
+            ps.setInt(5, ruta.getID_colectivo());
+            ps.setDouble(6, ruta.getPrecio());
+            ps.setInt(7, ruta.getEstado());
+            ps.setInt(8, ruta.getID_ruta());
+
+            if (ps.executeUpdate() == 1) {
+                JOptionPane.showMessageDialog(null, "Ruta de viaje modificada con éxito.");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al modificar la ruta de viaje: " + ex.getMessage());
+        }
+    }
+    
+    public List<RutaViaje> buscarRutasPorDestino(String destinoBuscado) {
+        List<RutaViaje> rutas = new ArrayList<>();
+        String sql = "SELECT * FROM rutas WHERE destino LIKE ?"; 
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            
+            ps.setString(1, "%" + destinoBuscado + "%");
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                RutaViaje r = new RutaViaje();
+                r.setID_ruta(rs.getInt("ID_ruta")); 
+                r.setOrigen(rs.getString("origen"));
+                r.setDestino(rs.getString("destino"));
+                r.setHoraSalida(rs.getTime("horaSalida").toLocalTime());
+                r.setHoraLlegada(rs.getTime("horaLlegada").toLocalTime());
+                r.setID_colectivo(rs.getInt("ID_colectivo"));
+                r.setPrecio(rs.getDouble("precio"));
+                r.setEstado(rs.getInt("estado"));
+
+                rutas.add(r);
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al buscar rutas por destino: " + ex.getMessage());
         }
         return rutas;
     }
