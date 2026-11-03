@@ -1,8 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-
 package Persistencia;
 
 import Modelo.Colectivo;
@@ -21,42 +16,44 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 public class RutaViajeData {
+
     private Connection con = null;
 
     public RutaViajeData() {
         con = Conexion.getConexion();
-    }  
- public void guardarRutaViaje(RutaViaje r) {
-    String sql = "INSERT INTO rutas (origen, destino, horaSalida, horaLlegada, ID_colectivo, precio, estado) "
-               + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+    }
 
-    try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-        ps.setString(1, r.getOrigen());
-        ps.setString(2, r.getDestino());
-        ps.setTime(3, Time.valueOf(r.getHoraSalida()));
-        ps.setTime(4, Time.valueOf(r.getHoraLlegada()));
-        ps.setInt(5, r.getID_colectivo());
-        ps.setDouble(6, r.getPrecio());
-        ps.setInt(7, r.getEstado());
+    public void guardarRutaViaje(RutaViaje r) {
+        String sql = "INSERT INTO rutas (origen, destino, horaSalida, horaLlegada, ID_colectivo, precio, estado) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        ps.executeUpdate();
+        try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, r.getOrigen());
+            ps.setString(2, r.getDestino());
+            ps.setTime(3, Time.valueOf(r.getHoraSalida()));
+            ps.setTime(4, Time.valueOf(r.getHoraLlegada()));
+            ps.setInt(5, r.getID_colectivo());
+            ps.setDouble(6, r.getPrecio());
+            ps.setInt(7, r.getEstado());
 
-        try (ResultSet rs = ps.getGeneratedKeys()) {
-            if (rs.next()) {
-                r.setID_ruta(rs.getInt(1));
-             JOptionPane.showMessageDialog(null, "Se guardo la ruta con exito ID:"+ r.getID_ruta());
-         } 
-         ps.close();
-         
-     }catch (SQLException ex) {
-            Logger.getLogger(PasajeroData.class.getName()).log(Level.SEVERE, "Error al guardar ruta de viaje", ex);
-            JOptionPane.showMessageDialog(null, "Error al insertar en la base de datos: " + ex.getMessage());
-            
-        }
+            ps.executeUpdate();
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    r.setID_ruta(rs.getInt(1));
+                    JOptionPane.showMessageDialog(null, "Se guardo la ruta con exito ID:" + r.getID_ruta());
+                }
+                ps.close();
+
+            } catch (SQLException ex) {
+                Logger.getLogger(PasajeroData.class.getName()).log(Level.SEVERE, "Error al guardar ruta de viaje", ex);
+                JOptionPane.showMessageDialog(null, "Error al insertar en la base de datos: " + ex.getMessage());
+
+            }
         } catch (SQLException ex) {
             System.getLogger(RutaViajeData.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
-}
+    }
 
     public void bajaLogicaRuta(int id) {
         String sql = "UPDATE rutas SET estado=0 WHERE ID_ruta = ?";
@@ -66,7 +63,7 @@ public class RutaViajeData {
             int filas = ps.executeUpdate();
             if (filas > 0) {
                 JOptionPane.showMessageDialog(null, "Ruta dada de baja lógicamente.");
-            } 
+            }
             ps.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al dar de baja a la ruta: " + ex.getMessage());
@@ -94,7 +91,7 @@ public class RutaViajeData {
                 ruta.setID_colectivo(col.getID_colectivo());
                 ruta.setPrecio(rs.getDouble("precio"));
                 ruta.setEstado(rs.getInt("estado"));
-            } 
+            }
             ps.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al buscar ruta: " + ex.getMessage());
@@ -131,6 +128,3 @@ public class RutaViajeData {
         return rutas;
     }
 }
- 
- 
-
