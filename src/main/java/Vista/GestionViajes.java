@@ -4,17 +4,28 @@
  */
 package Vista;
 
+import Modelo.Colectivo;
+import Modelo.RutaViaje;
+import Persistencia.ColectivoData;
+import Persistencia.RutaViajeData;
+import java.time.LocalTime;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author User
  */
 public class GestionViajes extends javax.swing.JInternalFrame {
 
-    /**
-     * Creates new form GestionViajes
-     */
+    private DefaultTableModel modelo = new DefaultTableModel();
     public GestionViajes() {
         initComponents();
+        llenarComboColectivos();
+        llenarCombosHorasYMinutos();
+        armarCabecera();
+        cargarTabla();
     }
 
     /**
@@ -37,16 +48,20 @@ public class GestionViajes extends javax.swing.JInternalFrame {
         label_estado = new javax.swing.JLabel();
         dato_id = new javax.swing.JTextField();
         dato_origen = new javax.swing.JTextField();
-        dato_horasalida = new javax.swing.JTextField();
         label_colectivo = new javax.swing.JLabel();
         label_destino = new javax.swing.JLabel();
         label_horallegada = new javax.swing.JLabel();
         dato_destino = new javax.swing.JTextField();
-        dato_horallegada = new javax.swing.JTextField();
         check_estado = new javax.swing.JCheckBox();
         dato_precio = new javax.swing.JTextField();
         label_precio = new javax.swing.JLabel();
         dato_colectivo = new javax.swing.JComboBox<>();
+        cmbHoraSalida = new javax.swing.JComboBox<>();
+        cmbMinSalida = new javax.swing.JComboBox<>();
+        cmbHoraLlegada = new javax.swing.JComboBox<>();
+        cmbMinLlegada = new javax.swing.JComboBox<>();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
         boton_nuevo = new javax.swing.JButton();
         boton_cancelar = new javax.swing.JButton();
         label_busqueda = new javax.swing.JLabel();
@@ -61,15 +76,21 @@ public class GestionViajes extends javax.swing.JInternalFrame {
         setTitle("Gestión de Viajes");
 
         boton_modificar.setText("Modificar");
+        boton_modificar.setEnabled(false);
+        boton_modificar.addActionListener(this::boton_modificarActionPerformed);
 
         boton_cambiaractivo.setForeground(new java.awt.Color(0, 102, 0));
         boton_cambiaractivo.setText("Cambiar a Activo");
+        boton_cambiaractivo.setEnabled(false);
+        boton_cambiaractivo.addActionListener(this::boton_cambiaractivoActionPerformed);
 
         boton_guardar.setText("Guardar");
         boton_guardar.addActionListener(this::boton_guardarActionPerformed);
 
         boton_cambiarinactivo.setForeground(new java.awt.Color(153, 0, 0));
         boton_cambiarinactivo.setText("Cambiar a Inactivo");
+        boton_cambiarinactivo.setEnabled(false);
+        boton_cambiarinactivo.addActionListener(this::boton_cambiarinactivoActionPerformed);
 
         escritorio.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos de los viajes", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(51, 51, 51))); // NOI18N
         escritorio.setToolTipText("");
@@ -84,6 +105,7 @@ public class GestionViajes extends javax.swing.JInternalFrame {
         label_estado.setText("Estado");
 
         dato_id.setEditable(false);
+        dato_id.setEnabled(false);
 
         label_colectivo.setText("Colectivo");
 
@@ -96,7 +118,17 @@ public class GestionViajes extends javax.swing.JInternalFrame {
 
         label_precio.setText("Precio");
 
-        dato_colectivo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "colectivo 1", "colectivo 2", "colectivo 3" }));
+        cmbHoraSalida.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Hora" }));
+
+        cmbMinSalida.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Min" }));
+
+        cmbHoraLlegada.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Hora" }));
+
+        cmbMinLlegada.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Min" }));
+
+        jLabel1.setText(":");
+
+        jLabel2.setText(":");
 
         javax.swing.GroupLayout escritorioLayout = new javax.swing.GroupLayout(escritorio);
         escritorio.setLayout(escritorioLayout);
@@ -110,12 +142,19 @@ public class GestionViajes extends javax.swing.JInternalFrame {
                     .addComponent(label_horasalida)
                     .addComponent(label_precio))
                 .addGap(15, 15, 15)
-                .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(dato_origen, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
-                    .addComponent(dato_horasalida)
-                    .addComponent(dato_precio)
-                    .addComponent(dato_id))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 52, Short.MAX_VALUE)
+                .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(dato_origen, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
+                        .addComponent(dato_precio)
+                        .addComponent(dato_id))
+                    .addGroup(escritorioLayout.createSequentialGroup()
+                        .addComponent(cmbHoraSalida, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(12, 12, 12)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 9, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cmbMinSalida, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(20, 20, 20)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addComponent(label_destino, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -126,8 +165,14 @@ public class GestionViajes extends javax.swing.JInternalFrame {
                 .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(check_estado)
                     .addComponent(dato_destino)
-                    .addComponent(dato_horallegada)
-                    .addComponent(dato_colectivo, 0, 219, Short.MAX_VALUE))
+                    .addComponent(dato_colectivo, 0, 206, Short.MAX_VALUE)
+                    .addGroup(escritorioLayout.createSequentialGroup()
+                        .addGap(22, 22, 22)
+                        .addComponent(cmbHoraLlegada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(cmbMinLlegada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(30, 30, 30))
         );
         escritorioLayout.setVerticalGroup(
@@ -144,9 +189,11 @@ public class GestionViajes extends javax.swing.JInternalFrame {
                             .addComponent(label_origen)
                             .addComponent(dato_origen, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(label_horasalida)
-                            .addComponent(dato_horasalida, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(cmbHoraSalida, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cmbMinSalida, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel1)))
                     .addGroup(escritorioLayout.createSequentialGroup()
                         .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(label_colectivo)
@@ -156,9 +203,12 @@ public class GestionViajes extends javax.swing.JInternalFrame {
                             .addComponent(dato_destino, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(label_destino))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(dato_horallegada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(label_horallegada))))
+                        .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(label_horallegada)
+                            .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(cmbHoraLlegada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(cmbMinLlegada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel2)))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(label_precio)
@@ -170,14 +220,20 @@ public class GestionViajes extends javax.swing.JInternalFrame {
         );
 
         boton_nuevo.setText("Nuevo");
+        boton_nuevo.addActionListener(this::boton_nuevoActionPerformed);
 
         boton_cancelar.setText("Cancelar");
+        boton_cancelar.setEnabled(false);
+        boton_cancelar.addActionListener(this::boton_cancelarActionPerformed);
 
         label_busqueda.setText("Buscar por destino");
 
         boton_buscar.setText("Buscar");
+        boton_buscar.addActionListener(this::boton_buscarActionPerformed);
 
         boton_mostrartodo.setText("Mostrar todos");
+        boton_mostrartodo.setEnabled(false);
+        boton_mostrartodo.addActionListener(this::boton_mostrartodoActionPerformed);
 
         tabla_datos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -205,12 +261,18 @@ public class GestionViajes extends javax.swing.JInternalFrame {
                 return canEdit [columnIndex];
             }
         });
+        tabla_datos.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tabla_datosMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tabla_datos);
         if (tabla_datos.getColumnModel().getColumnCount() > 0) {
             tabla_datos.getColumnModel().getColumn(6).setResizable(false);
         }
 
         boton_refrescardatos.setText("<html><center>Refrescar<br>Datos</center></html>");
+        boton_refrescardatos.addActionListener(this::boton_refrescardatosActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -279,8 +341,473 @@ public class GestionViajes extends javax.swing.JInternalFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void boton_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_guardarActionPerformed
-        // TODO add your handling code here:
+       try {
+            
+            String origen = dato_origen.getText().trim();
+            String destino = dato_destino.getText().trim();
+
+            if (origen.isEmpty() || destino.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "El origen y el destino no pueden estar vacíos.", "Error de validación", JOptionPane.WARNING_MESSAGE);
+                dato_origen.requestFocus();
+                return;
+            }
+
+            
+            if (dato_colectivo.getSelectedItem().toString().equals("Colectivos")) {
+                JOptionPane.showMessageDialog(this, "Debe seleccionar un colectivo válido.", "Error de validación", JOptionPane.WARNING_MESSAGE);
+                dato_colectivo.requestFocus();
+                return;
+            }
+            Colectivo colectivoSeleccionado = (Colectivo) dato_colectivo.getSelectedItem();
+
+            
+            if (cmbHoraSalida.getSelectedItem().toString().equals("Hora") || 
+                cmbMinSalida.getSelectedItem().toString().equals("Min")) {
+                JOptionPane.showMessageDialog(this, "Debe seleccionar la hora y los minutos de salida completos.", "Error de validación", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int hSalida = Integer.parseInt(cmbHoraSalida.getSelectedItem().toString());
+            int mSalida = Integer.parseInt(cmbMinSalida.getSelectedItem().toString());
+            LocalTime horaSalida = LocalTime.of(hSalida, mSalida);
+
+            
+            if (cmbHoraLlegada.getSelectedItem().toString().equals("Hora") || 
+                cmbMinLlegada.getSelectedItem().toString().equals("Min")) {
+                JOptionPane.showMessageDialog(this, "Debe seleccionar la hora y los minutos de llegada completos.", "Error de validación", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int hLlegada = Integer.parseInt(cmbHoraLlegada.getSelectedItem().toString());
+            int mLlegada = Integer.parseInt(cmbMinLlegada.getSelectedItem().toString());
+            LocalTime horaLlegada = LocalTime.of(hLlegada, mLlegada);
+
+            
+            if (horaSalida.equals(horaLlegada) || horaLlegada.isBefore(horaSalida)) {
+                JOptionPane.showMessageDialog(this, "La hora de llegada debe ser posterior a la hora de salida.", "Error de horario", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            
+            if (dato_precio.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "El campo precio no puede estar vacío.", "Error de validación", JOptionPane.WARNING_MESSAGE);
+                dato_precio.requestFocus();
+                return;
+            }
+
+            double precio = Double.parseDouble(dato_precio.getText().trim().replace("$", ""));
+            if (precio <= 0) {
+                JOptionPane.showMessageDialog(this, "El precio debe ser mayor a cero.", "Valor inválido", JOptionPane.WARNING_MESSAGE);
+                dato_precio.requestFocus();
+                return;
+            }
+
+            
+            int respuesta = JOptionPane.showConfirmDialog(
+                    this,
+                    "¿Está seguro que desea guardar esta ruta de viaje?",
+                    "Confirmar guardado",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (respuesta != JOptionPane.YES_OPTION) {
+                return;
+            }
+
+            
+            int estado = check_estado.isSelected() ? 1 : 0;
+
+            RutaViaje ruta = new RutaViaje();
+            ruta.setOrigen(origen);
+            ruta.setDestino(destino);
+            ruta.setHoraSalida(horaSalida);
+            ruta.setHoraLlegada(horaLlegada);
+            ruta.setID_colectivo(colectivoSeleccionado.getID_colectivo());
+            ruta.setPrecio(precio);
+            ruta.setEstado(estado);
+
+            RutaViajeData rutaData = new RutaViajeData();
+            rutaData.guardarRutaViaje(ruta);
+
+            limpiarCampos();
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "El precio ingresado debe ser un número válido.", "Error de formato", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Ocurrió un error al intentar guardar el viaje: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_boton_guardarActionPerformed
+
+    private void boton_nuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_nuevoActionPerformed
+       
+        
+        if (!dato_origen.getText().trim().isEmpty() || !dato_destino.getText().trim().isEmpty() || !dato_precio.getText().trim().isEmpty()) {
+            int respuesta = JOptionPane.showConfirmDialog(
+                    this,
+                    "¿Desea descartar los datos actuales y comenzar un nuevo viaje?",
+                    "Nuevo viaje",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (respuesta != JOptionPane.YES_OPTION) {
+                return; 
+            }
+        }
+        limpiarCampos();
+    }//GEN-LAST:event_boton_nuevoActionPerformed
+
+    private void tabla_datosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabla_datosMouseClicked
+        int filaSeleccionada = tabla_datos.getSelectedRow();
+
+        if (filaSeleccionada != -1) {
+
+            
+            dato_id.setText(tabla_datos.getValueAt(filaSeleccionada, 0).toString());
+            dato_origen.setText(tabla_datos.getValueAt(filaSeleccionada, 1).toString());
+            dato_destino.setText(tabla_datos.getValueAt(filaSeleccionada, 2).toString());
+
+            
+            String horaSalidaStr = tabla_datos.getValueAt(filaSeleccionada, 3).toString();
+            String[] partesSalida = horaSalidaStr.split(":");
+            cmbHoraSalida.setSelectedItem(partesSalida[0]);
+            cmbMinSalida.setSelectedItem(partesSalida[1]);
+
+            
+            String horaLlegadaStr = tabla_datos.getValueAt(filaSeleccionada, 4).toString();
+            String[] partesLlegada = horaLlegadaStr.split(":");
+            cmbHoraLlegada.setSelectedItem(partesLlegada[0]);
+            cmbMinLlegada.setSelectedItem(partesLlegada[1]);
+
+            
+            Object colValor = tabla_datos.getValueAt(filaSeleccionada, 5);
+            if (colValor != null) {
+                int idColectivoTabla = Integer.parseInt(colValor.toString());
+                for (int i = 0; i < dato_colectivo.getItemCount(); i++) {
+                    Object item = dato_colectivo.getItemAt(i);
+                    
+                    if (item instanceof Colectivo) {
+                        Colectivo c = (Colectivo) item;
+                        if (c.getID_colectivo() == idColectivoTabla) {
+                            dato_colectivo.setSelectedIndex(i);
+                            break;
+                        }
+                    }
+                }
+            }
+
+           
+            Object precioValor = tabla_datos.getValueAt(filaSeleccionada, 6);
+            if (precioValor != null) {
+                String precioStr = precioValor.toString().replace("$", "").trim();
+                dato_precio.setText(precioStr);
+            } else {
+                dato_precio.setText("");
+            }
+
+            
+            String estadoStr = tabla_datos.getValueAt(filaSeleccionada, 7).toString();
+            boolean esActivo = estadoStr.equalsIgnoreCase("Activo");
+            check_estado.setSelected(esActivo);
+
+            boton_cambiaractivo.setEnabled(!esActivo);
+            boton_cambiarinactivo.setEnabled(esActivo);
+            boton_modificar.setEnabled(true);
+            boton_cancelar.setEnabled(true);
+        }
+    }//GEN-LAST:event_tabla_datosMouseClicked
+
+    private void boton_modificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_modificarActionPerformed
+        try {
+            
+            int filaSeleccionada = tabla_datos.getSelectedRow();
+            if (filaSeleccionada == -1) {
+                JOptionPane.showMessageDialog(this, "Debe seleccionar un viaje de la tabla para modificar.", "Atención", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int idRuta = Integer.parseInt(tabla_datos.getValueAt(filaSeleccionada, 0).toString());
+
+            
+            String origen = dato_origen.getText().trim();
+            String destino = dato_destino.getText().trim();
+
+            if (origen.isEmpty() || destino.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "El origen y el destino no pueden estar vacíos.", "Error de validación", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            
+            if (dato_colectivo.getSelectedItem().toString().equals("Colectivos")) {
+                JOptionPane.showMessageDialog(this, "Debe seleccionar un colectivo válido.", "Error de validación", JOptionPane.WARNING_MESSAGE);
+                dato_colectivo.requestFocus();
+                return;
+            }
+            Colectivo colectivoSeleccionado = (Colectivo) dato_colectivo.getSelectedItem();
+
+            
+            if (cmbHoraSalida.getSelectedItem().toString().equals("Hora") || 
+                cmbMinSalida.getSelectedItem().toString().equals("Min")) {
+                JOptionPane.showMessageDialog(this, "Debe seleccionar la hora y los minutos de salida completos.", "Error de validación", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int hSalida = Integer.parseInt(cmbHoraSalida.getSelectedItem().toString());
+            int mSalida = Integer.parseInt(cmbMinSalida.getSelectedItem().toString());
+            LocalTime horaSalida = LocalTime.of(hSalida, mSalida);
+
+            
+            if (cmbHoraLlegada.getSelectedItem().toString().equals("Hora") || 
+                cmbMinLlegada.getSelectedItem().toString().equals("Min")) {
+                JOptionPane.showMessageDialog(this, "Debe seleccionar la hora y los minutos de llegada completos.", "Error de validación", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int hLlegada = Integer.parseInt(cmbHoraLlegada.getSelectedItem().toString());
+            int mLlegada = Integer.parseInt(cmbMinLlegada.getSelectedItem().toString());
+            LocalTime horaLlegada = LocalTime.of(hLlegada, mLlegada);
+
+            
+            if (horaSalida.equals(horaLlegada) || horaLlegada.isBefore(horaSalida)) {
+                JOptionPane.showMessageDialog(this, "La hora de llegada debe ser posterior a la hora de salida.", "Error de horario", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            
+            if (dato_precio.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "El campo precio no puede estar vacío.", "Error de validación", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            double precio = Double.parseDouble(dato_precio.getText().trim().replace("$", ""));
+            if (precio <= 0) {
+                JOptionPane.showMessageDialog(this, "El precio debe ser mayor a cero.", "Valor inválido", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            
+            int respuesta = JOptionPane.showConfirmDialog(
+                    this,
+                    "¿Está seguro que desea modificar esta ruta de viaje?",
+                    "Confirmar modificación",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (respuesta != JOptionPane.YES_OPTION) {
+                return;
+            }
+
+            
+            int estado = check_estado.isSelected() ? 1 : 0;
+
+            RutaViaje ruta = new RutaViaje();
+            ruta.setID_ruta(idRuta);
+            ruta.setOrigen(origen);
+            ruta.setDestino(destino);
+            ruta.setHoraSalida(horaSalida);
+            ruta.setHoraLlegada(horaLlegada);
+            ruta.setID_colectivo(colectivoSeleccionado.getID_colectivo());
+            ruta.setPrecio(precio);
+            ruta.setEstado(estado);
+
+            RutaViajeData rutaData = new RutaViajeData();
+            rutaData.modificarRutaViaje(ruta); 
+
+            limpiarCampos();
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "El precio ingresado debe ser un número válido.", "Error de formato", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Ocurrió un error al intentar modificar el viaje: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_boton_modificarActionPerformed
+
+    private void boton_cambiaractivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_cambiaractivoActionPerformed
+        try {
+            if (dato_id.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Debe seleccionar un viaje de la tabla.", "Atención", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            int respuesta = JOptionPane.showConfirmDialog(
+                    this,
+                    "¿Está seguro que desea activar este viaje?",
+                    "Confirmar activación",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (respuesta != JOptionPane.YES_OPTION) {
+                return; 
+            }
+            
+            int idRuta = Integer.parseInt(dato_id.getText().trim());
+
+            RutaViajeData data = new RutaViajeData();
+            data.altaLogicaRuta(idRuta);
+
+            
+            limpiarCampos();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+        }
+    }//GEN-LAST:event_boton_cambiaractivoActionPerformed
+
+    private void boton_cambiarinactivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_cambiarinactivoActionPerformed
+        try {
+
+            if (dato_id.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Debe seleccionar un viaje de la tabla.", "Atención", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            int respuesta = JOptionPane.showConfirmDialog(
+                    this,
+                    "¿Está seguro que desea dar de baja este viaje?",
+                    "Confirmar baja",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (respuesta != JOptionPane.YES_OPTION) {
+                return;
+            }
+
+            int idRuta = Integer.parseInt(dato_id.getText().trim());
+            RutaViajeData data = new RutaViajeData();
+            data.bajaLogicaRuta(idRuta);
+
+           
+            limpiarCampos();
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_boton_cambiarinactivoActionPerformed
+
+    private void boton_buscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_buscarActionPerformed
+        String destinoBuscado = dato_buscar.getText().trim(); 
+
+        if (destinoBuscado.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, ingrese un destino para buscar.", "Atención", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        
+        modelo.setRowCount(0);
+
+        RutaViajeData rutaData = new RutaViajeData();
+        List<RutaViaje> listaFiltrada = rutaData.buscarRutasPorDestino(destinoBuscado);
+
+        if (listaFiltrada.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No se encontraron rutas con ese destino.", "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        
+        for (RutaViaje r : listaFiltrada) {
+            String estadoTexto = (r.getEstado() == 1) ? "Activo" : "Inactivo";
+
+            modelo.addRow(new Object[]{
+                r.getID_ruta(),
+                r.getOrigen(),
+                r.getDestino(),
+                r.getHoraSalida(),
+                r.getHoraLlegada(),
+                r.getID_colectivo(),
+                "$" + r.getPrecio(),
+                estadoTexto
+            });
+        }
+        boton_mostrartodo.setEnabled(true);
+    }//GEN-LAST:event_boton_buscarActionPerformed
+
+    private void boton_mostrartodoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_mostrartodoActionPerformed
+        dato_buscar.setText(""); 
+        cargarTabla();
+        boton_mostrartodo.setEnabled(false);
+    }//GEN-LAST:event_boton_mostrartodoActionPerformed
+
+    private void boton_cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_cancelarActionPerformed
+        int filaSeleccionada = tabla_datos.getSelectedRow();
+
+        if (filaSeleccionada != -1) {
+            int respuesta = JOptionPane.showConfirmDialog(
+                    this,
+                    "¿Está seguro de que desea descartar los cambios realizados?",
+                    "Confirmar cancelación",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (respuesta != JOptionPane.YES_OPTION) {
+                return;
+            }
+
+            try {
+                
+                dato_id.setText(tabla_datos.getValueAt(filaSeleccionada, 0) != null ? tabla_datos.getValueAt(filaSeleccionada, 0).toString() : "");
+                dato_origen.setText(tabla_datos.getValueAt(filaSeleccionada, 1) != null ? tabla_datos.getValueAt(filaSeleccionada, 1).toString() : "");
+                dato_destino.setText(tabla_datos.getValueAt(filaSeleccionada, 2) != null ? tabla_datos.getValueAt(filaSeleccionada, 2).toString() : "");
+
+                
+                Object valSalida = tabla_datos.getValueAt(filaSeleccionada, 3);
+                if (valSalida != null) {
+                    String[] partesSalida = valSalida.toString().split(":");
+                    if (partesSalida.length >= 2) {
+                        cmbHoraSalida.setSelectedItem(partesSalida[0]);
+                        cmbMinSalida.setSelectedItem(partesSalida[1]);
+                    }
+                }
+
+                
+                Object valLlegada = tabla_datos.getValueAt(filaSeleccionada, 4);
+                if (valLlegada != null) {
+                    String[] partesLlegada = valLlegada.toString().split(":");
+                    if (partesLlegada.length >= 2) {
+                        cmbHoraLlegada.setSelectedItem(partesLlegada[0]);
+                        cmbMinLlegada.setSelectedItem(partesLlegada[1]);
+                    }
+                }
+
+                
+                Object colValor = tabla_datos.getValueAt(filaSeleccionada, 5);
+                if (colValor != null) {
+                    int idColectivoTabla = Integer.parseInt(colValor.toString().trim());
+                    for (int i = 0; i < dato_colectivo.getItemCount(); i++) {
+                        Object item = dato_colectivo.getItemAt(i);
+                        if (item instanceof Colectivo) {
+                            Colectivo c = (Colectivo) item;
+                            if (c.getID_colectivo() == idColectivoTabla) {
+                                dato_colectivo.setSelectedIndex(i);
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                
+                Object precioValor = tabla_datos.getValueAt(filaSeleccionada, 6);
+                if (precioValor != null) {
+                    String precioStr = precioValor.toString().replace("$", "").trim();
+                    dato_precio.setText(precioStr);
+                } else {
+                    dato_precio.setText("");
+                }
+
+                
+                Object estadoValor = tabla_datos.getValueAt(filaSeleccionada, 7);
+                if (estadoValor != null) {
+                    String estadoStr = estadoValor.toString();
+                    check_estado.setSelected(estadoStr.equalsIgnoreCase("Activo"));
+                }
+
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error al restaurar los campos: " + e.getMessage(), "Atención", JOptionPane.WARNING_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_boton_cancelarActionPerformed
+
+    private void boton_refrescardatosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_refrescardatosActionPerformed
+        cargarTabla();
+    }//GEN-LAST:event_boton_refrescardatosActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -294,15 +821,19 @@ public class GestionViajes extends javax.swing.JInternalFrame {
     private javax.swing.JButton boton_nuevo;
     private javax.swing.JButton boton_refrescardatos;
     private javax.swing.JCheckBox check_estado;
+    private javax.swing.JComboBox<String> cmbHoraLlegada;
+    private javax.swing.JComboBox<String> cmbHoraSalida;
+    private javax.swing.JComboBox<String> cmbMinLlegada;
+    private javax.swing.JComboBox<String> cmbMinSalida;
     private javax.swing.JTextField dato_buscar;
-    private javax.swing.JComboBox<String> dato_colectivo;
+    private javax.swing.JComboBox<Object> dato_colectivo;
     private javax.swing.JTextField dato_destino;
-    private javax.swing.JTextField dato_horallegada;
-    private javax.swing.JTextField dato_horasalida;
     private javax.swing.JTextField dato_id;
     private javax.swing.JTextField dato_origen;
     private javax.swing.JTextField dato_precio;
     private javax.swing.JPanel escritorio;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel label_busqueda;
     private javax.swing.JLabel label_colectivo;
@@ -315,4 +846,108 @@ public class GestionViajes extends javax.swing.JInternalFrame {
     private javax.swing.JLabel label_precio;
     private javax.swing.JTable tabla_datos;
     // End of variables declaration//GEN-END:variables
+
+
+    private void llenarComboColectivos() {
+
+        dato_colectivo.removeAllItems();
+        
+        dato_colectivo.addItem("Colectivos");
+
+        ColectivoData colData = new ColectivoData();
+        
+        for (Colectivo c : colData.listarColectivosActivos()) {
+            dato_colectivo.addItem(c);
+        }
+        
+        dato_colectivo.setSelectedIndex(0);
+    }
+    private void llenarCombosHorasYMinutos() {
+
+        cmbHoraSalida.removeAllItems();
+        cmbMinSalida.removeAllItems();
+        cmbHoraLlegada.removeAllItems();
+        cmbMinLlegada.removeAllItems();
+
+        for (int i = 0; i < 24; i++) {
+            String hora = String.format("%02d", i);
+            cmbHoraSalida.addItem(hora);
+            cmbHoraLlegada.addItem(hora);
+        }
+
+        String[] minutos = {"00", "15", "30", "45"};
+        for (String m : minutos) {
+            cmbMinSalida.addItem(m);
+            cmbMinLlegada.addItem(m);
+        }
+    }
+    private void armarCabecera() {
+        modelo.addColumn("ID");
+        modelo.addColumn("Origen");
+        modelo.addColumn("Destino");
+        modelo.addColumn("Salida");
+        modelo.addColumn("Llegada");
+        modelo.addColumn("Colectivo");
+        modelo.addColumn("Precio");
+        modelo.addColumn("Estado");
+        tabla_datos.setModel(modelo);
+    }
+    private void cargarTabla(){
+        modelo.setRowCount(0);
+
+        RutaViajeData rutaData = new RutaViajeData();
+
+        for (RutaViaje r : rutaData.listarRutas()) {  
+
+           String estadoTexto = (r.getEstado() == 1) ? "Activo" : "Inactivo";
+
+            
+            modelo.addRow(new Object[]{
+                r.getID_ruta(), 
+                r.getOrigen(), 
+                r.getDestino(), 
+                r.getHoraSalida(), 
+                r.getHoraLlegada(), 
+                r.getID_colectivo(), 
+                "$" + r.getPrecio(), 
+                estadoTexto 
+            });
+        }
+    }
+    
+    private void limpiarCampos(){
+        dato_id.setText("");
+        dato_origen.setText("");
+        dato_destino.setText("");
+        dato_precio.setText("");
+        check_estado.setSelected(true);
+
+        
+        if (dato_colectivo.getItemCount() > 0) {
+            dato_colectivo.setSelectedIndex(0);
+        }
+
+        
+        if (cmbHoraSalida.getItemCount() > 0) {
+            cmbHoraSalida.setSelectedIndex(0);
+        }
+        if (cmbMinSalida.getItemCount() > 0) {
+            cmbMinSalida.setSelectedIndex(0);
+        }
+
+        
+        if (cmbHoraLlegada.getItemCount() > 0) {
+            cmbHoraLlegada.setSelectedIndex(0);
+        }
+        if (cmbMinLlegada.getItemCount() > 0) {
+            cmbMinLlegada.setSelectedIndex(0);
+        }
+        dato_origen.requestFocus();
+        boton_cambiaractivo.setEnabled(false);   
+            boton_cambiarinactivo.setEnabled(false);
+            boton_modificar.setEnabled(false);
+            boton_cancelar.setEnabled(false);
+        cargarTabla();
+    }
+    
 }
