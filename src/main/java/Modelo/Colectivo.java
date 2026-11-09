@@ -2,17 +2,17 @@ package Modelo;
 
 public class Colectivo {
     private int ID_colectivo;
-    private int matricula;
+    private String matricula;
     private String marca;
-    private String modelo;
     private int capacidad;
+    private String modelo;
     private String chofer;
     private int estado;
 
     public Colectivo() {
     }
 
-    public Colectivo(int idColectivo, int matricula, String marca, String modelo, int capacidad, String chofer, int estado) {
+    public Colectivo(int idColectivo, String matricula, String marca, String modelo, int capacidad, String chofer, int estado) {
         this.ID_colectivo = idColectivo;
         this.matricula = matricula;
         this.marca = marca;
@@ -22,7 +22,7 @@ public class Colectivo {
         this.estado = estado;
     }
 
-    public Colectivo(int matricula, String marca, String modelo, int capacidad, String chofer, int estado) {
+    public Colectivo(String matricula, String marca, String modelo, int capacidad, String chofer, int estado) {
         this.matricula = matricula;
         this.marca = marca;
         this.modelo = modelo;
@@ -39,11 +39,11 @@ public class Colectivo {
         this.ID_colectivo = ID_colectivo;
     }
 
-    public int getMatricula() {
+    public String getMatricula() {
         return matricula;
     }
 
-    public void setMatricula(int matricula) {
+    public void setMatricula(String matricula) {
         this.matricula = matricula;
     }
 

@@ -22,24 +22,33 @@ public class AsientoData {
         con = Conexion.getConexion();
     }
 
-    // CREATE
-    public void guardarAsiento(Asiento asiento) {
-        String sql = "INSERT INTO lugares (ID_colectivo, numeroAsiento, estado) VALUES (?, ?, ?)";
-        try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+    public boolean guardarAsiento(Asiento asiento) {
+        String sql = "INSERT INTO lugares "
+                + "(ID_colectivo, numeroAsiento, estado) "
+                + "VALUES (?, ?, ?)";
+
+        try (PreparedStatement ps = con.prepareStatement(
+                sql, Statement.RETURN_GENERATED_KEYS)) {
+
             ps.setInt(1, asiento.getID_colectivo());
             ps.setInt(2, asiento.getNumeroAsiento());
             ps.setInt(3, asiento.getEstado());
-            ps.executeUpdate();
 
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) {
-                    asiento.setID_lugar(rs.getInt(1));
-                    JOptionPane.showMessageDialog(null, "Asiento guardado.");
+            if (ps.executeUpdate() == 1) {
+
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        asiento.setID_lugar(rs.getInt(1));
+                        return true;
+                    }
                 }
             }
+
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al guardar el asiento: " + ex.getMessage());
+            System.out.println("Error al guardar el asiento: " + ex.getMessage());
         }
+
+        return false;
     }
 
     // READ: uno por id
