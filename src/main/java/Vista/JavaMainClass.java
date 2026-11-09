@@ -66,7 +66,7 @@ public class JavaMainClass extends javax.swing.JFrame {
         p1.setEstado(1);
         System.out.println("Guardando pasajero...");
         pasajeroData.guardarPasajero(p1);
-        Colectivo c=new Colectivo(1,254622,"Mercedes","Transpuntano",50,"Javier",1);
+        Colectivo c=new Colectivo(1,"254622","Mercedes","Transpuntano",50,"Javier",1);
         coleData.guardarColectivo(c);
         RutaViaje nuevaRuta= new RutaViaje();
         nuevaRuta.setOrigen("La Toma");
