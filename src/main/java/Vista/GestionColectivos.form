@@ -28,7 +28,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="escritorio" alignment="1" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                      <Group type="103" groupAlignment="1" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="boton_nuevo" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
@@ -42,9 +42,9 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="boton_cancelar" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Group type="102" alignment="0" attributes="0">
+                          <Group type="102" alignment="1" attributes="0">
                               <Component id="label_busqueda" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="32767" attributes="0"/>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Component id="dato_buscar" min="-2" pref="230" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Component id="boton_buscar" min="-2" max="-2" attributes="0"/>
@@ -100,6 +100,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Modificar"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boton_modificarActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="boton_cambiaractivo">
       <Properties>
@@ -108,6 +111,9 @@
         </Property>
         <Property name="text" type="java.lang.String" value="Cambiar a Activo"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boton_cambiaractivoActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="boton_guardar">
       <Properties>
@@ -124,6 +130,9 @@
         </Property>
         <Property name="text" type="java.lang.String" value="Cambiar a Inactivo"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boton_cambiarinactivoActionPerformed"/>
+      </Events>
     </Component>
     <Container class="javax.swing.JPanel" name="escritorio">
       <Properties>
@@ -289,15 +298,21 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Nuevo"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boton_nuevoActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="boton_cancelar">
       <Properties>
         <Property name="text" type="java.lang.String" value="Cancelar"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boton_cancelarActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="label_busqueda">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Buscar Matr&#xed;cula o Chofer"/>
+        <Property name="text" type="java.lang.String" value="Buscar por Matr&#xed;cula "/>
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="dato_buscar">
@@ -306,11 +321,18 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Buscar"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boton_buscarActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="boton_mostrartodo">
       <Properties>
         <Property name="text" type="java.lang.String" value="Mostrar todos"/>
+        <Property name="enabled" type="boolean" value="false"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boton_mostrartodoActionPerformed"/>
+      </Events>
     </Component>
     <Container class="javax.swing.JScrollPane" name="jScrollPane1">
       <AuxValues>
@@ -336,6 +358,9 @@
               <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tabla_datosMouseClicked"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -343,6 +368,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;center&gt;Refrescar&lt;br&gt;Datos&lt;/center&gt;&lt;/html&gt;"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boton_refrescardatosActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

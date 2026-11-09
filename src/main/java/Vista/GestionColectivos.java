@@ -1,12 +1,24 @@
 package Vista;
 
+import Modelo.Colectivo;
+import Modelo.Asiento;
+import Persistencia.AsientoData;
+import Persistencia.ColectivoData;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 public class GestionColectivos extends javax.swing.JInternalFrame {
 
-    /**
-     * Creates new form GestionColectivos
-     */
+    private ColectivoData colectivoData = new ColectivoData();
+    private AsientoData asientoData = new AsientoData();
+    private DefaultTableModel modelo = new DefaultTableModel();
     public GestionColectivos() {
         initComponents();
+        armarCabecera();
+        cargarTabla();
+        habilitarBotones(false);
+        
     }
 
     /**
@@ -52,15 +64,18 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
         setTitle("Gestión de Colectivos");
 
         boton_modificar.setText("Modificar");
+        boton_modificar.addActionListener(this::boton_modificarActionPerformed);
 
         boton_cambiaractivo.setForeground(new java.awt.Color(0, 102, 0));
         boton_cambiaractivo.setText("Cambiar a Activo");
+        boton_cambiaractivo.addActionListener(this::boton_cambiaractivoActionPerformed);
 
         boton_guardar.setText("Guardar");
         boton_guardar.addActionListener(this::boton_guardarActionPerformed);
 
         boton_cambiarinactivo.setForeground(new java.awt.Color(153, 0, 0));
         boton_cambiarinactivo.setText("Cambiar a Inactivo");
+        boton_cambiarinactivo.addActionListener(this::boton_cambiarinactivoActionPerformed);
 
         escritorio.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos del colectivo ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(51, 51, 51))); // NOI18N
         escritorio.setToolTipText("");
@@ -153,14 +168,19 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
         );
 
         boton_nuevo.setText("Nuevo");
+        boton_nuevo.addActionListener(this::boton_nuevoActionPerformed);
 
         boton_cancelar.setText("Cancelar");
+        boton_cancelar.addActionListener(this::boton_cancelarActionPerformed);
 
-        label_busqueda.setText("Buscar Matrícula o Chofer");
+        label_busqueda.setText("Buscar por Matrícula ");
 
         boton_buscar.setText("Buscar");
+        boton_buscar.addActionListener(this::boton_buscarActionPerformed);
 
         boton_mostrartodo.setText("Mostrar todos");
+        boton_mostrartodo.setEnabled(false);
+        boton_mostrartodo.addActionListener(this::boton_mostrartodoActionPerformed);
 
         tabla_datos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -188,9 +208,15 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
                 return canEdit [columnIndex];
             }
         });
+        tabla_datos.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tabla_datosMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tabla_datos);
 
         boton_refrescardatos.setText("<html><center>Refrescar<br>Datos</center></html>");
+        boton_refrescardatos.addActionListener(this::boton_refrescardatosActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -201,8 +227,8 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(escritorio, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                 .addComponent(boton_nuevo)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(boton_guardar)
@@ -216,7 +242,7 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
                                 .addComponent(boton_cancelar))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(label_busqueda)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGap(18, 18, 18)
                                 .addComponent(dato_buscar, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(boton_buscar)
@@ -259,8 +285,295 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void boton_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_guardarActionPerformed
-        // TODO add your handling code here:
+ 
+        Colectivo colectivo = obtenerYValidarDatos(0);
+
+        if (colectivo == null) {
+            return;
+        }
+
+        
+        int respuesta = JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro de que desea guardar este colectivo y generar sus asientos?",
+                "Confirmar guardado",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (respuesta != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        
+        colectivoData.guardarColectivo(colectivo);
+
+        
+        if (colectivo.getID_colectivo() <= 0) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "No se pudo guardar el colectivo.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        
+        boolean asientosGuardados = true;
+
+        for (int i = 1; i <= colectivo.getCapacidad(); i++) {
+
+            Asiento asiento = new Asiento(colectivo, i, 1);
+
+            if (!asientoData.guardarAsiento(asiento)) {
+                asientosGuardados = false;
+                break;
+            }
+        }
+
+        if (!asientosGuardados) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "El colectivo fue registrado, pero ocurrió un error "
+                    + "al generar sus asientos.",
+                    "Error al generar asientos",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        
+        JOptionPane.showMessageDialog(
+                this,
+                "Colectivo y sus " + colectivo.getCapacidad()
+                + " asientos guardados correctamente.",
+                "Guardado exitoso",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+
+        limpiarCampos();
     }//GEN-LAST:event_boton_guardarActionPerformed
+
+    private void boton_nuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_nuevoActionPerformed
+
+        if (!dato_matricula.getText().trim().isEmpty()
+                || !dato_marca.getText().trim().isEmpty()
+                || !dato_modelo.getText().trim().isEmpty()
+                || !dato_capacidad.getText().trim().isEmpty()
+                || !dato_chofer.getText().trim().isEmpty()) {
+
+            int respuesta = JOptionPane.showConfirmDialog(
+                    this,
+                    "¿Desea descartar los datos actuales y comenzar un nuevo colectivo?",
+                    "Nuevo colectivo",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (respuesta != JOptionPane.YES_OPTION) {
+                return;
+            }
+        }
+
+        limpiarCampos();
+
+    }//GEN-LAST:event_boton_nuevoActionPerformed
+
+    private void tabla_datosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabla_datosMouseClicked
+        cargarDatosSeleccionados();
+        habilitarBotones(tabla_datos.getSelectedRow() != -1);
+    }//GEN-LAST:event_tabla_datosMouseClicked
+
+    private void boton_modificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_modificarActionPerformed
+        
+        int id = Integer.parseInt(dato_id.getText());
+
+        Colectivo colectivo = obtenerYValidarDatos(id);
+
+        if (colectivo == null) {
+            return;
+        }
+
+        
+        int respuesta = JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro de que desea modificar este colectivo?",
+                "Confirmar modificación",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (respuesta != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        colectivoData.modificarColectivo(colectivo);
+
+        cargarTabla();
+
+        limpiarCampos();
+
+    }//GEN-LAST:event_boton_modificarActionPerformed
+
+    private void boton_cambiarinactivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_cambiarinactivoActionPerformed
+        if (!check_estado.isSelected()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "El colectivo seleccionado ya está inactivo.",
+                    "Estado del colectivo",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int id = Integer.parseInt(dato_id.getText());
+
+        int respuesta = JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro de que desea dar de baja este colectivo?",
+                "Confirmar baja",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (respuesta != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        colectivoData.darDeBaja(id);
+        cargarTabla();
+        limpiarCampos();
+    }//GEN-LAST:event_boton_cambiarinactivoActionPerformed
+
+    private void boton_cambiaractivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_cambiaractivoActionPerformed
+        if (check_estado.isSelected()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "El colectivo seleccionado ya está activo.",
+                    "Estado del colectivo",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int id = Integer.parseInt(dato_id.getText());
+
+        int respuesta = JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro de que desea dar de alta este colectivo?",
+                "Confirmar alta",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (respuesta != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        colectivoData.darDeAlta(id);
+        cargarTabla();
+        limpiarCampos();
+    }//GEN-LAST:event_boton_cambiaractivoActionPerformed
+
+    private void boton_cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_cancelarActionPerformed
+       
+        int filaSeleccionada = tabla_datos.getSelectedRow();
+
+        int respuesta = JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro de que desea descartar los cambios realizados?",
+                "Confirmar cancelación",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (respuesta != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        try {
+            dato_id.setText(modelo.getValueAt(filaSeleccionada, 0).toString());
+            dato_matricula.setText(modelo.getValueAt(filaSeleccionada, 1).toString());
+            dato_marca.setText(modelo.getValueAt(filaSeleccionada, 2).toString());
+            dato_modelo.setText(modelo.getValueAt(filaSeleccionada, 3).toString());
+            dato_capacidad.setText(modelo.getValueAt(filaSeleccionada, 4).toString());
+            dato_chofer.setText(modelo.getValueAt(filaSeleccionada, 5).toString());
+
+            check_estado.setSelected(
+                    modelo.getValueAt(filaSeleccionada, 6).toString().equals("Activo")
+            );
+
+            dato_capacidad.setEditable(false);
+
+            habilitarBotones(true);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Error al restaurar los campos: " + e.getMessage(),
+                    "Atención",
+                    JOptionPane.WARNING_MESSAGE
+            );
+        }
+    
+    }//GEN-LAST:event_boton_cancelarActionPerformed
+
+    private void boton_buscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_buscarActionPerformed
+        
+        String matricula = dato_buscar.getText().trim();
+        
+        if (matricula.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Ingrese una matrícula para realizar la búsqueda.",
+                    "Campo vacío",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+        
+        modelo.setRowCount(0);
+         
+        List<Colectivo> listaFiltrada = colectivoData.buscarColectivosPorMatricula(matricula);
+
+        if (listaFiltrada.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "No se encontraron colectivos con esa matrícula.",
+                    "Sin resultados",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+            return;
+        }
+
+        for (Colectivo c : listaFiltrada) {
+
+            String estadoTexto = (c.getEstado() == 1) ? "Activo" : "Inactivo";
+
+            modelo.addRow(new Object[]{
+                c.getID_colectivo(),
+                c.getMatricula(),
+                c.getMarca(),
+                c.getModelo(),
+                c.getCapacidad(),
+                c.getChofer(),
+                estadoTexto
+            });
+        }
+
+        boton_mostrartodo.setEnabled(true);
+    }//GEN-LAST:event_boton_buscarActionPerformed
+
+    private void boton_mostrartodoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_mostrartodoActionPerformed
+        cargarTabla();
+
+        dato_buscar.setText("");
+
+        boton_mostrartodo.setEnabled(false);
+    }//GEN-LAST:event_boton_mostrartodoActionPerformed
+
+    private void boton_refrescardatosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_refrescardatosActionPerformed
+        cargarTabla();
+    }//GEN-LAST:event_boton_refrescardatosActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -294,4 +607,169 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
     private javax.swing.JLabel label_telefono1;
     private javax.swing.JTable tabla_datos;
     // End of variables declaration//GEN-END:variables
+
+    private void limpiarCampos() {
+        dato_id.setText("");
+        dato_matricula.setText("");
+        dato_marca.setText("");
+        dato_modelo.setText("");
+        dato_capacidad.setText("");
+        dato_chofer.setText("");
+
+        check_estado.setSelected(true);
+
+        tabla_datos.clearSelection();
+
+        dato_matricula.requestFocus();
+        dato_capacidad.setEditable(true);
+        habilitarBotones(false);
+    }
+
+    private Colectivo obtenerYValidarDatos(int idActual) {
+
+        
+        String matricula = dato_matricula.getText().trim();
+        String marca = dato_marca.getText().trim();
+        String modelo = dato_modelo.getText().trim();
+        String capacidadTexto = dato_capacidad.getText().trim();
+        String chofer = dato_chofer.getText().trim();
+
+        
+        if (matricula.isEmpty() || marca.isEmpty()
+                || modelo.isEmpty() || capacidadTexto.isEmpty()
+                || chofer.isEmpty()) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Todos los campos son obligatorios.",
+                    "Campos incompletos",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return null;
+        }
+
+        
+        int capacidad;
+
+        try {
+            capacidad = Integer.parseInt(capacidadTexto);
+
+            if (capacidad <= 0) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "La capacidad debe ser mayor que cero.",
+                        "Capacidad inválida",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                return null;
+            }
+
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "La capacidad debe contener solamente números enteros.",
+                    "Capacidad inválida",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return null;
+        }
+
+        
+        Colectivo existente = colectivoData.buscarColectivoPorMatricula(matricula);
+
+        if (existente != null && existente.getID_colectivo() != idActual) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Ya existe otro colectivo registrado con esa matrícula.",
+                    "Matrícula duplicada",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            return null;
+        }
+
+        
+        return new Colectivo(
+                idActual,
+                matricula,
+                marca,
+                modelo,
+                capacidad,
+                chofer,
+                check_estado.isSelected() ? 1 : 0
+        );
+    }
+    
+    private void armarCabecera() {
+        modelo.addColumn("ID");
+        modelo.addColumn("Matricula");
+        modelo.addColumn("Marca");
+        modelo.addColumn("Modelo");
+        modelo.addColumn("Capacidad");
+        modelo.addColumn("Chofer");
+        modelo.addColumn("Estado");
+        tabla_datos.setModel(modelo);
+    }
+    
+    private void cargarTabla(){
+        modelo.setRowCount(0);
+
+        
+
+        for (Colectivo c : colectivoData.listarColectivos()) {  
+
+           String estadoTexto = (c.getEstado() == 1) ? "Activo" : "Inactivo";
+
+            
+            modelo.addRow(new Object[]{
+                c.getID_colectivo(), 
+                c.getMatricula(), 
+                c.getMarca(), 
+                c.getModelo(), 
+                c.getCapacidad(), 
+                c.getChofer(), 
+                estadoTexto 
+            });
+        }
+    }
+     
+    private void cargarDatosSeleccionados() {
+
+        int fila = tabla_datos.getSelectedRow();
+
+        if (fila == -1) {
+            return;
+        }
+
+        dato_id.setText(modelo.getValueAt(fila, 0).toString());
+        dato_matricula.setText(modelo.getValueAt(fila, 1).toString());
+        dato_marca.setText(modelo.getValueAt(fila, 2).toString());
+        dato_modelo.setText(modelo.getValueAt(fila, 3).toString());
+        dato_capacidad.setText(modelo.getValueAt(fila, 4).toString());
+        dato_chofer.setText(modelo.getValueAt(fila, 5).toString());
+
+        check_estado.setSelected(
+                modelo.getValueAt(fila, 6).toString().equals("Activo")
+        );
+
+        dato_capacidad.setEditable(false);
+    }
+    
+    private void habilitarBotones(boolean habilitar) {
+
+        boton_modificar.setEnabled(habilitar);
+        boton_cancelar.setEnabled(habilitar);
+        
+        if (!habilitar) {
+            boton_cambiaractivo.setEnabled(false);
+            boton_cambiarinactivo.setEnabled(false);
+            return;
+        }
+
+        boton_cambiaractivo.setEnabled(!check_estado.isSelected());
+        boton_cambiarinactivo.setEnabled(check_estado.isSelected());
+
+    }
+
 }
