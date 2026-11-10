@@ -77,7 +77,7 @@ public class JavaMainClass extends javax.swing.JFrame {
         nuevaRuta.setPrecio(1000);
         nuevaRuta.setEstado(1);
         rutaData.guardarRutaViaje(nuevaRuta);   
-        Asiento lugar = new Asiento(c,17,1);
+        Asiento lugar = new Asiento(nuevaRuta,17,1);
         asientoData.guardarAsiento(lugar);
         PasajeData pasajeData = new PasajeData();
         LocalDate venta = LocalDate.now();

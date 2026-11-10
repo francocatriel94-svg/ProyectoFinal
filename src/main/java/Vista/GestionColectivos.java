@@ -285,74 +285,34 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void boton_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_guardarActionPerformed
- 
-        Colectivo colectivo = obtenerYValidarDatos(0);
+try {
+       
+        String matricula = dato_matricula.getText().trim();
+        String marca = dato_marca.getText().trim();
+        String modelo = dato_modelo.getText().trim();
+        int capacidad = Integer.parseInt(dato_capacidad.getText().trim());
+        String chofer = dato_chofer.getText().trim();
+        int estado = 1; // 1 = Activo por defecto
 
-        if (colectivo == null) {
+       
+        if (matricula.isEmpty() || marca.isEmpty() || modelo.isEmpty() || chofer.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, complete todos los campos.", "Campos vacíos", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         
-        int respuesta = JOptionPane.showConfirmDialog(
-                this,
-                "¿Está seguro de que desea guardar este colectivo y generar sus asientos?",
-                "Confirmar guardado",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-        );
+        Colectivo colectivo = new Colectivo(matricula, marca, modelo, capacidad, chofer, estado);
 
-        if (respuesta != JOptionPane.YES_OPTION) {
-            return;
-        }
-
-        
+        // 4. Persistir el colectivo mediante ColectivoData
+        ColectivoData colectivoData = new ColectivoData();
         colectivoData.guardarColectivo(colectivo);
 
         
-        if (colectivo.getID_colectivo() <= 0) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "No se pudo guardar el colectivo.",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
-            return;
-        }
+         limpiarCampos();
 
-        
-        boolean asientosGuardados = true;
-
-        for (int i = 1; i <= colectivo.getCapacidad(); i++) {
-
-            Asiento asiento = new Asiento(colectivo, i, 1);
-
-            if (!asientoData.guardarAsiento(asiento)) {
-                asientosGuardados = false;
-                break;
-            }
-        }
-
-        if (!asientosGuardados) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "El colectivo fue registrado, pero ocurrió un error "
-                    + "al generar sus asientos.",
-                    "Error al generar asientos",
-                    JOptionPane.ERROR_MESSAGE
-            );
-            return;
-        }
-
-        
-        JOptionPane.showMessageDialog(
-                this,
-                "Colectivo y sus " + colectivo.getCapacidad()
-                + " asientos guardados correctamente.",
-                "Guardado exitoso",
-                JOptionPane.INFORMATION_MESSAGE
-        );
-
-        limpiarCampos();
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "La capacidad debe ser un número entero válido.", "Error de formato", JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_boton_guardarActionPerformed
 
     private void boton_nuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_nuevoActionPerformed

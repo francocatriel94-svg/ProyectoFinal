@@ -2,6 +2,7 @@ package Persistencia;
 
 import Modelo.Asiento;
 import Modelo.Colectivo;
+import Modelo.RutaViaje;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,13 +25,13 @@ public class AsientoData {
 
     public boolean guardarAsiento(Asiento asiento) {
         String sql = "INSERT INTO lugares "
-                + "(ID_colectivo, numeroAsiento, estado) "
+                + "(ID_ruta, numeroAsiento, estado) "
                 + "VALUES (?, ?, ?)";
 
         try (PreparedStatement ps = con.prepareStatement(
                 sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            ps.setInt(1, asiento.getID_colectivo());
+            ps.setInt(1, asiento.getID_ruta());
             ps.setInt(2, asiento.getNumeroAsiento());
             ps.setInt(3, asiento.getEstado());
 
@@ -69,11 +70,11 @@ public class AsientoData {
     }
 
     // READ: un asiento por colectivo y número (útil para evitar duplicados)
-    public Asiento buscarAsientoPorNumero(int idColectivo, int numeroAsiento) {
-        String sql = "SELECT * FROM lugares WHERE ID_colectivo = ? AND numeroAsiento = ?";
+    public Asiento buscarAsientoPorNumero(int idRuta, int numeroAsiento) {
+        String sql = "SELECT * FROM lugares WHERE ID_ruta = ? AND numeroAsiento = ?";
         Asiento asiento = null;
         try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, idColectivo);
+            ps.setInt(1, idRuta);
             ps.setInt(2, numeroAsiento);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -102,11 +103,11 @@ public class AsientoData {
     }
 
     // READ: asientos de un colectivo
-    public List<Asiento> listarAsientosPorColectivo(int idColectivo) {
-        String sql = "SELECT * FROM lugares WHERE ID_colectivo = ? ORDER BY numeroAsiento";
+    public List<Asiento> listarAsientosPorRuta(int idRuta) {
+        String sql = "SELECT * FROM lugares WHERE ID_ruta = ? ORDER BY numeroAsiento";
         List<Asiento> asientos = new ArrayList<>();
         try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, idColectivo);
+            ps.setInt(1, idRuta);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     asientos.add(armarAsiento(rs));
@@ -119,11 +120,11 @@ public class AsientoData {
     }
 
     // READ: asientos libres de un colectivo
-    public List<Asiento> listarAsientosLibresPorColectivo(int idColectivo) {
-        String sql = "SELECT * FROM lugares WHERE ID_colectivo = ? AND estado = ? ORDER BY numeroAsiento";
+    public List<Asiento> listarAsientosLibresPorRuta(int idRuta) {
+        String sql = "SELECT * FROM lugares WHERE ID_ruta = ? AND estado = ? ORDER BY numeroAsiento";
         List<Asiento> asientos = new ArrayList<>();
         try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, idColectivo);
+            ps.setInt(1, idRuta);
             ps.setInt(2, LIBRE);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -138,9 +139,9 @@ public class AsientoData {
 
     // UPDATE
     public void modificarAsiento(Asiento asiento) {
-        String sql = "UPDATE lugares SET ID_colectivo = ?, numeroAsiento = ?, estado = ? WHERE ID_lugar = ?";
+        String sql = "UPDATE lugares SET ID_ruta = ?, numeroAsiento = ?, estado = ? WHERE ID_lugar = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, asiento.getID_colectivo());
+            ps.setInt(1, asiento.getID_ruta());
             ps.setInt(2, asiento.getNumeroAsiento());
             ps.setInt(3, asiento.getEstado());
             ps.setInt(4, asiento.getID_lugar());
@@ -190,12 +191,13 @@ public class AsientoData {
 
     // Convierte una fila del ResultSet en un Asiento (trae el Colectivo con su Data)
     private Asiento armarAsiento(ResultSet rs) throws SQLException {
-        ColectivoData c = new ColectivoData();
+        RutaViajeData rData = new RutaViajeData();
         Asiento asiento = new Asiento();
         asiento.setID_lugar(rs.getInt("ID_lugar"));
 
-        Colectivo colectivo = c.buscarColectivo(rs.getInt("ID_colectivo"));
-        asiento.setID_colectivo(colectivo);
+    RutaViaje ruta = rData.buscarRuta(rs.getInt("ID_ruta"));
+
+        asiento.setID_ruta(ruta != null ? ruta.getID_ruta() : 0);
         asiento.setNumeroAsiento(rs.getInt("numeroAsiento"));
         asiento.setEstado(rs.getInt("estado"));
         return asiento;

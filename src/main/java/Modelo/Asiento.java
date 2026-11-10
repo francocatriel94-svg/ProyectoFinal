@@ -2,22 +2,22 @@ package Modelo;
 
 public class Asiento {
     private int ID_lugar;
-    private int ID_colectivo;
+    private int ID_ruta;
     private int numeroAsiento;
     private int estado;
 
     public Asiento() {
     }
 
-    public Asiento(int idLugar, Colectivo colectivo, int numeroAsiento, int estado) {
+    public Asiento(int idLugar, RutaViaje rutaviaje, int numeroAsiento, int estado) {
         this.ID_lugar = idLugar;
-        this.ID_colectivo = colectivo.getID_colectivo();
+        this.ID_ruta = rutaviaje.getID_ruta();
         this.numeroAsiento = numeroAsiento;
         this.estado = estado;
     }
 
-    public Asiento(Colectivo colectivo, int numeroAsiento, int estado) {
-        this.ID_colectivo = colectivo.getID_colectivo();
+    public Asiento(RutaViaje rutaviaje, int numeroAsiento, int estado) {
+        this.ID_ruta = rutaviaje.getID_ruta();
         this.numeroAsiento = numeroAsiento;
         this.estado = estado;
     }
@@ -30,13 +30,15 @@ public class Asiento {
         this.ID_lugar = ID_lugar;
     }
 
-    public int getID_colectivo() {
-        return ID_colectivo;
+    public int getID_ruta() {
+        return ID_ruta;
     }
 
-    public void setID_colectivo(Colectivo ID_colectivo) {
-        this.ID_colectivo = ID_colectivo.getID_colectivo();
+    public void setID_ruta(int ID_ruta) {
+        this.ID_ruta = ID_ruta;
     }
+
+  
 
     public int getNumeroAsiento() {
         return numeroAsiento;
@@ -54,11 +56,13 @@ public class Asiento {
         this.estado = estado;
     }
     
+    
+    
     @Override
     public String toString() {
         return "Asiento: " + 
                 "\n idPasajero: " + ID_lugar
-                + "\n Colectivo: " + ID_colectivo 
+                + "\n idRuta: " + ID_ruta 
                 + "\n numeroAsiento: " + numeroAsiento 
                 + "\n estado: " + estado;
     }

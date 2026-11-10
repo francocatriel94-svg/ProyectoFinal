@@ -1,5 +1,6 @@
 package Persistencia;
 
+import Modelo.Asiento;
 import Modelo.Colectivo;
 import Modelo.RutaViaje;
 import java.sql.Connection;
@@ -40,14 +41,31 @@ public class RutaViajeData {
 
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
-                    r.setID_ruta(rs.getInt(1));
-                    JOptionPane.showMessageDialog(null, "Se guardo la ruta con exito ID:" + r.getID_ruta());
+                    int idGenerado = rs.getInt(1);
+                    r.setID_ruta(idGenerado);
+                      ColectivoData colData = new ColectivoData();
+                    Colectivo colectivo = colData.buscarColectivo(r.getID_colectivo());
+
+                    if (colectivo != null) {
+                        AsientoData asientoData = new AsientoData();
+                        for (int i = 1; i <= colectivo.getCapacidad(); i++) {
+                           
+                            Asiento asiento = new Asiento();
+                            asiento.setID_ruta(idGenerado); 
+                            asiento.setNumeroAsiento(i);
+                            asiento.setEstado(1); // 1 = Libre
+                            
+                            asientoData.guardarAsiento(asiento);
+                        }
+                    }
+
+                    JOptionPane.showMessageDialog(null, "Se guardo la ruta con exito y se generaron sus asientos ID:" + idGenerado);
                 }
                 ps.close();
 
             } catch (SQLException ex) {
-                Logger.getLogger(PasajeroData.class.getName()).log(Level.SEVERE, "Error al guardar ruta de viaje", ex);
-                JOptionPane.showMessageDialog(null, "Error al insertar en la base de datos: " + ex.getMessage());
+                  Logger.getLogger(RutaViajeData.class.getName()).log(Level.SEVERE, "Error al guardar ruta de viaje", ex);
+            JOptionPane.showMessageDialog(null, "Error al insertar en la base de datos: " + ex.getMessage());
 
             }
         } catch (SQLException ex) {

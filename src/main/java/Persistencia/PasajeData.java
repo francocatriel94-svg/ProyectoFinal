@@ -26,6 +26,11 @@ public class PasajeData {
     public void guardarPasaje(Pasaje pasaje) {
         String sql = "INSERT INTO pasajes (ID_pasajero, ID_lugar, ID_ruta, fechaVenta, horaVenta, precio, estado) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+          String sqlOcuparAsiento = "UPDATE lugares SET estado = 0 WHERE ID_lugar = ?"; // 0 = Ocupado
+    try{
+        
+        con.setAutoCommit(false);
+
         try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, pasaje.getID_pasajero());
             ps.setInt(2, pasaje.getID_lugar());
@@ -42,8 +47,27 @@ public class PasajeData {
                     JOptionPane.showMessageDialog(null, "Pasaje guardado.");
                 }
             }
+        }
+        try (PreparedStatement psAsiento = con.prepareStatement(sqlOcuparAsiento)) {
+                psAsiento.setInt(1, pasaje.getID_lugar());
+                psAsiento.executeUpdate();
+            }
+        con.commit();
+            JOptionPane.showMessageDialog(null, "¡Pasaje guardado y asiento reservado con éxito!");
+
         } catch (SQLException ex) {
+            try {
+                con.rollback(); // Si algo falla, deshacemos todo
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             JOptionPane.showMessageDialog(null, "Error al guardar el pasaje: " + ex.getMessage());
+        } finally {
+            try {
+                con.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
