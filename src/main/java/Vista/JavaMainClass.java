@@ -104,9 +104,9 @@ public class JavaMainClass extends javax.swing.JFrame {
 
             //6. Crear y guardar el Pasaje.
             Pasaje pasaje = new Pasaje();
-            pasaje.setID_pasajero(p1);
-            pasaje.setID_lugar(asientoElegido);
-            pasaje.setID_ruta(nuevaRuta);
+            pasaje.setID_pasajero(p1.getID_pasajero());
+            pasaje.setID_lugar(asientoElegido.getID_lugar());
+            pasaje.setID_ruta(nuevaRuta.getID_ruta());
             pasaje.setFechaVenta(LocalDate.now());
             pasaje.setHoraVenta(LocalTime.now());
             pasaje.setPrecio(nuevaRuta.getPrecio());

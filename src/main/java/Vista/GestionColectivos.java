@@ -13,12 +13,13 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
     private ColectivoData colectivoData = new ColectivoData();
     private LugarData asientoData = new LugarData();
     private DefaultTableModel modelo = new DefaultTableModel();
+
     public GestionColectivos() {
         initComponents();
         armarCabecera();
         cargarTabla();
         habilitarBotones(false);
-        
+
     }
 
     /**
@@ -285,34 +286,31 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void boton_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_guardarActionPerformed
-try {
-       
-        String matricula = dato_matricula.getText().trim();
-        String marca = dato_marca.getText().trim();
-        String modelo = dato_modelo.getText().trim();
-        int capacidad = Integer.parseInt(dato_capacidad.getText().trim());
-        String chofer = dato_chofer.getText().trim();
-        int estado = 1; // 1 = Activo por defecto
+        try {
 
-       
-        if (matricula.isEmpty() || marca.isEmpty() || modelo.isEmpty() || chofer.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Por favor, complete todos los campos.", "Campos vacíos", JOptionPane.WARNING_MESSAGE);
-            return;
+            String matricula = dato_matricula.getText().trim();
+            String marca = dato_marca.getText().trim();
+            String modelo = dato_modelo.getText().trim();
+            int capacidad = Integer.parseInt(dato_capacidad.getText().trim());
+            String chofer = dato_chofer.getText().trim();
+            int estado = 1; // 1 = Activo por defecto
+
+            if (matricula.isEmpty() || marca.isEmpty() || modelo.isEmpty() || chofer.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Por favor, complete todos los campos.", "Campos vacíos", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            Colectivo colectivo = new Colectivo(matricula, marca, modelo, capacidad, chofer, estado);
+
+            // 4. Persistir el colectivo mediante ColectivoData
+            ColectivoData colectivoData = new ColectivoData();
+            colectivoData.guardarColectivo(colectivo);
+
+            limpiarCampos();
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "La capacidad debe ser un número entero válido.", "Error de formato", JOptionPane.ERROR_MESSAGE);
         }
-
-        
-        Colectivo colectivo = new Colectivo(matricula, marca, modelo, capacidad, chofer, estado);
-
-        // 4. Persistir el colectivo mediante ColectivoData
-        ColectivoData colectivoData = new ColectivoData();
-        colectivoData.guardarColectivo(colectivo);
-
-        
-         limpiarCampos();
-
-    } catch (NumberFormatException e) {
-        JOptionPane.showMessageDialog(this, "La capacidad debe ser un número entero válido.", "Error de formato", JOptionPane.ERROR_MESSAGE);
-    }
     }//GEN-LAST:event_boton_guardarActionPerformed
 
     private void boton_nuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_nuevoActionPerformed
@@ -346,7 +344,7 @@ try {
     }//GEN-LAST:event_tabla_datosMouseClicked
 
     private void boton_modificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_modificarActionPerformed
-        
+
         int id = Integer.parseInt(dato_id.getText());
 
         Colectivo colectivo = obtenerYValidarDatos(id);
@@ -355,7 +353,6 @@ try {
             return;
         }
 
-        
         int respuesta = JOptionPane.showConfirmDialog(
                 this,
                 "¿Está seguro de que desea modificar este colectivo?",
@@ -435,7 +432,7 @@ try {
     }//GEN-LAST:event_boton_cambiaractivoActionPerformed
 
     private void boton_cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_cancelarActionPerformed
-       
+
         int filaSeleccionada = tabla_datos.getSelectedRow();
 
         int respuesta = JOptionPane.showConfirmDialog(
@@ -474,13 +471,13 @@ try {
                     JOptionPane.WARNING_MESSAGE
             );
         }
-    
+
     }//GEN-LAST:event_boton_cancelarActionPerformed
 
     private void boton_buscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_buscarActionPerformed
-        
+
         String matricula = dato_buscar.getText().trim();
-        
+
         if (matricula.isEmpty()) {
             JOptionPane.showMessageDialog(
                     this,
@@ -490,9 +487,9 @@ try {
             );
             return;
         }
-        
+
         modelo.setRowCount(0);
-         
+
         List<Colectivo> listaFiltrada = colectivoData.buscarColectivosPorMatricula(matricula);
 
         if (listaFiltrada.isEmpty()) {
@@ -587,14 +584,12 @@ try {
 
     private Colectivo obtenerYValidarDatos(int idActual) {
 
-        
         String matricula = dato_matricula.getText().trim();
         String marca = dato_marca.getText().trim();
         String modelo = dato_modelo.getText().trim();
         String capacidadTexto = dato_capacidad.getText().trim();
         String chofer = dato_chofer.getText().trim();
 
-        
         if (matricula.isEmpty() || marca.isEmpty()
                 || modelo.isEmpty() || capacidadTexto.isEmpty()
                 || chofer.isEmpty()) {
@@ -608,7 +603,6 @@ try {
             return null;
         }
 
-        
         int capacidad;
 
         try {
@@ -634,7 +628,6 @@ try {
             return null;
         }
 
-        
         Colectivo existente = colectivoData.buscarColectivoPorMatricula(matricula);
 
         if (existente != null && existente.getID_colectivo() != idActual) {
@@ -649,7 +642,6 @@ try {
             return null;
         }
 
-        
         return new Colectivo(
                 idActual,
                 matricula,
@@ -660,7 +652,7 @@ try {
                 check_estado.isSelected() ? 1 : 0
         );
     }
-    
+
     private void armarCabecera() {
         modelo.addColumn("ID");
         modelo.addColumn("Matricula");
@@ -671,29 +663,26 @@ try {
         modelo.addColumn("Estado");
         tabla_datos.setModel(modelo);
     }
-    
-    private void cargarTabla(){
+
+    private void cargarTabla() {
         modelo.setRowCount(0);
 
-        
+        for (Colectivo c : colectivoData.listarColectivos()) {
 
-        for (Colectivo c : colectivoData.listarColectivos()) {  
+            String estadoTexto = (c.getEstado() == 1) ? "Activo" : "Inactivo";
 
-           String estadoTexto = (c.getEstado() == 1) ? "Activo" : "Inactivo";
-
-            
             modelo.addRow(new Object[]{
-                c.getID_colectivo(), 
-                c.getMatricula(), 
-                c.getMarca(), 
-                c.getModelo(), 
-                c.getCapacidad(), 
-                c.getChofer(), 
-                estadoTexto 
+                c.getID_colectivo(),
+                c.getMatricula(),
+                c.getMarca(),
+                c.getModelo(),
+                c.getCapacidad(),
+                c.getChofer(),
+                estadoTexto
             });
         }
     }
-     
+
     private void cargarDatosSeleccionados() {
 
         int fila = tabla_datos.getSelectedRow();
@@ -715,12 +704,12 @@ try {
 
         dato_capacidad.setEditable(false);
     }
-    
+
     private void habilitarBotones(boolean habilitar) {
 
         boton_modificar.setEnabled(habilitar);
         boton_cancelar.setEnabled(habilitar);
-        
+
         if (!habilitar) {
             boton_cambiaractivo.setEnabled(false);
             boton_cambiarinactivo.setEnabled(false);

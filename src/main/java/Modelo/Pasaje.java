@@ -14,26 +14,25 @@ public class Pasaje {
     private int estado;
 
     //Constructor Vacio.
-    public Pasaje() {
-    }
+    public Pasaje() {}
 
     //Constructor Con ID_pasaje.
-    public Pasaje(int idPasaje, Pasajero pasajero, Lugar lugar, RutaViaje rutaViaje, LocalDate fechaVenta, LocalTime horaVenta, double precio, int estado) {
-        this.ID_pasaje = idPasaje;
-        this.ID_pasajero = pasajero.getID_pasajero();
-        this.ID_lugar = lugar.getID_lugar();
-        this.ID_ruta = rutaViaje.getID_ruta();
+    public Pasaje(int ID_pasaje, int ID_pasajero, int ID_lugar, int ID_ruta, LocalDate fechaVenta, LocalTime horaVenta, double precio, int estado) {
+        this.ID_pasaje = ID_pasaje;
+        this.ID_pasajero = ID_pasajero;
+        this.ID_lugar = ID_lugar;
+        this.ID_ruta = ID_ruta;
         this.fechaVenta = fechaVenta;
         this.horaVenta = horaVenta;
         this.precio = precio;
         this.estado = estado;
     }
-
+    
     //Constructor Sin ID_pasaje.
-    public Pasaje(Pasajero pasajero, Lugar lugar, RutaViaje rutaViaje, LocalDate fechaVenta, LocalTime horaVenta, double precio, int estado) {
-        this.ID_pasajero = pasajero.getID_pasajero();
-        this.ID_lugar = lugar.getID_lugar();
-        this.ID_ruta = rutaViaje.getID_ruta();
+    public Pasaje(int ID_pasajero, int ID_lugar, int ID_ruta, LocalDate fechaVenta, LocalTime horaVenta, double precio, int estado) {
+        this.ID_pasajero = ID_pasajero;
+        this.ID_lugar = ID_lugar;
+        this.ID_ruta = ID_ruta;
         this.fechaVenta = fechaVenta;
         this.horaVenta = horaVenta;
         this.precio = precio;
@@ -52,24 +51,24 @@ public class Pasaje {
         return ID_pasajero;
     }
 
-    public void setID_pasajero(Pasajero ID_pasajero) {
-        this.ID_pasajero = ID_pasajero.getID_pasajero();
+    public void setID_pasajero(int ID_pasajero) {
+        this.ID_pasajero = ID_pasajero;
     }
 
     public int getID_lugar() {
         return ID_lugar;
     }
 
-    public void setID_lugar(Lugar ID_lugar) {
-        this.ID_lugar = ID_lugar.getID_lugar();
+    public void setID_lugar(int ID_lugar) {
+        this.ID_lugar = ID_lugar;
     }
 
     public int getID_ruta() {
         return ID_ruta;
     }
 
-    public void setID_ruta(RutaViaje ID_ruta) {
-        this.ID_ruta = ID_ruta.getID_ruta();
+    public void setID_ruta(int ID_ruta) {
+        this.ID_ruta = ID_ruta;
     }
 
     public LocalDate getFechaVenta() {

@@ -134,7 +134,7 @@ public class PasajeData {
         return pasajes;
     }
 
-    ////Modificamos los valores de los atributos de un pasaje.
+    ////Modificamos los valores de los atributos de un pasaje
     public void modificarPasaje(Pasaje pasaje) {
         String sql = "UPDATE pasaje SET ID_pasajero = ?, ID_lugar = ?, ID_ruta = ?, fechaVenta = ?, "+ "horaVenta = ?, precio = ?, estado = ? WHERE ID_pasaje = ?";
         
@@ -205,9 +205,9 @@ public class PasajeData {
         Pasajero pasajero = p.buscarPasajero(rs.getInt("ID_pasajero"));
         Lugar lugar = a.buscarLugar(rs.getInt("ID_lugar"));
         RutaViaje ruta = z.buscarRuta(rs.getInt("ID_ruta"));
-        pasaje.setID_pasajero(pasajero);
-        pasaje.setID_lugar(lugar);
-        pasaje.setID_ruta(ruta);
+        pasaje.setID_pasajero(pasajero.getID_pasajero());
+        pasaje.setID_lugar(lugar.getID_lugar());
+        pasaje.setID_ruta(ruta.getID_ruta());
         pasaje.setFechaVenta(rs.getDate("fechaVenta").toLocalDate());
         pasaje.setHoraVenta(rs.getTime("horaVenta").toLocalTime());
         pasaje.setPrecio(rs.getDouble("precio"));
