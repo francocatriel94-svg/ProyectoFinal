@@ -22,7 +22,7 @@ public class PasajeroData {
     }
 
     public void guardarPasajero(Pasajero p) {
-        String sql = "INSERT INTO pasajeros (dni, nombre, apellido, correo, telefono, estado) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO pasajero (dni, nombre, apellido, correo, telefono, estado) VALUES (?, ?, ?, ?, ?, ?)";
 
         try {
             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -49,15 +49,18 @@ public class PasajeroData {
     }
 
     public void bajaLogicaPasajero(int id) {
-        String sql = "UPDATE pasajeros SET estado = 0 WHERE ID_pasajero = ?";
+        String sql = "UPDATE pasajero SET estado = 0 WHERE ID_pasajero = ?";
+        
         try {
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, id);
 
             int filas = ps.executeUpdate();
+            
             if (filas > 0) {
                 JOptionPane.showMessageDialog(null, "Pasajero dado de baja lógicamente.");
             }
+            
             ps.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al dar de baja al pasajero: " + ex.getMessage());
@@ -65,7 +68,7 @@ public class PasajeroData {
     }
 
     public void altaLogicaPasajero(int id) {
-        String sql = "UPDATE pasajeros SET estado = 1 WHERE ID_pasajero = ?";
+        String sql = "UPDATE pasajero SET estado = 1 WHERE ID_pasajero = ?";
         try {
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, id);
@@ -78,7 +81,8 @@ public class PasajeroData {
     }
 
     public void modificarPasajero(Pasajero p) {
-        String sql = "UPDATE pasajeros SET dni = ?, nombre = ?, apellido = ?, correo = ?, telefono = ? WHERE ID_pasajero = ?";
+        String sql = "UPDATE pasajero SET dni = ?, nombre = ?, apellido = ?, correo = ?, telefono = ? WHERE ID_pasajero = ?";
+        
         try {
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, p.getDni());
@@ -89,9 +93,11 @@ public class PasajeroData {
             ps.setInt(6, p.getID_pasajero());
 
             int filas = ps.executeUpdate();
+            
             if (filas > 0) {
                 JOptionPane.showMessageDialog(null, "Pasajero modificado con éxito.");
             }
+            
             ps.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al modificar pasajero: " + ex.getMessage());
@@ -99,7 +105,7 @@ public class PasajeroData {
     }
 
     public Pasajero buscarPasajero(int id) {
-        String sql = "SELECT dni, nombre, apellido, correo, telefono, estado FROM pasajeros WHERE ID_pasajero = ?";
+        String sql = "SELECT dni, nombre, apellido, correo, telefono, estado FROM pasajero WHERE ID_pasajero = ?";
         Pasajero pasajero = null;
 
         try {
@@ -117,7 +123,9 @@ public class PasajeroData {
                 pasajero.setTelefono(rs.getString("telefono"));
                 pasajero.setEstado(rs.getInt("estado"));
             }
+            
             ps.close();
+            
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al buscar pasajero: " + ex.getMessage());
         }
@@ -125,8 +133,9 @@ public class PasajeroData {
     }
 
     public List<Pasajero> listarPasajeros() {
-        String sql = "SELECT ID_pasajero, dni, nombre, apellido, correo, telefono, estado FROM pasajeros WHERE estado = 1";
+        String sql = "SELECT ID_pasajero, dni, nombre, apellido, correo, telefono, estado FROM pasajero WHERE estado = 1";
         List<Pasajero> pasajeros = new ArrayList<>();
+        
         try {
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
@@ -143,7 +152,9 @@ public class PasajeroData {
 
                 pasajeros.add(p);
             }
+            
             ps.close();
+            
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al listar pasajeros: " + ex.getMessage());
         }
@@ -151,7 +162,7 @@ public class PasajeroData {
     }
 
     public Pasajero buscarPasajeroInactivo(int id) {
-        String sql = "SELECT dni, nombre, apellido, correo, telefono, estado FROM pasajeros WHERE ID_pasajero = ? AND estado = 0";
+        String sql = "SELECT dni, nombre, apellido, correo, telefono, estado FROM pasajero WHERE ID_pasajero = ? AND estado = 0";
         Pasajero pasajero = null;
 
         try {
@@ -179,7 +190,7 @@ public class PasajeroData {
     }
 
     public List<Pasajero> listarPasajerosInactivos() {
-        String sql = "SELECT ID_pasajero, dni, nombre, apellido, correo, telefono, estado FROM pasajeros WHERE estado = 0";
+        String sql = "SELECT ID_pasajero, dni, nombre, apellido, correo, telefono, estado FROM pasajero WHERE estado = 0";
         List<Pasajero> pasajerosInactivos = new ArrayList<>();
 
         try {

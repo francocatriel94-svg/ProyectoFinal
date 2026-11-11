@@ -9,8 +9,10 @@ public class Pasajero {
     private String telefono;
     private int estado;
 
+    //Constructor Vacio.
     public Pasajero(){}
-
+    
+    //Constructor Con ID_pasajero.
     public Pasajero(int idPasajero, String dni, String nombre, String apellido, String correo, String telefono, int estado) {
         this.ID_pasajero = idPasajero;
         this.dni = dni;
@@ -21,6 +23,7 @@ public class Pasajero {
         this.estado = estado;
     }
     
+    //Constructor Sin ID_pasajero.
     public Pasajero(String dni, String nombre, String apellido, String correo, String telefono, int estado) {
         this.dni = dni;
         this.nombre = nombre;

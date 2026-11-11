@@ -531,7 +531,6 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_boton_recargarActionPerformed
 
     private void tabla_datosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabla_datosMouseClicked
-
         int filaSeleccionada = tabla_datos.getSelectedRow();
 
         if (filaSeleccionada != -1) {
@@ -545,16 +544,13 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
 
             //Evaluamos la columna de activo para marcar el RadioButton
             String estado = tabla_datos.getValueAt(filaSeleccionada, 6).toString();
-
+            
+            check_estado.setSelected(estado.equals("1"));
+            
             //Para evitar que el usuario toque guardar cuando selecciona un alumno de la tabla
             boton_guardar.setEnabled(false);
             boton_modificar.setEnabled(true);
             boton_darBaja.setEnabled(true);
-            if (estado.equals(1)) {
-                check_estado.setSelected(true);
-            } else {
-                check_estado.setSelected(false);
-            }
         }
     }//GEN-LAST:event_tabla_datosMouseClicked
 

@@ -13,10 +13,12 @@ public class Pasaje {
     private double precio;
     private int estado;
 
+    //Constructor Vacio.
     public Pasaje() {
     }
 
-    public Pasaje(int idPasaje, Pasajero pasajero, Asiento lugar, RutaViaje rutaViaje, LocalDate fechaVenta, LocalTime horaVenta, double precio, int estado) {
+    //Constructor Con ID_pasaje.
+    public Pasaje(int idPasaje, Pasajero pasajero, Lugar lugar, RutaViaje rutaViaje, LocalDate fechaVenta, LocalTime horaVenta, double precio, int estado) {
         this.ID_pasaje = idPasaje;
         this.ID_pasajero = pasajero.getID_pasajero();
         this.ID_lugar = lugar.getID_lugar();
@@ -27,7 +29,8 @@ public class Pasaje {
         this.estado = estado;
     }
 
-    public Pasaje(Pasajero pasajero, Asiento lugar, RutaViaje rutaViaje, LocalDate fechaVenta, LocalTime horaVenta, double precio, int estado) {
+    //Constructor Sin ID_pasaje.
+    public Pasaje(Pasajero pasajero, Lugar lugar, RutaViaje rutaViaje, LocalDate fechaVenta, LocalTime horaVenta, double precio, int estado) {
         this.ID_pasajero = pasajero.getID_pasajero();
         this.ID_lugar = lugar.getID_lugar();
         this.ID_ruta = rutaViaje.getID_ruta();
@@ -57,7 +60,7 @@ public class Pasaje {
         return ID_lugar;
     }
 
-    public void setID_lugar(Asiento ID_lugar) {
+    public void setID_lugar(Lugar ID_lugar) {
         this.ID_lugar = ID_lugar.getID_lugar();
     }
 

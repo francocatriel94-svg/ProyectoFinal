@@ -9,13 +9,10 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
-/**
- *
- * @author User
- */
 public class GestionViajes extends javax.swing.JInternalFrame {
 
     private DefaultTableModel modelo = new DefaultTableModel();
+    
     public GestionViajes() {
         initComponents();
         llenarComboColectivos();
@@ -88,7 +85,7 @@ public class GestionViajes extends javax.swing.JInternalFrame {
         boton_cambiarinactivo.setEnabled(false);
         boton_cambiarinactivo.addActionListener(this::boton_cambiarinactivoActionPerformed);
 
-        escritorio.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos de los viajes", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(51, 51, 51))); // NOI18N
+        escritorio.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos de los viajes", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14), new java.awt.Color(51, 51, 51))); // NOI18N
         escritorio.setToolTipText("");
         escritorio.setName("asdaf"); // NOI18N
 
@@ -137,20 +134,19 @@ public class GestionViajes extends javax.swing.JInternalFrame {
                     .addComponent(label_origen)
                     .addComponent(label_horasalida)
                     .addComponent(label_precio))
-                .addGap(15, 15, 15)
+                .addGap(23, 23, 23)
                 .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(dato_origen, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
-                        .addComponent(dato_precio)
-                        .addComponent(dato_id))
+                    .addComponent(dato_origen, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(dato_precio, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(dato_id, javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(escritorioLayout.createSequentialGroup()
                         .addComponent(cmbHoraSalida, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(12, 12, 12)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 9, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(27, 27, 27)
                         .addComponent(cmbMinSalida, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(20, 20, 20)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 9, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(116, 116, 116)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
                 .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addComponent(label_destino, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -161,14 +157,13 @@ public class GestionViajes extends javax.swing.JInternalFrame {
                 .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(check_estado)
                     .addComponent(dato_destino)
-                    .addComponent(dato_colectivo, 0, 206, Short.MAX_VALUE)
+                    .addComponent(dato_colectivo, 0, 229, Short.MAX_VALUE)
                     .addGroup(escritorioLayout.createSequentialGroup()
-                        .addGap(22, 22, 22)
                         .addComponent(cmbHoraLlegada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(cmbMinLlegada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(27, 27, 27)
+                        .addComponent(cmbMinLlegada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel2)))
                 .addGap(30, 30, 30))
         );
         escritorioLayout.setVerticalGroup(
@@ -338,7 +333,6 @@ public class GestionViajes extends javax.swing.JInternalFrame {
 
     private void boton_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_guardarActionPerformed
        try {
-            
             String origen = dato_origen.getText().trim();
             String destino = dato_destino.getText().trim();
 
@@ -347,7 +341,6 @@ public class GestionViajes extends javax.swing.JInternalFrame {
                 dato_origen.requestFocus();
                 return;
             }
-
             
             if (dato_colectivo.getSelectedItem().toString().equals("Colectivos")) {
                 JOptionPane.showMessageDialog(this, "Debe seleccionar un colectivo válido.", "Error de validación", JOptionPane.WARNING_MESSAGE);
@@ -355,7 +348,6 @@ public class GestionViajes extends javax.swing.JInternalFrame {
                 return;
             }
             Colectivo colectivoSeleccionado = (Colectivo) dato_colectivo.getSelectedItem();
-
             
             if (cmbHoraSalida.getSelectedItem().toString().equals("Hora") || 
                 cmbMinSalida.getSelectedItem().toString().equals("Min")) {
@@ -365,7 +357,6 @@ public class GestionViajes extends javax.swing.JInternalFrame {
             int hSalida = Integer.parseInt(cmbHoraSalida.getSelectedItem().toString());
             int mSalida = Integer.parseInt(cmbMinSalida.getSelectedItem().toString());
             LocalTime horaSalida = LocalTime.of(hSalida, mSalida);
-
             
             if (cmbHoraLlegada.getSelectedItem().toString().equals("Hora") || 
                 cmbMinLlegada.getSelectedItem().toString().equals("Min")) {
@@ -375,13 +366,11 @@ public class GestionViajes extends javax.swing.JInternalFrame {
             int hLlegada = Integer.parseInt(cmbHoraLlegada.getSelectedItem().toString());
             int mLlegada = Integer.parseInt(cmbMinLlegada.getSelectedItem().toString());
             LocalTime horaLlegada = LocalTime.of(hLlegada, mLlegada);
-
             
             if (horaSalida.equals(horaLlegada) || horaLlegada.isBefore(horaSalida)) {
                 JOptionPane.showMessageDialog(this, "La hora de llegada debe ser posterior a la hora de salida.", "Error de horario", JOptionPane.WARNING_MESSAGE);
                 return;
             }
-
             
             if (dato_precio.getText().trim().isEmpty()) {
                 JOptionPane.showMessageDialog(this, "El campo precio no puede estar vacío.", "Error de validación", JOptionPane.WARNING_MESSAGE);
@@ -395,7 +384,6 @@ public class GestionViajes extends javax.swing.JInternalFrame {
                 dato_precio.requestFocus();
                 return;
             }
-
             
             int respuesta = JOptionPane.showConfirmDialog(
                     this,
@@ -408,7 +396,6 @@ public class GestionViajes extends javax.swing.JInternalFrame {
             if (respuesta != JOptionPane.YES_OPTION) {
                 return;
             }
-
             
             int estado = check_estado.isSelected() ? 1 : 0;
 

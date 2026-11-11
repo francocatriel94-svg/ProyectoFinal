@@ -161,23 +161,21 @@
                       <Component id="label_horasalida" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Component id="label_precio" alignment="0" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="23" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="dato_origen" alignment="0" pref="219" max="32767" attributes="0"/>
-                          <Component id="dato_precio" max="32767" attributes="0"/>
-                          <Component id="dato_id" alignment="0" max="32767" attributes="0"/>
-                      </Group>
+                      <Component id="dato_origen" alignment="0" max="32767" attributes="0"/>
+                      <Component id="dato_precio" alignment="0" max="32767" attributes="0"/>
+                      <Component id="dato_id" alignment="0" max="32767" attributes="0"/>
                       <Group type="102" attributes="0">
                           <Component id="cmbHoraSalida" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
-                          <Component id="jLabel1" min="-2" pref="9" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
+                          <EmptySpace min="27" pref="27" max="-2" attributes="0"/>
                           <Component id="cmbMinSalida" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
+                          <Component id="jLabel1" min="-2" pref="9" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="116" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <EmptySpace pref="9" max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
                           <Component id="label_destino" alignment="0" max="32767" attributes="0"/>
@@ -190,14 +188,13 @@
                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
                       <Component id="check_estado" min="-2" max="-2" attributes="0"/>
                       <Component id="dato_destino" alignment="0" max="32767" attributes="0"/>
-                      <Component id="dato_colectivo" alignment="0" pref="206" max="32767" attributes="0"/>
+                      <Component id="dato_colectivo" alignment="0" pref="229" max="32767" attributes="0"/>
                       <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
                           <Component id="cmbHoraLlegada" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <EmptySpace min="27" pref="27" max="-2" attributes="0"/>
                           <Component id="cmbMinLlegada" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace min="-2" pref="30" max="-2" attributes="0"/>

@@ -18,12 +18,11 @@ public class ColectivoData {
         con = Conexion.getConexion();
     }
 
-    // CREATE
+    //Creamos un colectivo.
     public void guardarColectivo(Colectivo colectivo) {
-        String sql = "INSERT INTO colectivos (matricula, marca, modelo, capacidad, chofer, estado) "
-                + "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO colectivo (matricula, marca, modelo, capacidad, chofer, estado)" + "VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            
+
             ps.setString(1, colectivo.getMatricula());
             ps.setString(2, colectivo.getMarca());
             ps.setString(3, colectivo.getModelo());
@@ -43,51 +42,48 @@ public class ColectivoData {
         }
     }
 
-    // READ: uno por id
+    //Buscamos un colectivo por su ID.
     public Colectivo buscarColectivo(int id) {
-        String sql = "SELECT * FROM colectivos WHERE ID_colectivo = ?";
+        String sql = "SELECT * FROM colectivo WHERE ID_colectivo = ?";
         Colectivo colectivo = null;
+        
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
+            
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     colectivo = armarColectivo(rs);
-                } 
+                }
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al buscar el colectivo: " + ex.getMessage());
         }
         return colectivo;
     }
-
+    
+    //Buscamos colectivos por su Matricula.
     public List<Colectivo> buscarColectivosPorMatricula(String matricula) {
-        String sql = "SELECT * FROM colectivos WHERE matricula LIKE ?";
+        String sql = "SELECT * FROM colectivo WHERE matricula LIKE ?";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, "%" + matricula + "%");
 
             try (ResultSet rs = ps.executeQuery()) {
                 List<Colectivo> lista = new ArrayList<>();
-
                 while (rs.next()) {
                     lista.add(armarColectivo(rs));
                 }
-
                 return lista;
             }
-
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(
-                    null,
-                    "Error al buscar colectivos: " + ex.getMessage()
-            );
+            JOptionPane.showMessageDialog(null,"Error al buscar colectivos: " + ex.getMessage());
         }
-
         return new ArrayList<>();
     }
-    
+
+    //Buscamos un colectivo por su Matricula.
     public Colectivo buscarColectivoPorMatricula(String matricula) {
-        String sql = "SELECT * FROM colectivos WHERE matricula = ?";
+        String sql = "SELECT * FROM colectivo WHERE matricula = ?";
         Colectivo colectivo = null;
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -98,33 +94,28 @@ public class ColectivoData {
                     colectivo = armarColectivo(rs);
                 }
             }
-
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(
-                    null,
-                    "Error al buscar el colectivo: " + ex.getMessage()
-            );
+            JOptionPane.showMessageDialog(null,"Error al buscar el colectivo: " + ex.getMessage());
         }
-
         return colectivo;
     }
 
-    // READ: todos
+    //Lista todos los colectivos.
     public List<Colectivo> listarColectivos() {
-        String sql = "SELECT * FROM colectivos";
+        String sql = "SELECT * FROM colectivo";
         return listar(sql);
     }
 
-    // READ: solo los activos (estado = 1)
+    //Lista los colectivos activos(estado = 1).
     public List<Colectivo> listarColectivosActivos() {
-        String sql = "SELECT * FROM colectivos WHERE estado = 1";
+        String sql = "SELECT * FROM colectivo WHERE estado = 1";
         return listar(sql);
     }
 
     private List<Colectivo> listar(String sql) {
         List<Colectivo> colectivos = new ArrayList<>();
-        try (PreparedStatement ps = con.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+        
+        try (PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 colectivos.add(armarColectivo(rs));
             }
@@ -134,10 +125,10 @@ public class ColectivoData {
         return colectivos;
     }
 
-    // UPDATE
+    //Modificamos los valores de los atributos de un colectico.
     public void modificarColectivo(Colectivo colectivo) {
-        String sql = "UPDATE colectivos SET matricula = ?, marca = ?, modelo = ?, capacidad = ?, "
-                + "chofer = ?, estado = ? WHERE ID_colectivo = ?";
+        String sql = "UPDATE colectivo SET matricula = ?, marca = ?, modelo = ?, capacidad = ?, " + "chofer = ?, estado = ? WHERE ID_colectivo = ?";
+        
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, colectivo.getMatricula());
             ps.setString(2, colectivo.getMarca());
@@ -146,51 +137,57 @@ public class ColectivoData {
             ps.setString(5, colectivo.getChofer());
             ps.setInt(6, colectivo.getEstado());
             ps.setInt(7, colectivo.getID_colectivo());
+            
             if (ps.executeUpdate() == 1) {
                 JOptionPane.showMessageDialog(null, "Colectivo modificado.");
-            } 
+            }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al modificar el colectivo: " + ex.getMessage());
         }
     }
 
-    // Baja lógica (estado = 0)
+    // Baja lógica (estado = 0).
     public void darDeBaja(int id) {
         cambiarEstado(id, 0, "Colectivo dado de baja.");
     }
 
-    // Alta lógica (estado = 1)
+    // Alta lógica (estado = 1).
     public void darDeAlta(int id) {
         cambiarEstado(id, 1, "Colectivo dado de alta.");
     }
-
+    
+    //Cambiamos el estado de un colectivo.
     private void cambiarEstado(int id, int estado, String mensaje) {
-        String sql = "UPDATE colectivos SET estado = ? WHERE ID_colectivo = ?";
+        String sql = "UPDATE colectivo SET estado = ? WHERE ID_colectivo = ?";
+        
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, estado);
             ps.setInt(2, id);
+            
             if (ps.executeUpdate() == 1) {
                 JOptionPane.showMessageDialog(null, mensaje);
-            } 
+            }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al cambiar el estado del colectivo: " + ex.getMessage());
         }
     }
 
-    // DELETE BD
+    //Borramos un colectivo.
     public void eliminarColectivo(int id) {
-        String sql = "DELETE FROM colectivos WHERE ID_colectivo = ?";
+        String sql = "DELETE FROM colectivo WHERE ID_colectivo = ?";
+        
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
+            
             if (ps.executeUpdate() == 1) {
                 JOptionPane.showMessageDialog(null, "Colectivo eliminado.");
-            } 
+            }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al eliminar el colectivo: " + ex.getMessage());
         }
     }
 
-    // Convierte una fila del ResultSet en un Colectivo
+    //Convierte una fila del ResultSet en un Colectivo.
     private Colectivo armarColectivo(ResultSet rs) throws SQLException {
         Colectivo colectivo = new Colectivo();
         colectivo.setID_colectivo(rs.getInt("ID_colectivo"));

@@ -4,14 +4,16 @@ public class Colectivo {
     private int ID_colectivo;
     private String matricula;
     private String marca;
-    private int capacidad;
     private String modelo;
+    private int capacidad;
     private String chofer;
     private int estado;
-
+    
+    //Constructor Vacio.
     public Colectivo() {
     }
-
+    
+    //Constructor Con ID_colectivo.
     public Colectivo(int idColectivo, String matricula, String marca, String modelo, int capacidad, String chofer, int estado) {
         this.ID_colectivo = idColectivo;
         this.matricula = matricula;
@@ -21,7 +23,8 @@ public class Colectivo {
         this.chofer = chofer;
         this.estado = estado;
     }
-
+    
+    //Constructor Sin ID_colectivo.
     public Colectivo(String matricula, String marca, String modelo, int capacidad, String chofer, int estado) {
         this.matricula = matricula;
         this.marca = marca;

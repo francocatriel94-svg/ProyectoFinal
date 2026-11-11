@@ -1,25 +1,24 @@
 package Vista;
-import Modelo.Asiento;
+
+import Modelo.Lugar;
 import Persistencia.ColectivoData;
 import Modelo.Colectivo;
 import Modelo.Pasaje;
 import Modelo.Pasajero;
 import Modelo.RutaViaje;
-import Persistencia.AsientoData;
+import Persistencia.LugarData;
 import Persistencia.PasajeData;
 import Persistencia.PasajeroData;
 import Persistencia.RutaViajeData;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 public class JavaMainClass extends javax.swing.JFrame {
-    
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(JavaMainClass.class.getName());
 
-    /**
-     * Creates new form JavaMainClass
-     */
     public JavaMainClass() {
         initComponents();
     }
@@ -53,38 +52,78 @@ public class JavaMainClass extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-                AsientoData asientoData=new AsientoData();
-        ColectivoData coleData= new ColectivoData();
-        RutaViajeData rutaData= new RutaViajeData();
- PasajeroData pasajeroData = new PasajeroData();
-        Pasajero p1 = new Pasajero();
-        p1.setDni("21564654");
-        p1.setNombre("Facundo");
-        p1.setApellido("Bartoloni");
-        p1.setCorreo("facubarto2005@gmail.com");
-        p1.setTelefono("2657111111");
-        p1.setEstado(1);
-        System.out.println("Guardando pasajero...");
-        pasajeroData.guardarPasajero(p1);
-        Colectivo c=new Colectivo(1,"254622","Mercedes","Transpuntano",50,"Javier",1);
-        coleData.guardarColectivo(c);
-        RutaViaje nuevaRuta= new RutaViaje();
-        nuevaRuta.setOrigen("La Toma");
-        nuevaRuta.setDestino("Villa Mercedes");
-        nuevaRuta.setHoraSalida(LocalTime.of(9, 30));
-        nuevaRuta.setHoraLlegada(LocalTime.of(12, 00));
-        nuevaRuta.setID_colectivo(c.getID_colectivo());
-        nuevaRuta.setPrecio(1000);
-        nuevaRuta.setEstado(1);
-        rutaData.guardarRutaViaje(nuevaRuta);   
-        Asiento lugar = new Asiento(nuevaRuta,17,1);
-        asientoData.guardarAsiento(lugar);
+        System.out.println("PRUEBA DEL SISTEMA");
+
+        //1. Instanciar las clases Data.
+        ColectivoData coleData = new ColectivoData();
+        RutaViajeData rutaData = new RutaViajeData();
+        LugarData lugarData = new LugarData();
+        PasajeroData pasajeroData = new PasajeroData();
         PasajeData pasajeData = new PasajeData();
-        LocalDate venta = LocalDate.now();
-        LocalTime hora = LocalTime.now();
-        Pasaje p = new Pasaje (p1,lugar,nuevaRuta,venta,hora,1500.00,1);
-        pasajeData.guardarPasaje(p);
-        System.out.println("Se guardo todo.");
+
+        try {
+            //2. Crear y guardar un Colectivo de prueba.
+            Colectivo c = new Colectivo("AB123CD", "Mercedes-Benz", "Sprinter", 20, "Carlos Chofer", 1);
+            coleData.guardarColectivo(c);
+            System.out.println("-> Colectivo guardado con ID: " + c.getID_colectivo());
+
+            //3. Crear y guardar una Ruta de Viaje.
+            RutaViaje nuevaRuta = new RutaViaje();
+            nuevaRuta.setOrigen("Villa Mercedes");
+            nuevaRuta.setDestino("San Luis");
+            nuevaRuta.setFechaViaje(LocalDate.now().plusDays(5));
+            nuevaRuta.setHoraSalida(LocalTime.of(8, 0));
+            nuevaRuta.setHoraLlegada(LocalTime.of(9, 30));
+            nuevaRuta.setID_colectivo(c.getID_colectivo());
+            nuevaRuta.setPrecio(2500.00);
+            nuevaRuta.setEstado(1);
+
+            rutaData.guardarRutaViaje(nuevaRuta);
+            System.out.println("-> Ruta de viaje guardada con ID: " + nuevaRuta.getID_ruta() + " (Asientos generados automáticamente).");
+
+            //4. Buscar el primer asiento libre generado para esa ruta.
+            List<Lugar> asientosLibres = lugarData.listarLugaresLibresPorRuta(nuevaRuta.getID_ruta());
+            if (asientosLibres.isEmpty()) {
+                System.out.println("Error: No se generaron asientos para la ruta.");
+                return;
+            }
+            Lugar asientoElegido = asientosLibres.get(0); // Tomamos el primer asiento (Ej: Asiento N° 1)
+            System.out.println("-> Asiento seleccionado para la prueba: ID_lugar = " + asientoElegido.getID_lugar() + ", Número = " + asientoElegido.getNumeroAsiento());
+
+            //5. Crear y guardar un Pasajero de prueba.
+            Pasajero p1 = new Pasajero();
+            p1.setDni("38123456");
+            p1.setNombre("Facundo");
+            p1.setApellido("Yo");
+            p1.setCorreo("facu.test@email.com");
+            p1.setTelefono("2657444444");
+            p1.setEstado(1);
+
+            pasajeroData.guardarPasajero(p1);
+            System.out.println("-> Pasajero guardado con ID: " + p1.getID_pasajero());
+
+            //6. Crear y guardar el Pasaje.
+            Pasaje pasaje = new Pasaje();
+            pasaje.setID_pasajero(p1);
+            pasaje.setID_lugar(asientoElegido);
+            pasaje.setID_ruta(nuevaRuta);
+            pasaje.setFechaVenta(LocalDate.now());
+            pasaje.setHoraVenta(LocalTime.now());
+            pasaje.setPrecio(nuevaRuta.getPrecio());
+            pasaje.setEstado(1);
+
+            pasajeData.guardarPasaje(pasaje);
+            System.out.println("Pasaje guardado con éxito! ID del Pasaje: " + pasaje.getID_pasaje());
+            System.out.println("PRUEBA FINALIZADA SIN ERRORES");
+
+        } catch (Exception e) {
+            System.out.println("Ocurrió un error durante la prueba: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        // Código de inicialización de la interfaz por defecto de NetBeans
+        java.awt.EventQueue.invokeLater(() -> new JavaMainClass().setVisible(true));
+
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -103,7 +142,8 @@ public class JavaMainClass extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new JavaMainClass().setVisible(true));
+        java.awt.EventQueue.invokeLater(
+                () -> new JavaMainClass().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

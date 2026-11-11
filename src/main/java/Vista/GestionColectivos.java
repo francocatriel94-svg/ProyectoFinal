@@ -1,8 +1,8 @@
 package Vista;
 
 import Modelo.Colectivo;
-import Modelo.Asiento;
-import Persistencia.AsientoData;
+import Modelo.Lugar;
+import Persistencia.LugarData;
 import Persistencia.ColectivoData;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -11,7 +11,7 @@ import javax.swing.table.DefaultTableModel;
 public class GestionColectivos extends javax.swing.JInternalFrame {
 
     private ColectivoData colectivoData = new ColectivoData();
-    private AsientoData asientoData = new AsientoData();
+    private LugarData asientoData = new LugarData();
     private DefaultTableModel modelo = new DefaultTableModel();
     public GestionColectivos() {
         initComponents();

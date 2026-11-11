@@ -1,24 +1,41 @@
 package Modelo;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class RutaViaje {
     private int ID_ruta;
     private String origen;
     private String destino;
+    private LocalDate fechaViaje;
     private LocalTime horaSalida;
     private LocalTime horaLlegada;
     private int ID_colectivo;
     private double precio;
     private int estado;
-
+    
+    //Constructor Vacio.
     public RutaViaje() {
     }
-
-    public RutaViaje(int idRuta, String origen, String destino, LocalTime horaSalida, LocalTime horaLlegada, Colectivo colectivo, double precio, int estado) {
+    
+    //Constructor Con ID_ruta.
+    public RutaViaje(int idRuta, String origen, String destino, LocalDate fechaViaje, LocalTime horaSalida, LocalTime horaLlegada, Colectivo colectivo, double precio, int estado) {
         this.ID_ruta = idRuta;
         this.origen = origen;
         this.destino = destino;
+        this.fechaViaje = fechaViaje;
+        this.horaSalida = horaSalida;
+        this.horaLlegada = horaLlegada;
+        this.ID_colectivo = colectivo.getID_colectivo();
+        this.precio = precio;
+        this.estado = estado;
+    }
+    
+    //Constructor Sin ID_ruta.
+    public RutaViaje(String origen, String destino, LocalDate fechaViaje, LocalTime horaSalida, LocalTime horaLlegada, Colectivo colectivo, double precio, int estado) {
+        this.origen = origen;
+        this.destino = destino;
+        this.fechaViaje = fechaViaje;
         this.horaSalida = horaSalida;
         this.horaLlegada = horaLlegada;
         this.ID_colectivo = colectivo.getID_colectivo();
@@ -50,6 +67,14 @@ public class RutaViaje {
         this.destino = destino;
     }
 
+    public LocalDate getFechaViaje() {
+        return fechaViaje;
+    }
+
+    public void setFechaViaje(LocalDate fechaViaje) {
+        this.fechaViaje = fechaViaje;
+    }
+    
     public LocalTime getHoraSalida() {
         return horaSalida;
     }
@@ -92,10 +117,11 @@ public class RutaViaje {
     
     @Override
     public String toString() {
-        return "Pasajero: " + 
+        return "RutaViaje: " + 
                 "\n idRuta: " + ID_ruta 
                 + "\n origen: " + origen 
                 + "\n destino: " + destino 
+                + "\n Fecha Viaje: " + fechaViaje 
                 + "\n horaSalida: " + horaSalida 
                 + "\n horaLlegada: " + horaLlegada 
                 + "\n colectivo: " + ID_colectivo 
