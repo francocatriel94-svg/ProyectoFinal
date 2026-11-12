@@ -1,9 +1,8 @@
 package Vista;
 
 import Modelo.Colectivo;
-import Modelo.Lugar;
-import Persistencia.LugarData;
 import Persistencia.ColectivoData;
+import Validaciones.ValidacionColectivo;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -11,15 +10,103 @@ import javax.swing.table.DefaultTableModel;
 public class GestionColectivos extends javax.swing.JInternalFrame {
 
     private ColectivoData colectivoData = new ColectivoData();
-    private LugarData asientoData = new LugarData();
-    private DefaultTableModel modelo = new DefaultTableModel();
+    private DefaultTableModel modelo;
 
     public GestionColectivos() {
         initComponents();
-        armarCabecera();
+        modelo = (DefaultTableModel) TablaColectivos.getModel();
         cargarTabla();
         habilitarBotones(false);
+    }
 
+    private void cargarTabla() {
+        modelo.setRowCount(0);
+        TablaColectivos.clearSelection();
+
+        for (Colectivo c : colectivoData.listarColectivos()) {
+            String estadoTexto = (c.getEstado() == 1) ? "Activo" : "Inactivo";
+
+            modelo.addRow(new Object[]{
+                c.getID_colectivo(),
+                c.getMatricula(),
+                c.getMarca(),
+                c.getModelo(),
+                c.getCapacidad(),
+                c.getChofer(),
+                estadoTexto
+            });
+        }
+    }
+
+    private void limpiarCampos() {
+        dato_id.setText("");
+        dato_matricula.setText("");
+        dato_marca.setText("");
+        dato_modelo.setText("");
+        dato_capacidad.setText("");
+        dato_chofer.setText("");
+
+        checkEstado.setSelected(true);
+
+        TablaColectivos.clearSelection();
+
+        dato_matricula.requestFocus();
+        dato_capacidad.setEditable(true);
+        habilitarBotones(false);
+    }
+
+    private void cargarDatosSeleccionados() {
+        int fila = TablaColectivos.getSelectedRow();
+
+        if (fila == -1) {
+            return;
+        }
+
+        dato_id.setText(modelo.getValueAt(fila, 0).toString());
+        dato_matricula.setText(modelo.getValueAt(fila, 1).toString());
+        dato_marca.setText(modelo.getValueAt(fila, 2).toString());
+        dato_modelo.setText(modelo.getValueAt(fila, 3).toString());
+        dato_capacidad.setText(modelo.getValueAt(fila, 4).toString());
+        dato_chofer.setText(modelo.getValueAt(fila, 5).toString());
+
+        checkEstado.setSelected(modelo.getValueAt(fila, 6).toString().equals("Activo"));
+
+        dato_capacidad.setEditable(true);
+    }
+
+    private void habilitarBotones(boolean habilitar) {
+        btnGuardar.setEnabled(!habilitar);
+        btnModificar.setEnabled(habilitar);
+        btnCancelar.setEnabled(habilitar);
+        btnEliminar.setEnabled(habilitar && !checkEstado.isSelected());
+        btnDarAlta.setEnabled(habilitar && !checkEstado.isSelected());
+        btnDarBaja.setEnabled(habilitar && checkEstado.isSelected());
+    }
+
+    private Colectivo obtenerYValidarDatos(int idActual) {
+        String matricula = dato_matricula.getText().trim().replaceAll("\\s+", "").toUpperCase();
+        String marca = dato_marca.getText().trim();
+        String modelo = dato_modelo.getText().trim();
+        String capacidadTexto = dato_capacidad.getText().trim();
+        String chofer = dato_chofer.getText().trim();
+
+        int capacidad;
+        try {
+            capacidad = Integer.parseInt(capacidadTexto);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "La capacidad debe ser un número entero válido.", "Capacidad inválida", JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+
+        Colectivo colectivo = new Colectivo(idActual, matricula, marca, modelo, capacidad, chofer, checkEstado.isSelected() ? 1 : 0);
+
+        String error = ValidacionColectivo.validarColectivo(colectivo, colectivoData, idActual);
+
+        if (error != null) {
+            JOptionPane.showMessageDialog(this, error, "Datos inválidos", JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+        return colectivo;
     }
 
     /**
@@ -31,159 +118,249 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        boton_modificar = new javax.swing.JButton();
-        boton_cambiaractivo = new javax.swing.JButton();
-        boton_guardar = new javax.swing.JButton();
-        boton_cambiarinactivo = new javax.swing.JButton();
-        escritorio = new javax.swing.JPanel();
-        label_id = new javax.swing.JLabel();
-        label_marca = new javax.swing.JLabel();
-        label_capacidad = new javax.swing.JLabel();
-        label_estado = new javax.swing.JLabel();
+        PanelDatos = new javax.swing.JPanel();
+        lblID = new javax.swing.JLabel();
+        lblMarca = new javax.swing.JLabel();
+        lblCapacidad = new javax.swing.JLabel();
+        lblEstado = new javax.swing.JLabel();
         dato_id = new javax.swing.JTextField();
         dato_marca = new javax.swing.JTextField();
         dato_capacidad = new javax.swing.JTextField();
-        label_matricula = new javax.swing.JLabel();
-        label_modelo = new javax.swing.JLabel();
-        label_chofer = new javax.swing.JLabel();
+        lblMatricula = new javax.swing.JLabel();
+        lblModelo = new javax.swing.JLabel();
+        lblChofer = new javax.swing.JLabel();
         dato_matricula = new javax.swing.JTextField();
         dato_modelo = new javax.swing.JTextField();
         dato_chofer = new javax.swing.JTextField();
-        check_estado = new javax.swing.JCheckBox();
-        label_telefono1 = new javax.swing.JLabel();
-        boton_nuevo = new javax.swing.JButton();
-        boton_cancelar = new javax.swing.JButton();
-        label_busqueda = new javax.swing.JLabel();
+        checkEstado = new javax.swing.JCheckBox();
+        lblInformacion1 = new javax.swing.JLabel();
+        PanelBotones = new javax.swing.JPanel();
+        btnNuevo = new javax.swing.JButton();
+        btnGuardar = new javax.swing.JButton();
+        btnModificar = new javax.swing.JButton();
+        btnDarAlta = new javax.swing.JButton();
+        btnDarBaja = new javax.swing.JButton();
+        btnCancelar = new javax.swing.JButton();
+        lblBusqueda = new javax.swing.JLabel();
         dato_buscar = new javax.swing.JTextField();
-        boton_buscar = new javax.swing.JButton();
-        boton_mostrartodo = new javax.swing.JButton();
+        btnBuscar = new javax.swing.JButton();
+        btnMostrarTodo = new javax.swing.JButton();
+        btnRecargarTabla = new javax.swing.JButton();
+        btnEliminar = new javax.swing.JButton();
+        PanelTabla = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tabla_datos = new javax.swing.JTable();
-        boton_refrescardatos = new javax.swing.JButton();
+        TablaColectivos = new javax.swing.JTable();
 
         setIconifiable(true);
         setTitle("Gestión de Colectivos");
 
-        boton_modificar.setText("Modificar");
-        boton_modificar.addActionListener(this::boton_modificarActionPerformed);
+        PanelDatos.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos del colectivo ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14), new java.awt.Color(255, 255, 255))); // NOI18N
+        PanelDatos.setToolTipText("");
+        PanelDatos.setName("asdaf"); // NOI18N
 
-        boton_cambiaractivo.setForeground(new java.awt.Color(0, 102, 0));
-        boton_cambiaractivo.setText("Cambiar a Activo");
-        boton_cambiaractivo.addActionListener(this::boton_cambiaractivoActionPerformed);
+        lblID.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblID.setText("ID:");
 
-        boton_guardar.setText("Guardar");
-        boton_guardar.addActionListener(this::boton_guardarActionPerformed);
+        lblMarca.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblMarca.setText("Marca:");
 
-        boton_cambiarinactivo.setForeground(new java.awt.Color(153, 0, 0));
-        boton_cambiarinactivo.setText("Cambiar a Inactivo");
-        boton_cambiarinactivo.addActionListener(this::boton_cambiarinactivoActionPerformed);
+        lblCapacidad.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblCapacidad.setText("Capacidad:");
 
-        escritorio.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos del colectivo ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(51, 51, 51))); // NOI18N
-        escritorio.setToolTipText("");
-        escritorio.setName("asdaf"); // NOI18N
-
-        label_id.setText("ID");
-
-        label_marca.setText("Marca");
-
-        label_capacidad.setText("Capacidad");
-
-        label_estado.setText("Estado");
+        lblEstado.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblEstado.setText("Estado:");
 
         dato_id.setEditable(false);
+        dato_id.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        dato_id.setText("El ID se autogenera.");
+        dato_id.setFocusable(false);
 
-        label_matricula.setText("Matrícula");
+        lblMatricula.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblMatricula.setText("Matrícula:");
 
-        label_modelo.setText("Modelo");
+        lblModelo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblModelo.setText("Modelo:");
 
-        label_chofer.setText("Chofer");
+        lblChofer.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblChofer.setText("Chofer:");
 
-        check_estado.setText("Activo");
-        check_estado.setEnabled(false);
+        checkEstado.setSelected(true);
+        checkEstado.setText("Activo");
+        checkEstado.setEnabled(false);
 
-        label_telefono1.setFont(new java.awt.Font("Times New Roman", 2, 12)); // NOI18N
-        label_telefono1.setText("<html>Al guardar un colectivo nuevo se generan sus asientos<br>según la capacidad.</html>");
+        lblInformacion1.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        lblInformacion1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblInformacion1.setText("<html>Los asientos se generan al crear una ruta,<br>según la capacidad del colectivo asignado.</html>");
 
-        javax.swing.GroupLayout escritorioLayout = new javax.swing.GroupLayout(escritorio);
-        escritorio.setLayout(escritorioLayout);
-        escritorioLayout.setHorizontalGroup(
-            escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(escritorioLayout.createSequentialGroup()
+        javax.swing.GroupLayout PanelDatosLayout = new javax.swing.GroupLayout(PanelDatos);
+        PanelDatos.setLayout(PanelDatosLayout);
+        PanelDatosLayout.setHorizontalGroup(
+            PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelDatosLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(label_id)
-                    .addComponent(label_marca)
-                    .addComponent(label_estado)
-                    .addComponent(label_capacidad))
+                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblID)
+                    .addComponent(lblMarca)
+                    .addComponent(lblEstado)
+                    .addComponent(lblCapacidad))
                 .addGap(15, 15, 15)
-                .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(dato_id, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
-                        .addComponent(dato_marca)
-                        .addComponent(dato_capacidad))
-                    .addComponent(check_estado))
+                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(dato_marca, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
+                    .addComponent(dato_capacidad)
+                    .addComponent(checkEstado)
+                    .addComponent(dato_id, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(escritorioLayout.createSequentialGroup()
-                        .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(label_modelo, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(label_matricula, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(label_chofer, javax.swing.GroupLayout.Alignment.LEADING))
+                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(PanelDatosLayout.createSequentialGroup()
+                        .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(lblModelo, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(lblMatricula, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(lblChofer, javax.swing.GroupLayout.Alignment.LEADING))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(dato_modelo, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 242, Short.MAX_VALUE)
                             .addComponent(dato_matricula, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(dato_chofer)))
-                    .addComponent(label_telefono1, javax.swing.GroupLayout.PREFERRED_SIZE, 283, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(lblInformacion1))
                 .addGap(59, 59, 59))
         );
-        escritorioLayout.setVerticalGroup(
-            escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(escritorioLayout.createSequentialGroup()
+
+        PanelDatosLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {dato_capacidad, dato_chofer, dato_id, dato_marca, dato_matricula, dato_modelo});
+
+        PanelDatosLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {lblCapacidad, lblChofer, lblEstado, lblID, lblMarca, lblMatricula, lblModelo});
+
+        PanelDatosLayout.setVerticalGroup(
+            PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelDatosLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(label_id)
+                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblID)
                     .addComponent(dato_id, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(dato_matricula, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(label_matricula))
+                    .addComponent(lblMatricula))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(label_marca)
+                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblMarca)
                     .addComponent(dato_marca, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(dato_modelo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(label_modelo))
+                    .addComponent(lblModelo))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(label_capacidad)
-                    .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblCapacidad)
+                    .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(dato_capacidad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(dato_chofer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(label_chofer)))
+                        .addComponent(lblChofer)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(label_estado)
-                        .addComponent(check_estado))
-                    .addComponent(label_telefono1, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(lblEstado)
+                        .addComponent(checkEstado))
+                    .addComponent(lblInformacion1, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
-        boton_nuevo.setText("Nuevo");
-        boton_nuevo.addActionListener(this::boton_nuevoActionPerformed);
+        PanelBotones.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Funciones", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.TOP));
+        PanelBotones.setForeground(new java.awt.Color(255, 255, 255));
 
-        boton_cancelar.setText("Cancelar");
-        boton_cancelar.addActionListener(this::boton_cancelarActionPerformed);
+        btnNuevo.setText("Nuevo");
+        btnNuevo.addActionListener(this::btnNuevoActionPerformed);
 
-        label_busqueda.setText("Buscar por Matrícula ");
+        btnGuardar.setText("Guardar");
+        btnGuardar.addActionListener(this::btnGuardarActionPerformed);
 
-        boton_buscar.setText("Buscar");
-        boton_buscar.addActionListener(this::boton_buscarActionPerformed);
+        btnModificar.setText("Modificar");
+        btnModificar.addActionListener(this::btnModificarActionPerformed);
 
-        boton_mostrartodo.setText("Mostrar todos");
-        boton_mostrartodo.setEnabled(false);
-        boton_mostrartodo.addActionListener(this::boton_mostrartodoActionPerformed);
+        btnDarAlta.setForeground(new java.awt.Color(0, 102, 0));
+        btnDarAlta.setText("Dar Alta");
+        btnDarAlta.addActionListener(this::btnDarAltaActionPerformed);
 
-        tabla_datos.setModel(new javax.swing.table.DefaultTableModel(
+        btnDarBaja.setForeground(new java.awt.Color(153, 0, 0));
+        btnDarBaja.setText("Dar Baja");
+        btnDarBaja.addActionListener(this::btnDarBajaActionPerformed);
+
+        btnCancelar.setText("Cancelar");
+        btnCancelar.addActionListener(this::btnCancelarActionPerformed);
+
+        lblBusqueda.setText("Buscar por Matrícula:");
+
+        btnBuscar.setText("Buscar");
+        btnBuscar.addActionListener(this::btnBuscarActionPerformed);
+
+        btnMostrarTodo.setText("Mostrar todos");
+        btnMostrarTodo.setEnabled(false);
+        btnMostrarTodo.addActionListener(this::btnMostrarTodoActionPerformed);
+
+        btnRecargarTabla.setText("Recargar Tabla");
+        btnRecargarTabla.addActionListener(this::btnRecargarTablaActionPerformed);
+
+        btnEliminar.setText("Eliminar");
+        btnEliminar.addActionListener(this::btnEliminarActionPerformed);
+
+        javax.swing.GroupLayout PanelBotonesLayout = new javax.swing.GroupLayout(PanelBotones);
+        PanelBotones.setLayout(PanelBotonesLayout);
+        PanelBotonesLayout.setHorizontalGroup(
+            PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelBotonesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(PanelBotonesLayout.createSequentialGroup()
+                        .addComponent(lblBusqueda)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(dato_buscar))
+                    .addGroup(PanelBotonesLayout.createSequentialGroup()
+                        .addComponent(btnNuevo)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnGuardar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnModificar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PanelBotonesLayout.createSequentialGroup()
+                        .addComponent(btnBuscar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnMostrarTodo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(PanelBotonesLayout.createSequentialGroup()
+                        .addComponent(btnDarAlta)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnDarBaja)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnCancelar, javax.swing.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnRecargarTabla, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        PanelBotonesLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnEliminar, btnModificar});
+
+        PanelBotonesLayout.setVerticalGroup(
+            PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelBotonesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(btnRecargarTabla, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(PanelBotonesLayout.createSequentialGroup()
+                        .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnNuevo)
+                            .addComponent(btnGuardar)
+                            .addComponent(btnModificar)
+                            .addComponent(btnDarAlta)
+                            .addComponent(btnCancelar)
+                            .addComponent(btnEliminar)
+                            .addComponent(btnDarBaja))
+                        .addGap(14, 14, 14)
+                        .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblBusqueda)
+                            .addComponent(dato_buscar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnBuscar)
+                            .addComponent(btnMostrarTodo))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        TablaColectivos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null, null},
                 {null, null, null, null, null, null, null},
@@ -209,15 +386,29 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
                 return canEdit [columnIndex];
             }
         });
-        tabla_datos.addMouseListener(new java.awt.event.MouseAdapter() {
+        TablaColectivos.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tabla_datosMouseClicked(evt);
+                TablaColectivosMouseClicked(evt);
             }
         });
-        jScrollPane1.setViewportView(tabla_datos);
+        jScrollPane1.setViewportView(TablaColectivos);
 
-        boton_refrescardatos.setText("<html><center>Refrescar<br>Datos</center></html>");
-        boton_refrescardatos.addActionListener(this::boton_refrescardatosActionPerformed);
+        javax.swing.GroupLayout PanelTablaLayout = new javax.swing.GroupLayout(PanelTabla);
+        PanelTabla.setLayout(PanelTablaLayout);
+        PanelTablaLayout.setHorizontalGroup(
+            PanelTablaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelTablaLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1)
+                .addContainerGap())
+        );
+        PanelTablaLayout.setVerticalGroup(
+            PanelTablaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelTablaLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -226,94 +417,40 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(escritorio, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addComponent(boton_nuevo)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(boton_guardar)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(boton_modificar)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(boton_cambiaractivo)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(boton_cambiarinactivo)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(boton_cancelar))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(label_busqueda)
-                                .addGap(18, 18, 18)
-                                .addComponent(dato_buscar, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(boton_buscar)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(boton_mostrartodo)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(boton_refrescardatos, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 17, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1))
+                    .addComponent(PanelDatos, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(PanelBotones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(PanelTabla, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(escritorio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(boton_nuevo)
-                            .addComponent(boton_guardar)
-                            .addComponent(boton_modificar)
-                            .addComponent(boton_cambiarinactivo)
-                            .addComponent(boton_cambiaractivo)
-                            .addComponent(boton_cancelar))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(label_busqueda)
-                            .addComponent(dato_buscar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(boton_buscar)
-                            .addComponent(boton_mostrartodo)))
-                    .addComponent(boton_refrescardatos, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(12, 12, 12)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 182, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(PanelDatos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(PanelBotones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(PanelTabla, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void boton_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_guardarActionPerformed
-        try {
+    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
+        Colectivo colectivo = obtenerYValidarDatos(0);
 
-            String matricula = dato_matricula.getText().trim();
-            String marca = dato_marca.getText().trim();
-            String modelo = dato_modelo.getText().trim();
-            int capacidad = Integer.parseInt(dato_capacidad.getText().trim());
-            String chofer = dato_chofer.getText().trim();
-            int estado = 1; // 1 = Activo por defecto
-
-            if (matricula.isEmpty() || marca.isEmpty() || modelo.isEmpty() || chofer.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Por favor, complete todos los campos.", "Campos vacíos", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            Colectivo colectivo = new Colectivo(matricula, marca, modelo, capacidad, chofer, estado);
-
-            // 4. Persistir el colectivo mediante ColectivoData
-            ColectivoData colectivoData = new ColectivoData();
-            colectivoData.guardarColectivo(colectivo);
-
-            limpiarCampos();
-
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "La capacidad debe ser un número entero válido.", "Error de formato", JOptionPane.ERROR_MESSAGE);
+        if (colectivo == null) {
+            return;
         }
-    }//GEN-LAST:event_boton_guardarActionPerformed
 
-    private void boton_nuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_nuevoActionPerformed
+        if (colectivoData.guardarColectivo(colectivo)) {
+            JOptionPane.showMessageDialog(this, "Colectivo guardado.");
+            cargarTabla();
+            limpiarCampos();
+        }
+    }//GEN-LAST:event_btnGuardarActionPerformed
+
+    private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
 
         if (!dato_matricula.getText().trim().isEmpty()
                 || !dato_marca.getText().trim().isEmpty()
@@ -336,14 +473,17 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
 
         limpiarCampos();
 
-    }//GEN-LAST:event_boton_nuevoActionPerformed
+    }//GEN-LAST:event_btnNuevoActionPerformed
 
-    private void tabla_datosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabla_datosMouseClicked
+    private void TablaColectivosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TablaColectivosMouseClicked
         cargarDatosSeleccionados();
-        habilitarBotones(tabla_datos.getSelectedRow() != -1);
-    }//GEN-LAST:event_tabla_datosMouseClicked
+        habilitarBotones(TablaColectivos.getSelectedRow() != -1);
+    }//GEN-LAST:event_TablaColectivosMouseClicked
 
-    private void boton_modificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_modificarActionPerformed
+    private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
+        if (dato_id.getText().trim().isEmpty()) {
+            return;
+        }
 
         int id = Integer.parseInt(dato_id.getText());
 
@@ -353,158 +493,98 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
             return;
         }
 
-        int respuesta = JOptionPane.showConfirmDialog(
-                this,
-                "¿Está seguro de que desea modificar este colectivo?",
-                "Confirmar modificación",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-        );
+        int respuesta = JOptionPane.showConfirmDialog(this, "¿Está seguro de que desea modificar este colectivo?", "Confirmar modificación", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
         if (respuesta != JOptionPane.YES_OPTION) {
             return;
         }
 
-        colectivoData.modificarColectivo(colectivo);
+        if (colectivoData.modificarColectivo(colectivo)) {
+            JOptionPane.showMessageDialog(this, "Colectivo modificado.");
+            cargarTabla();
+            limpiarCampos();
+        }
+    }//GEN-LAST:event_btnModificarActionPerformed
 
-        cargarTabla();
-
-        limpiarCampos();
-
-    }//GEN-LAST:event_boton_modificarActionPerformed
-
-    private void boton_cambiarinactivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_cambiarinactivoActionPerformed
-        if (!check_estado.isSelected()) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "El colectivo seleccionado ya está inactivo.",
-                    "Estado del colectivo",
-                    JOptionPane.WARNING_MESSAGE);
+    private void btnDarBajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDarBajaActionPerformed
+        if (!checkEstado.isSelected()) {
+            JOptionPane.showMessageDialog(this, "El colectivo seleccionado ya está inactivo.", "Estado del colectivo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         int id = Integer.parseInt(dato_id.getText());
 
-        int respuesta = JOptionPane.showConfirmDialog(
-                this,
-                "¿Está seguro de que desea dar de baja este colectivo?",
-                "Confirmar baja",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-        );
+        int respuesta = JOptionPane.showConfirmDialog(this, "¿Está seguro de que desea dar de baja este colectivo?", "Confirmar baja", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
         if (respuesta != JOptionPane.YES_OPTION) {
             return;
         }
 
-        colectivoData.darDeBaja(id);
-        cargarTabla();
-        limpiarCampos();
-    }//GEN-LAST:event_boton_cambiarinactivoActionPerformed
+        if (colectivoData.darDeBaja(id)) {
+            JOptionPane.showMessageDialog(this, "Colectivo dado de baja.");
+            cargarTabla();
+            limpiarCampos();
+        }
+    }//GEN-LAST:event_btnDarBajaActionPerformed
 
-    private void boton_cambiaractivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_cambiaractivoActionPerformed
-        if (check_estado.isSelected()) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "El colectivo seleccionado ya está activo.",
-                    "Estado del colectivo",
-                    JOptionPane.WARNING_MESSAGE);
+    private void btnDarAltaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDarAltaActionPerformed
+        if (checkEstado.isSelected()) {
+            JOptionPane.showMessageDialog(this, "El colectivo seleccionado ya está activo.", "Estado del colectivo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         int id = Integer.parseInt(dato_id.getText());
 
-        int respuesta = JOptionPane.showConfirmDialog(
-                this,
-                "¿Está seguro de que desea dar de alta este colectivo?",
-                "Confirmar alta",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-        );
+        int respuesta = JOptionPane.showConfirmDialog(this, "¿Está seguro de que desea dar de alta este colectivo?", "Confirmar alta", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
         if (respuesta != JOptionPane.YES_OPTION) {
             return;
         }
 
-        colectivoData.darDeAlta(id);
-        cargarTabla();
-        limpiarCampos();
-    }//GEN-LAST:event_boton_cambiaractivoActionPerformed
-
-    private void boton_cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_cancelarActionPerformed
-
-        int filaSeleccionada = tabla_datos.getSelectedRow();
-
-        int respuesta = JOptionPane.showConfirmDialog(
-                this,
-                "¿Está seguro de que desea descartar los cambios realizados?",
-                "Confirmar cancelación",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-        );
-
-        if (respuesta != JOptionPane.YES_OPTION) {
-            return;
+        if (colectivoData.darDeAlta(id)) {
+            JOptionPane.showMessageDialog(this, "Colectivo dado de alta.");
+            cargarTabla();
+            limpiarCampos();
         }
+    }//GEN-LAST:event_btnDarAltaActionPerformed
 
-        try {
-            dato_id.setText(modelo.getValueAt(filaSeleccionada, 0).toString());
-            dato_matricula.setText(modelo.getValueAt(filaSeleccionada, 1).toString());
-            dato_marca.setText(modelo.getValueAt(filaSeleccionada, 2).toString());
-            dato_modelo.setText(modelo.getValueAt(filaSeleccionada, 3).toString());
-            dato_capacidad.setText(modelo.getValueAt(filaSeleccionada, 4).toString());
-            dato_chofer.setText(modelo.getValueAt(filaSeleccionada, 5).toString());
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        int filaSeleccionada = TablaColectivos.getSelectedRow();
 
-            check_estado.setSelected(
-                    modelo.getValueAt(filaSeleccionada, 6).toString().equals("Activo")
-            );
+        if (filaSeleccionada != -1) {
+            int opcion = JOptionPane.showConfirmDialog(this, "¿Desea descartar los cambios realizados?", "Cancelar", JOptionPane.YES_NO_OPTION);
 
-            dato_capacidad.setEditable(false);
+            if (opcion != JOptionPane.YES_OPTION) {
+                return;
+            }
 
+            cargarDatosSeleccionados();
             habilitarBotones(true);
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Error al restaurar los campos: " + e.getMessage(),
-                    "Atención",
-                    JOptionPane.WARNING_MESSAGE
-            );
+        } else {
+            limpiarCampos();
         }
+    }//GEN-LAST:event_btnCancelarActionPerformed
 
-    }//GEN-LAST:event_boton_cancelarActionPerformed
-
-    private void boton_buscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_buscarActionPerformed
-
-        String matricula = dato_buscar.getText().trim();
+    private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
+        String matricula = dato_buscar.getText().trim().replaceAll("\\s+", "").toUpperCase();
 
         if (matricula.isEmpty()) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Ingrese una matrícula para realizar la búsqueda.",
-                    "Campo vacío",
-                    JOptionPane.WARNING_MESSAGE
-            );
+            JOptionPane.showMessageDialog(this, "Ingrese una matrícula para realizar la búsqueda.", "Campo vacío", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         modelo.setRowCount(0);
+        btnMostrarTodo.setEnabled(true);
 
-        List<Colectivo> listaFiltrada = colectivoData.buscarColectivosPorMatricula(matricula);
+        List<Colectivo> listaFiltrada = colectivoData.ListarColectivosPorMatricula(matricula);
 
         if (listaFiltrada.isEmpty()) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "No se encontraron colectivos con esa matrícula.",
-                    "Sin resultados",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+            JOptionPane.showMessageDialog(this, "No se encontraron colectivos con esa matrícula.", "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
         for (Colectivo c : listaFiltrada) {
-
-            String estadoTexto = (c.getEstado() == 1) ? "Activo" : "Inactivo";
+            String estadoTexto = c.getEstado() == 1 ? "Activo" : "Inactivo";
 
             modelo.addRow(new Object[]{
                 c.getID_colectivo(),
@@ -516,34 +596,63 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
                 estadoTexto
             });
         }
+    }//GEN-LAST:event_btnBuscarActionPerformed
 
-        boton_mostrartodo.setEnabled(true);
-    }//GEN-LAST:event_boton_buscarActionPerformed
-
-    private void boton_mostrartodoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_mostrartodoActionPerformed
+    private void btnMostrarTodoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMostrarTodoActionPerformed
         cargarTabla();
-
         dato_buscar.setText("");
+        btnMostrarTodo.setEnabled(false);
+        limpiarCampos();
+    }//GEN-LAST:event_btnMostrarTodoActionPerformed
 
-        boton_mostrartodo.setEnabled(false);
-    }//GEN-LAST:event_boton_mostrartodoActionPerformed
-
-    private void boton_refrescardatosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_refrescardatosActionPerformed
+    private void btnRecargarTablaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRecargarTablaActionPerformed
         cargarTabla();
-    }//GEN-LAST:event_boton_refrescardatosActionPerformed
+        dato_buscar.setText("");
+        btnMostrarTodo.setEnabled(false);
+        limpiarCampos();
+    }//GEN-LAST:event_btnRecargarTablaActionPerformed
+
+    private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
+        int filaSeleccionada = TablaColectivos.getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            return;
+        }
+
+        int id = Integer.parseInt(TablaColectivos.getValueAt(filaSeleccionada, 0).toString());
+
+        int opcion = JOptionPane.showConfirmDialog(this, "¿Está seguro de eliminar este colectivo?", "Eliminar colectivo", JOptionPane.YES_NO_OPTION);
+
+        if (opcion != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        if (colectivoData.eliminarColectivo(id)) {
+            JOptionPane.showMessageDialog(this, "Colectivo eliminado correctamente.");
+            cargarTabla();
+            limpiarCampos();
+        } else {
+            JOptionPane.showMessageDialog(this, "No se pudo eliminar. El colectivo debe estar inactivo y no tener rutas asociadas.");
+        }
+    }//GEN-LAST:event_btnEliminarActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton boton_buscar;
-    private javax.swing.JButton boton_cambiaractivo;
-    private javax.swing.JButton boton_cambiarinactivo;
-    private javax.swing.JButton boton_cancelar;
-    private javax.swing.JButton boton_guardar;
-    private javax.swing.JButton boton_modificar;
-    private javax.swing.JButton boton_mostrartodo;
-    private javax.swing.JButton boton_nuevo;
-    private javax.swing.JButton boton_refrescardatos;
-    private javax.swing.JCheckBox check_estado;
+    private javax.swing.JPanel PanelBotones;
+    private javax.swing.JPanel PanelDatos;
+    private javax.swing.JPanel PanelTabla;
+    private javax.swing.JTable TablaColectivos;
+    private javax.swing.JButton btnBuscar;
+    private javax.swing.JButton btnCancelar;
+    private javax.swing.JButton btnDarAlta;
+    private javax.swing.JButton btnDarBaja;
+    private javax.swing.JButton btnEliminar;
+    private javax.swing.JButton btnGuardar;
+    private javax.swing.JButton btnModificar;
+    private javax.swing.JButton btnMostrarTodo;
+    private javax.swing.JButton btnNuevo;
+    private javax.swing.JButton btnRecargarTabla;
+    private javax.swing.JCheckBox checkEstado;
     private javax.swing.JTextField dato_buscar;
     private javax.swing.JTextField dato_capacidad;
     private javax.swing.JTextField dato_chofer;
@@ -551,174 +660,15 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
     private javax.swing.JTextField dato_marca;
     private javax.swing.JTextField dato_matricula;
     private javax.swing.JTextField dato_modelo;
-    private javax.swing.JPanel escritorio;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JLabel label_busqueda;
-    private javax.swing.JLabel label_capacidad;
-    private javax.swing.JLabel label_chofer;
-    private javax.swing.JLabel label_estado;
-    private javax.swing.JLabel label_id;
-    private javax.swing.JLabel label_marca;
-    private javax.swing.JLabel label_matricula;
-    private javax.swing.JLabel label_modelo;
-    private javax.swing.JLabel label_telefono1;
-    private javax.swing.JTable tabla_datos;
+    private javax.swing.JLabel lblBusqueda;
+    private javax.swing.JLabel lblCapacidad;
+    private javax.swing.JLabel lblChofer;
+    private javax.swing.JLabel lblEstado;
+    private javax.swing.JLabel lblID;
+    private javax.swing.JLabel lblInformacion1;
+    private javax.swing.JLabel lblMarca;
+    private javax.swing.JLabel lblMatricula;
+    private javax.swing.JLabel lblModelo;
     // End of variables declaration//GEN-END:variables
-
-    private void limpiarCampos() {
-        dato_id.setText("");
-        dato_matricula.setText("");
-        dato_marca.setText("");
-        dato_modelo.setText("");
-        dato_capacidad.setText("");
-        dato_chofer.setText("");
-
-        check_estado.setSelected(true);
-
-        tabla_datos.clearSelection();
-
-        dato_matricula.requestFocus();
-        dato_capacidad.setEditable(true);
-        habilitarBotones(false);
-    }
-
-    private Colectivo obtenerYValidarDatos(int idActual) {
-
-        String matricula = dato_matricula.getText().trim();
-        String marca = dato_marca.getText().trim();
-        String modelo = dato_modelo.getText().trim();
-        String capacidadTexto = dato_capacidad.getText().trim();
-        String chofer = dato_chofer.getText().trim();
-
-        if (matricula.isEmpty() || marca.isEmpty()
-                || modelo.isEmpty() || capacidadTexto.isEmpty()
-                || chofer.isEmpty()) {
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Todos los campos son obligatorios.",
-                    "Campos incompletos",
-                    JOptionPane.WARNING_MESSAGE
-            );
-            return null;
-        }
-
-        int capacidad;
-
-        try {
-            capacidad = Integer.parseInt(capacidadTexto);
-
-            if (capacidad <= 0) {
-                JOptionPane.showMessageDialog(
-                        this,
-                        "La capacidad debe ser mayor que cero.",
-                        "Capacidad inválida",
-                        JOptionPane.WARNING_MESSAGE
-                );
-                return null;
-            }
-
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "La capacidad debe contener solamente números enteros.",
-                    "Capacidad inválida",
-                    JOptionPane.WARNING_MESSAGE
-            );
-            return null;
-        }
-
-        Colectivo existente = colectivoData.buscarColectivoPorMatricula(matricula);
-
-        if (existente != null && existente.getID_colectivo() != idActual) {
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Ya existe otro colectivo registrado con esa matrícula.",
-                    "Matrícula duplicada",
-                    JOptionPane.WARNING_MESSAGE
-            );
-
-            return null;
-        }
-
-        return new Colectivo(
-                idActual,
-                matricula,
-                marca,
-                modelo,
-                capacidad,
-                chofer,
-                check_estado.isSelected() ? 1 : 0
-        );
-    }
-
-    private void armarCabecera() {
-        modelo.addColumn("ID");
-        modelo.addColumn("Matricula");
-        modelo.addColumn("Marca");
-        modelo.addColumn("Modelo");
-        modelo.addColumn("Capacidad");
-        modelo.addColumn("Chofer");
-        modelo.addColumn("Estado");
-        tabla_datos.setModel(modelo);
-    }
-
-    private void cargarTabla() {
-        modelo.setRowCount(0);
-
-        for (Colectivo c : colectivoData.listarColectivos()) {
-
-            String estadoTexto = (c.getEstado() == 1) ? "Activo" : "Inactivo";
-
-            modelo.addRow(new Object[]{
-                c.getID_colectivo(),
-                c.getMatricula(),
-                c.getMarca(),
-                c.getModelo(),
-                c.getCapacidad(),
-                c.getChofer(),
-                estadoTexto
-            });
-        }
-    }
-
-    private void cargarDatosSeleccionados() {
-
-        int fila = tabla_datos.getSelectedRow();
-
-        if (fila == -1) {
-            return;
-        }
-
-        dato_id.setText(modelo.getValueAt(fila, 0).toString());
-        dato_matricula.setText(modelo.getValueAt(fila, 1).toString());
-        dato_marca.setText(modelo.getValueAt(fila, 2).toString());
-        dato_modelo.setText(modelo.getValueAt(fila, 3).toString());
-        dato_capacidad.setText(modelo.getValueAt(fila, 4).toString());
-        dato_chofer.setText(modelo.getValueAt(fila, 5).toString());
-
-        check_estado.setSelected(
-                modelo.getValueAt(fila, 6).toString().equals("Activo")
-        );
-
-        dato_capacidad.setEditable(false);
-    }
-
-    private void habilitarBotones(boolean habilitar) {
-
-        boton_modificar.setEnabled(habilitar);
-        boton_cancelar.setEnabled(habilitar);
-
-        if (!habilitar) {
-            boton_cambiaractivo.setEnabled(false);
-            boton_cambiarinactivo.setEnabled(false);
-            return;
-        }
-
-        boton_cambiaractivo.setEnabled(!check_estado.isSelected());
-        boton_cambiarinactivo.setEnabled(check_estado.isSelected());
-
-    }
-
 }

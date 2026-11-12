@@ -9,7 +9,6 @@ import java.time.LocalTime;
 public class ValidacionRutaViaje {
 
     public static String validarRutaViaje(RutaViaje ruta, ColectivoData colectivoData) {
-
         if (ruta == null) {
             return "No se recibieron los datos del viaje.";
         }
@@ -20,7 +19,6 @@ public class ValidacionRutaViaje {
                 || ruta.getFechaViaje() == null
                 || ruta.getHoraSalida() == null
                 || ruta.getHoraLlegada() == null) {
-
             return "Todos los campos son obligatorios.";
         }
 
@@ -63,7 +61,7 @@ public class ValidacionRutaViaje {
         if (colectivo.getEstado() != 1) {
             return "El colectivo seleccionado está dado de baja.";
         }
-
+        
         return null;
     }
 }

@@ -4,24 +4,20 @@ import Modelo.Pasajero;
 import Persistencia.PasajeroData;
 
 public class ValidacionPasajero {
-
     // Valida todos los datos de un pasajero.
     // idActual = 0 cuando se registra uno nuevo.
     // Si se modifica, recibe el ID del pasajero actual.
-    public static String validarPasajero(
-            Pasajero p, PasajeroData data, int idActual) {
-
+    public static String validarPasajero(Pasajero p, PasajeroData data, int idActual) {
         if (p == null) {
             return "No se recibieron los datos del pasajero.";
         }
 
-        // Comprobar campos obligatorios.
+        //Comprobar campos obligatorios.
         if (p.getDni() == null || p.getDni().trim().isEmpty()
                 || p.getNombre() == null || p.getNombre().trim().isEmpty()
                 || p.getApellido() == null || p.getApellido().trim().isEmpty()
                 || p.getCorreo() == null || p.getCorreo().trim().isEmpty()
                 || p.getTelefono() == null || p.getTelefono().trim().isEmpty()) {
-
             return "Todos los campos son obligatorios.";
         }
 

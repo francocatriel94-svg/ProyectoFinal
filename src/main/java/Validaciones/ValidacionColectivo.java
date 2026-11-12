@@ -16,7 +16,6 @@ public class ValidacionColectivo {
                 || colectivo.getMarca() == null || colectivo.getMarca().trim().isEmpty()
                 || colectivo.getModelo() == null || colectivo.getModelo().trim().isEmpty()
                 || colectivo.getChofer() == null || colectivo.getChofer().trim().isEmpty()) {
-
             return "Todos los campos son obligatorios.";
         }
 
@@ -26,14 +25,12 @@ public class ValidacionColectivo {
         }
 
         // Comprobar matrícula duplicada.
-        String matricula = colectivo.getMatricula().trim();
-
-        Colectivo existente = data.buscarColectivoPorMatricula(matricula);
+        String matriculaNormalizada = colectivo.getMatricula().replaceAll("\\s+", "").toUpperCase();
+        Colectivo existente = data.buscarColectivoPorMatricula(matriculaNormalizada);
 
         if (existente != null && existente.getID_colectivo() != idActual) {
             return "Ya existe un colectivo registrado con esa matrícula.";
         }
-
         return null;
     }
 }

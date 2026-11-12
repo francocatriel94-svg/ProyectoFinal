@@ -9,7 +9,7 @@ import Persistencia.RutaViajeData;
 import Persistencia.LugarData;
 
 public class ValidacionPasaje {
-
+    
     public static String validarPasaje(Pasaje pasaje,PasajeroData pasajeroData,RutaViajeData rutaData,LugarData lugarData) {
         if (pasaje == null) {
             return "No se recibieron los datos del pasaje.";
