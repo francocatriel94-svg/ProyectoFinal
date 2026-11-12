@@ -99,7 +99,7 @@ public class JavaMainClass extends javax.swing.JFrame {
             p1.setTelefono("2657444444");
             p1.setEstado(1);
 
-            pasajeroData.guardarPasajero(p1);
+           pasajeroData.guardarPasajero(p1);
             System.out.println("-> Pasajero guardado con ID: " + p1.getID_pasajero());
 
             //6. Crear y guardar el Pasaje.
