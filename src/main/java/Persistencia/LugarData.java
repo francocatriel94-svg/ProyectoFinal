@@ -15,8 +15,9 @@ import javax.swing.JOptionPane;
 public class LugarData {
 
     //Convención asumida del campo estado: 1 = libre, 0 = ocupado.
-    private static final int LIBRE = 1;
-    private static final int OCUPADO = 0;
+    public static final int LIBRE = 1;
+    public static final int OCUPADO = 0;
+    
     private Connection con;
 
     public LugarData() {
@@ -182,7 +183,7 @@ public class LugarData {
 
     //Borra un lugar.
     public void eliminarLugar(int id) {
-        String sql = "DELETE FROM lugares WHERE ID_lugar = ?";
+        String sql = "DELETE FROM lugar WHERE ID_lugar = ?";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);

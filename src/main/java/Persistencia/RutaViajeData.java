@@ -74,6 +74,7 @@ public class RutaViajeData {
         try {
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, id);
+            
             int filas = ps.executeUpdate();
             if (filas > 0) {
                 JOptionPane.showMessageDialog(null, "Ruta dada de baja lógicamente.");
@@ -89,6 +90,7 @@ public class RutaViajeData {
         try {
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, id);
+            
             int filas = ps.executeUpdate();
             if (filas > 0) {
                 JOptionPane.showMessageDialog(null, "Ruta activada con éxito.");
@@ -106,7 +108,9 @@ public class RutaViajeData {
         try {
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, id);
+            
             ResultSet rs = ps.executeQuery();
+            
             if (rs.next()) {
                 ruta = new RutaViaje();
                 ruta.setID_ruta(id);
@@ -136,6 +140,7 @@ public class RutaViajeData {
         try {
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
+            
             while (rs.next()) {
                 RutaViaje r = new RutaViaje();
                 r.setID_ruta(rs.getInt("ID_ruta"));
@@ -165,13 +170,13 @@ public class RutaViajeData {
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, ruta.getOrigen());
             ps.setString(2, ruta.getDestino());
-            ps.setDate(4, Date.valueOf(ruta.getFechaViaje()));
-            ps.setTime(5, Time.valueOf(ruta.getHoraSalida()));
-            ps.setTime(6, Time.valueOf(ruta.getHoraLlegada()));
-            ps.setInt(7, ruta.getID_colectivo());
-            ps.setDouble(8, ruta.getPrecio());
-            ps.setInt(9, ruta.getEstado());
-            ps.setInt(10, ruta.getID_ruta());
+            ps.setDate(3, Date.valueOf(ruta.getFechaViaje()));
+            ps.setTime(4, Time.valueOf(ruta.getHoraSalida()));
+            ps.setTime(5, Time.valueOf(ruta.getHoraLlegada()));
+            ps.setInt(6, ruta.getID_colectivo());
+            ps.setDouble(7, ruta.getPrecio());
+            ps.setInt(8, ruta.getEstado());
+            ps.setInt(9, ruta.getID_ruta());
 
             if (ps.executeUpdate() == 1) {
                 JOptionPane.showMessageDialog(null, "Ruta de viaje modificada con éxito.");

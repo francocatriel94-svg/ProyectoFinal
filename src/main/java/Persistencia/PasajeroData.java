@@ -2,15 +2,12 @@ package Persistencia;
 
 import Modelo.Pasajero;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 public class PasajeroData {
@@ -21,199 +18,213 @@ public class PasajeroData {
         con = Conexion.getConexion();
     }
 
+    // Guarda un pasajero.
     public void guardarPasajero(Pasajero p) {
-        String sql = "INSERT INTO pasajero (dni, nombre, apellido, correo, telefono, estado) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO pasajero " + "(dni, nombre, apellido, correo, telefono, estado) " + "VALUES (?, ?, ?, ?, ?, ?)";
 
         try {
-            PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, p.getDni());
-            ps.setString(2, p.getNombre());
-            ps.setString(3, p.getApellido());
-            ps.setString(4, p.getCorreo());
-            ps.setString(5, p.getTelefono());
-            ps.setInt(6, p.getEstado());
-
-            ps.executeUpdate();
-
-            ResultSet rs = ps.getGeneratedKeys();
-            if (rs.next()) {
-                p.setID_pasajero(rs.getInt(1));
-                JOptionPane.showMessageDialog(null, "Se guardo al Pasajero con éxito. ID: " + p.getID_pasajero());
+            if (existeDniEnOtroPasajero(p.getDni(), 0)) {
+                JOptionPane.showMessageDialog(null, "Ya existe un pasajero registrado con ese DNI.");
+                return;
             }
-            ps.close();
+
+            try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+                ps.setString(1, p.getDni().replace(".", "").trim());
+                ps.setString(2, p.getNombre());
+                ps.setString(3, p.getApellido());
+                ps.setString(4, p.getCorreo());
+                ps.setString(5, p.getTelefono());
+                ps.setInt(6, p.getEstado());
+
+                ps.executeUpdate();
+
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        p.setID_pasajero(rs.getInt(1));
+                        JOptionPane.showMessageDialog(null, "Pasajero guardado con éxito. ID: " + p.getID_pasajero());
+                    }
+                }
+            }
 
         } catch (SQLException ex) {
-            Logger.getLogger(PasajeroData.class.getName()).log(Level.SEVERE, "Error al guardar pasajero", ex);
-            JOptionPane.showMessageDialog(null, "Error al insertar en la base de datos: " + ex.getMessage());
+            JOptionPane.showMessageDialog(null, "Error al guardar pasajero: " + ex.getMessage());
         }
     }
 
+    // Da de baja lógica a un pasajero.
     public void bajaLogicaPasajero(int id) {
-        String sql = "UPDATE pasajero SET estado = 0 WHERE ID_pasajero = ?";
-        
-        try {
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setInt(1, id);
-
-            int filas = ps.executeUpdate();
-            
-            if (filas > 0) {
-                JOptionPane.showMessageDialog(null, "Pasajero dado de baja lógicamente.");
-            }
-            
-            ps.close();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al dar de baja al pasajero: " + ex.getMessage());
-        }
+        cambiarEstado(id, 0, "Pasajero dado de baja.");
     }
 
+    // Reactiva un pasajero.
     public void altaLogicaPasajero(int id) {
-        String sql = "UPDATE pasajero SET estado = 1 WHERE ID_pasajero = ?";
-        try {
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setInt(1, id);
-            ps.executeUpdate();
-            ps.close();
-            JOptionPane.showMessageDialog(null, "Pasajero reactivado con éxito.");
+        cambiarEstado(id, 1, "Pasajero reactivado con éxito.");
+    }
+
+    private void cambiarEstado(int id, int estado, String mensaje) {
+        String sql = "UPDATE pasajero SET estado = ? WHERE ID_pasajero = ?";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, estado);
+            ps.setInt(2, id);
+
+            if (ps.executeUpdate() == 1) {
+                JOptionPane.showMessageDialog(null, mensaje);
+            } else {
+                JOptionPane.showMessageDialog(null, "No se encontró el pasajero.");
+            }
+
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al dar de alta al pasajero: " + ex.getMessage());
+            JOptionPane.showMessageDialog(null, "Error al cambiar el estado del pasajero: " + ex.getMessage());
         }
     }
 
+    // Modifica los datos de un pasajero.
     public void modificarPasajero(Pasajero p) {
-        String sql = "UPDATE pasajero SET dni = ?, nombre = ?, apellido = ?, correo = ?, telefono = ? WHERE ID_pasajero = ?";
-        
-        try {
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, p.getDni());
-            ps.setString(2, p.getNombre());
-            ps.setString(3, p.getApellido());
-            ps.setString(4, p.getCorreo());
-            ps.setString(5, p.getTelefono());
-            ps.setInt(6, p.getID_pasajero());
+        String sql = "UPDATE pasajero SET dni = ?, nombre = ?, " + "apellido = ?, correo = ?, telefono = ? " + "WHERE ID_pasajero = ?";
 
-            int filas = ps.executeUpdate();
-            
-            if (filas > 0) {
-                JOptionPane.showMessageDialog(null, "Pasajero modificado con éxito.");
+        try {
+            // Comprueba que el DNI no pertenezca a otro pasajero.
+            if (existeDniEnOtroPasajero(p.getDni(), p.getID_pasajero())) {
+                JOptionPane.showMessageDialog(null, "Ese DNI ya pertenece a otro pasajero.");
+                return;
             }
-            
-            ps.close();
+
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setString(1, p.getDni().replace(".", "").trim());
+                ps.setString(2, p.getNombre());
+                ps.setString(3, p.getApellido());
+                ps.setString(4, p.getCorreo());
+                ps.setString(5, p.getTelefono());
+                ps.setInt(6, p.getID_pasajero());
+
+                if (ps.executeUpdate() == 1) {
+                    JOptionPane.showMessageDialog(null, "Pasajero modificado con éxito.");
+                } else {
+                    JOptionPane.showMessageDialog(null, "No se encontró el pasajero.");
+                }
+            }
+
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al modificar pasajero: " + ex.getMessage());
         }
     }
 
+    // Busca un pasajero por su ID.
     public Pasajero buscarPasajero(int id) {
-        String sql = "SELECT dni, nombre, apellido, correo, telefono, estado FROM pasajero WHERE ID_pasajero = ?";
-        Pasajero pasajero = null;
+        String sql = "SELECT * FROM pasajero WHERE ID_pasajero = ?";
 
-        try {
-            PreparedStatement ps = con.prepareStatement(sql);
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
 
-            if (rs.next()) {
-                pasajero = new Pasajero();
-                pasajero.setID_pasajero(id);
-                pasajero.setDni(rs.getString("dni"));
-                pasajero.setNombre(rs.getString("nombre"));
-                pasajero.setApellido(rs.getString("apellido"));
-                pasajero.setCorreo(rs.getString("correo"));
-                pasajero.setTelefono(rs.getString("telefono"));
-                pasajero.setEstado(rs.getInt("estado"));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return armarPasajero(rs);
+                }
             }
-            
-            ps.close();
-            
+
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al buscar pasajero: " + ex.getMessage());
         }
-        return pasajero;
+        return null;
     }
 
+    // Busca un pasajero por su DNI.
+    public Pasajero buscarPasajeroPorDni(String dni) {
+        String sql = "SELECT * FROM pasajero " + "WHERE REPLACE(TRIM(dni), '.', '') " + "= REPLACE(TRIM(?), '.', '')";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, dni);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return armarPasajero(rs);
+                }
+            }
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al buscar pasajero por DNI: " + ex.getMessage());
+        }
+        return null;
+    }
+
+    // Comprueba si un DNI pertenece a otro pasajero.
+    // Se utiliza tanto al guardar como al modificar.
+    private boolean existeDniEnOtroPasajero(String dni, int idPasajero) throws SQLException {
+        String sql = "SELECT 1 FROM pasajero " + "WHERE REPLACE(TRIM(dni), '.', '') " + "= REPLACE(TRIM(?), '.', '') " + "AND ID_pasajero != ?";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, dni);
+            ps.setInt(2, idPasajero);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    // Lista los pasajeros activos.
     public List<Pasajero> listarPasajeros() {
-        String sql = "SELECT ID_pasajero, dni, nombre, apellido, correo, telefono, estado FROM pasajero WHERE estado = 1";
+        String sql = "SELECT * FROM pasajero WHERE estado = 1";
+        return listarPorEstado(sql);
+    }
+
+    // Busca un pasajero inactivo por ID.
+    public Pasajero buscarPasajeroInactivo(int id) {
+        String sql = "SELECT * FROM pasajero " + "WHERE ID_pasajero = ? AND estado = 0";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return armarPasajero(rs);
+                }
+            }
+
+            JOptionPane.showMessageDialog(null, "No existe un pasajero inactivo con ese ID.");
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al buscar pasajero inactivo: " + ex.getMessage());
+        }
+        return null;
+    }
+
+    // Lista los pasajeros inactivos.
+    public List<Pasajero> listarPasajerosInactivos() {
+        String sql = "SELECT * FROM pasajero WHERE estado = 0";
+        return listarPorEstado(sql);
+    }
+
+    // Método auxiliar para listar según el estado.
+    private List<Pasajero> listarPorEstado(String sql) {
         List<Pasajero> pasajeros = new ArrayList<>();
-        
-        try {
-            PreparedStatement ps = con.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
+
+        try (PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                Pasajero p = new Pasajero();
-                p.setID_pasajero(rs.getInt("ID_pasajero"));
-                p.setDni(rs.getString("dni"));
-                p.setNombre(rs.getString("nombre"));
-                p.setApellido(rs.getString("apellido"));
-                p.setCorreo(rs.getString("correo"));
-                p.setTelefono(rs.getString("telefono"));
-                p.setEstado(rs.getInt("estado"));
-
-                pasajeros.add(p);
+                pasajeros.add(armarPasajero(rs));
             }
-            
-            ps.close();
-            
+
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al listar pasajeros: " + ex.getMessage());
         }
         return pasajeros;
     }
 
-    public Pasajero buscarPasajeroInactivo(int id) {
-        String sql = "SELECT dni, nombre, apellido, correo, telefono, estado FROM pasajero WHERE ID_pasajero = ? AND estado = 0";
-        Pasajero pasajero = null;
+    // Convierte una fila del ResultSet en un objeto Pasajero.
+    private Pasajero armarPasajero(ResultSet rs) throws SQLException {
+        Pasajero p = new Pasajero();
 
-        try {
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
+        p.setID_pasajero(rs.getInt("ID_pasajero"));
+        p.setDni(rs.getString("dni"));
+        p.setNombre(rs.getString("nombre"));
+        p.setApellido(rs.getString("apellido"));
+        p.setCorreo(rs.getString("correo"));
+        p.setTelefono(rs.getString("telefono"));
+        p.setEstado(rs.getInt("estado"));
 
-            if (rs.next()) {
-                pasajero = new Pasajero();
-                pasajero.setID_pasajero(id);
-                pasajero.setDni(rs.getString("dni"));
-                pasajero.setNombre(rs.getString("nombre"));
-                pasajero.setApellido(rs.getString("apellido"));
-                pasajero.setCorreo(rs.getString("correo"));
-                pasajero.setTelefono(rs.getString("telefono"));
-                pasajero.setEstado(rs.getInt("estado"));
-            } else {
-                JOptionPane.showMessageDialog(null, "No existe un pasajero inactivo con ese ID.");
-            }
-            ps.close();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al buscar pasajero inactivo: " + ex.getMessage());
-        }
-        return pasajero;
-    }
-
-    public List<Pasajero> listarPasajerosInactivos() {
-        String sql = "SELECT ID_pasajero, dni, nombre, apellido, correo, telefono, estado FROM pasajero WHERE estado = 0";
-        List<Pasajero> pasajerosInactivos = new ArrayList<>();
-
-        try {
-            PreparedStatement ps = con.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                Pasajero p = new Pasajero();
-                p.setID_pasajero(rs.getInt("ID_pasajero"));
-                p.setDni(rs.getString("dni"));
-                p.setNombre(rs.getString("nombre"));
-                p.setApellido(rs.getString("apellido"));
-                p.setCorreo(rs.getString("correo"));
-                p.setTelefono(rs.getString("telefono"));
-                p.setEstado(rs.getInt("estado"));
-
-                pasajerosInactivos.add(p);
-            }
-            ps.close();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al listar pasajeros inactivos: " + ex.getMessage());
-        }
-
-        return pasajerosInactivos;
+        return p;
     }
 }
