@@ -60,6 +60,7 @@ public class VistaGestion extends javax.swing.JFrame {
         jMenu2.add(jMenuItem3);
 
         jMenuItem4.setText("Lugares (Asientos)");
+        jMenuItem4.addActionListener(this::jMenuItem4ActionPerformed);
         jMenu2.add(jMenuItem4);
 
         jMenuItem5.setText("Pasajes");
@@ -114,6 +115,12 @@ public class VistaGestion extends javax.swing.JFrame {
         escritorio.add(f);
         f.setVisible(true);
     }//GEN-LAST:event_jMenuItem5ActionPerformed
+
+    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+        GestionLugares f = new GestionLugares();
+        escritorio.add(f);
+        f.setVisible(true);
+    }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     /**
      * @param args the command line arguments

@@ -4,6 +4,7 @@ import Modelo.Colectivo;
 import Modelo.RutaViaje;
 import Persistencia.ColectivoData;
 import Persistencia.RutaViajeData;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -85,7 +86,7 @@ public class GestionViajes extends javax.swing.JInternalFrame {
         boton_cambiarinactivo.setEnabled(false);
         boton_cambiarinactivo.addActionListener(this::boton_cambiarinactivoActionPerformed);
 
-        escritorio.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos de los viajes", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14), new java.awt.Color(51, 51, 51))); // NOI18N
+        escritorio.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos de los viajes", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(51, 51, 51))); // NOI18N
         escritorio.setToolTipText("");
         escritorio.setName("asdaf"); // NOI18N
 
@@ -407,6 +408,7 @@ public class GestionViajes extends javax.swing.JInternalFrame {
             ruta.setID_colectivo(colectivoSeleccionado.getID_colectivo());
             ruta.setPrecio(precio);
             ruta.setEstado(estado);
+            ruta.setFechaViaje(LocalDate.now());
 
             RutaViajeData rutaData = new RutaViajeData();
             rutaData.guardarRutaViaje(ruta);
