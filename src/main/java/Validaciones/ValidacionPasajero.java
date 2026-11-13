@@ -4,12 +4,14 @@ import Modelo.Pasajero;
 import Persistencia.PasajeroData;
 
 public class ValidacionPasajero {
-    // Valida todos los datos de un pasajero.
-    // idActual = 0 cuando se registra uno nuevo.
-    // Si se modifica, recibe el ID del pasajero actual.
+    
     public static String validarPasajero(Pasajero p, PasajeroData data, int idActual) {
         if (p == null) {
             return "No se recibieron los datos del pasajero.";
+        }
+
+        if (data == null) {
+            return "No se pudo acceder a los datos de pasajeros.";
         }
 
         //Comprobar campos obligatorios.
@@ -22,16 +24,19 @@ public class ValidacionPasajero {
         }
 
         String dni = p.getDni().trim();
-
-        // DNI: entre 7 y 10 números.
-        // Se permiten puntos como separadores.
-        if (!dni.matches("[0-9]{7,10}|[0-9]{1,3}(\\.[0-9]{3}){2,3}")) {
+        
+        // DNI: entre 7 y 10 números. Se permiten puntos como separadores.
+        if (!dni.matches("[0-9]{7,10}|[0-9]{1,3}(\\.[0-9]{3}){2}|[0-9]\\.[0-9]{3}\\.[0-9]{3}\\.[0-9]{3}")) {
             return "El DNI debe tener entre 7 y 10 dígitos.";
         }
 
-        // Teléfono: entre 8 y 15 dígitos.
-        if (!p.getTelefono().trim().matches("[0-9]{8,15}")) {
-            return "El teléfono debe contener entre 8 y 15 números.";
+        // Teléfono: entre 8 y 15 dígitos. Permite +, espacios y guiones.
+        String telefono = p.getTelefono().trim();
+
+        if (!telefono.matches("\\+?[0-9 -]+")
+                || telefono.replaceAll("[^0-9]", "").length() < 8
+                || telefono.replaceAll("[^0-9]", "").length() > 15) {
+            return "El teléfono debe contener entre 8 y 15 números. Puede incluir espacios, guiones y un + al principio.";
         }
 
         // Nombre y apellido: letras, espacios y guiones.
@@ -58,7 +63,6 @@ public class ValidacionPasajero {
         if (existente != null && existente.getID_pasajero() != idActual) {
             return "Ya existe un pasajero registrado con ese DNI.";
         }
-
         return null;
     }
 }

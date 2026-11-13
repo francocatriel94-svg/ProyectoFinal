@@ -1,7 +1,7 @@
 package Vista;
 
 import Modelo.Pasajero;
-import Persistencia.ControladorDatos;
+import Validaciones.ValidacionPasajero;
 import Persistencia.PasajeroData;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -15,35 +15,16 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
     public GestionPasajeros() {
         initComponents();
         PasajeroData = new PasajeroData();
-        modeloTabla = (DefaultTableModel) tabla_datos.getModel();
+        modeloTabla = (DefaultTableModel) TablaPasajeros.getModel();
 
-        cargarTabla();
+        cargarTabla(PasajeroData.listarTodosLosPasajeros());
     }
 
-    private void cargarTabla() {
-        modeloTabla.setRowCount(0); //Esto borra visualmente las filas para que no se dupliquen las filas si llamas a un metodo mas de una vez. 
+    private void cargarTabla(List<Pasajero> listaPasajeros) {
+        limpiarCampos();
+        modeloTabla.setRowCount(0);
 
-        List<Pasajero> listaPasajero = PasajeroData.listarPasajeros();
-
-        for (Pasajero p : listaPasajero) {
-            modeloTabla.addRow(new Object[]{
-                p.getID_pasajero(),
-                p.getDni(),
-                p.getApellido(),
-                p.getNombre(),
-                p.getCorreo(),
-                p.getTelefono(),
-                p.getEstado()
-            });
-        }
-    }
-
-    private void cargarTablaInactivos() {
-        modeloTabla.setRowCount(0); //Esto borra visualmente las filas para que no se dupliquen las filas si llamas a un metodo mas de una vez. 
-
-        List<Pasajero> listaPasajero = PasajeroData.listarPasajerosInactivos();
-
-        for (Pasajero p : listaPasajero) {
+        for (Pasajero p : listaPasajeros) {
             modeloTabla.addRow(new Object[]{
                 p.getID_pasajero(),
                 p.getDni(),
@@ -57,18 +38,85 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
     }
 
     private void limpiarCampos() {
+        dato_id.setText("");
         dato_dni.setText("");
         dato_nombre.setText("");
         dato_apellido.setText("");
         dato_telefono.setText("");
         dato_correo.setText("");
-        check_estado.setSelected(false);
+        checkEstado.setSelected(false);
 
-        boton_guardar.setEnabled(true);
-        boton_modificar.setEnabled(false);
-        boton_darBaja.setEnabled(false);
+        btnGuardar.setEnabled(true);
+        btnModificar.setEnabled(false);
+        btnDarAlta.setEnabled(false);
+        btnDarBaja.setEnabled(false);
 
-        tabla_datos.clearSelection();
+        TablaPasajeros.clearSelection();
+    }
+
+    private Pasajero obtenerYValidarDatos(int idActual) {
+        String dni = dato_dni.getText().trim();
+        String nombre = dato_nombre.getText().trim();
+        String apellido = dato_apellido.getText().trim();
+        String correo = dato_correo.getText().trim();
+        String telefono = dato_telefono.getText().trim();
+
+        int estado = idActual == 0 ? 1 : (checkEstado.isSelected() ? 1 : 0);
+
+        Pasajero pasajero = (idActual == 0)
+                ? new Pasajero(dni, nombre, apellido, correo, telefono, estado)
+                : new Pasajero(idActual, dni, nombre, apellido, correo, telefono, estado);
+
+        String error = ValidacionPasajero.validarPasajero(pasajero, PasajeroData, idActual);
+
+        if (error != null) {
+            JOptionPane.showMessageDialog(this, error, "Error de validación", JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+        return pasajero;
+    }
+
+    private void buscarYMostrar(int estado) {
+        String busqueda = dato_buscar.getText().trim();
+
+        if (busqueda.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debe ingresar un ID o DNI para buscar.", "Campo vacío", JOptionPane.WARNING_MESSAGE);
+            dato_buscar.requestFocusInWindow();
+            return;
+        }
+
+        Pasajero pasajeroEncontrado;
+
+        if (cboxBusqueda.getSelectedIndex() == 0) {
+            try {
+                int id = Integer.parseInt(busqueda);
+                pasajeroEncontrado = PasajeroData.buscarPasajero(id, estado);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "El ID debe contener solamente números.", "Error de formato", JOptionPane.WARNING_MESSAGE);
+                dato_buscar.requestFocusInWindow();
+                return;
+            }
+        } else {
+            pasajeroEncontrado = PasajeroData.buscarPasajeroPorDni(busqueda, estado);
+        }
+
+        if (pasajeroEncontrado != null) {
+            cargarTabla(java.util.Collections.singletonList(pasajeroEncontrado));
+        } else {
+            cargarTabla(java.util.Collections.emptyList());
+
+            String mensaje;
+
+            if (estado == PasajeroData.TODOS) {
+                mensaje = "No se encontró ningún pasajero.";
+            } else if (estado == 1) {
+                mensaje = "No se encontró ningún pasajero activo.";
+            } else {
+                mensaje = "No se encontró ningún pasajero inactivo.";
+            }
+
+            JOptionPane.showMessageDialog(this, mensaje, "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 
     /**
@@ -80,150 +128,268 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        escritorio = new javax.swing.JPanel();
-        label_id = new javax.swing.JLabel();
-        label_nombre = new javax.swing.JLabel();
-        label_correo = new javax.swing.JLabel();
-        label_estado = new javax.swing.JLabel();
+        PanelDatos = new javax.swing.JPanel();
+        lblID = new javax.swing.JLabel();
+        lblNombre = new javax.swing.JLabel();
+        lblCorreo = new javax.swing.JLabel();
+        lblEstado = new javax.swing.JLabel();
         dato_id = new javax.swing.JTextField();
         dato_nombre = new javax.swing.JTextField();
         dato_correo = new javax.swing.JTextField();
-        label_dni = new javax.swing.JLabel();
-        label_apellido = new javax.swing.JLabel();
-        label_telefono = new javax.swing.JLabel();
+        lblDNI = new javax.swing.JLabel();
+        lblApellido = new javax.swing.JLabel();
+        lblTelefono = new javax.swing.JLabel();
         dato_dni = new javax.swing.JTextField();
         dato_apellido = new javax.swing.JTextField();
         dato_telefono = new javax.swing.JTextField();
-        check_estado = new javax.swing.JCheckBox();
-        boton_limpiar = new javax.swing.JButton();
-        boton_guardar = new javax.swing.JButton();
-        boton_modificar = new javax.swing.JButton();
-        boton_darBaja = new javax.swing.JButton();
-        label_busqueda = new javax.swing.JLabel();
+        checkEstado = new javax.swing.JCheckBox();
+        PanelBotones = new javax.swing.JPanel();
+        btnNuevo = new javax.swing.JButton();
+        btnGuardar = new javax.swing.JButton();
+        btnModificar = new javax.swing.JButton();
+        btnRecargar = new javax.swing.JButton();
+        btnDarAlta = new javax.swing.JButton();
+        btnDarBaja = new javax.swing.JButton();
+        lblBuscar = new javax.swing.JLabel();
         dato_buscar = new javax.swing.JTextField();
-        boton_buscar = new javax.swing.JButton();
-        boton_recargar = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        tabla_datos = new javax.swing.JTable();
-        boton_buscarInactivo = new javax.swing.JButton();
-        boton_listarInactivos = new javax.swing.JButton();
+        cboxBusqueda = new javax.swing.JComboBox<>();
+        btnBuscar = new javax.swing.JButton();
+        btnBuscarInactivo = new javax.swing.JButton();
         boton_listarActivos = new javax.swing.JButton();
-        boton_darAlta = new javax.swing.JButton();
+        btnBuscarActivo = new javax.swing.JButton();
+        boton_listarInactivos = new javax.swing.JButton();
+        boton_listarTodos = new javax.swing.JButton();
+        PanelTabla = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        TablaPasajeros = new javax.swing.JTable();
 
         setIconifiable(true);
         setTitle("Gestión de Pasajeros");
 
-        escritorio.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos del pasajero ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14), new java.awt.Color(255, 255, 255))); // NOI18N
-        escritorio.setToolTipText("");
-        escritorio.setName("asdaf"); // NOI18N
+        PanelDatos.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos del pasajero ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14), new java.awt.Color(255, 255, 255))); // NOI18N
+        PanelDatos.setToolTipText("");
+        PanelDatos.setName("asdaf"); // NOI18N
 
-        label_id.setText("ID");
+        lblID.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblID.setText("ID:");
 
-        label_nombre.setText("Nombre");
+        lblNombre.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblNombre.setText("Nombre:");
 
-        label_correo.setText("Correo");
+        lblCorreo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblCorreo.setText("Correo:");
 
-        label_estado.setText("Estado");
+        lblEstado.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblEstado.setText("Estado:");
 
         dato_id.setEditable(false);
+        dato_id.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        dato_id.setText("El ID se autogenera.");
+        dato_id.setFocusable(false);
 
-        label_dni.setText("DNI");
+        lblDNI.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblDNI.setText("DNI:");
 
-        label_apellido.setText("Apellido");
+        lblApellido.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblApellido.setText("Apellido:");
 
-        label_telefono.setText("Teléfono");
+        lblTelefono.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblTelefono.setText("Teléfono:");
 
-        check_estado.setText("Activo");
-        check_estado.setEnabled(false);
+        checkEstado.setText("Activo");
+        checkEstado.setEnabled(false);
+        checkEstado.addActionListener(this::checkEstadoActionPerformed);
 
-        javax.swing.GroupLayout escritorioLayout = new javax.swing.GroupLayout(escritorio);
-        escritorio.setLayout(escritorioLayout);
-        escritorioLayout.setHorizontalGroup(
-            escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(escritorioLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(label_id)
-                    .addComponent(label_nombre)
-                    .addComponent(label_correo)
-                    .addComponent(label_estado))
-                .addGap(26, 26, 26)
-                .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(escritorioLayout.createSequentialGroup()
-                        .addComponent(check_estado)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(escritorioLayout.createSequentialGroup()
-                        .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(dato_correo)
-                            .addComponent(dato_nombre, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(dato_id, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(label_telefono)
-                            .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(label_dni)
-                                .addComponent(label_apellido)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(dato_apellido, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(dato_dni, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(dato_telefono))))
-                .addGap(59, 59, 59))
+        javax.swing.GroupLayout PanelDatosLayout = new javax.swing.GroupLayout(PanelDatos);
+        PanelDatos.setLayout(PanelDatosLayout);
+        PanelDatosLayout.setHorizontalGroup(
+            PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelDatosLayout.createSequentialGroup()
+                .addGap(27, 27, 27)
+                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblID)
+                    .addComponent(lblNombre)
+                    .addComponent(lblCorreo)
+                    .addComponent(lblEstado))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PanelDatosLayout.createSequentialGroup()
+                        .addComponent(checkEstado)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 272, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(dato_nombre, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(dato_correo, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(dato_id, javax.swing.GroupLayout.PREFERRED_SIZE, 340, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PanelDatosLayout.createSequentialGroup()
+                        .addComponent(lblTelefono)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(dato_telefono))
+                    .addGroup(PanelDatosLayout.createSequentialGroup()
+                        .addComponent(lblDNI)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(dato_dni))
+                    .addGroup(PanelDatosLayout.createSequentialGroup()
+                        .addComponent(lblApellido)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(dato_apellido)))
+                .addGap(29, 29, 29))
         );
 
-        escritorioLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {dato_apellido, dato_correo, dato_dni, dato_id, dato_nombre, dato_telefono});
+        PanelDatosLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {lblApellido, lblCorreo, lblDNI, lblEstado, lblID, lblNombre, lblTelefono});
 
-        escritorioLayout.setVerticalGroup(
-            escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(escritorioLayout.createSequentialGroup()
-                .addContainerGap(18, Short.MAX_VALUE)
-                .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(label_id)
-                    .addComponent(dato_id, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(dato_dni, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(label_dni))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(label_nombre)
-                    .addComponent(dato_nombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(dato_apellido, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(label_apellido))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(label_correo)
-                    .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(dato_correo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(dato_telefono, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(label_telefono)))
+        PanelDatosLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {dato_apellido, dato_correo, dato_dni, dato_id, dato_nombre, dato_telefono});
+
+        PanelDatosLayout.setVerticalGroup(
+            PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelDatosLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PanelDatosLayout.createSequentialGroup()
+                        .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblID)
+                            .addComponent(dato_id, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblNombre)
+                            .addComponent(dato_nombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblCorreo)
+                            .addComponent(dato_correo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(PanelDatosLayout.createSequentialGroup()
+                        .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(dato_dni, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblDNI))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(dato_apellido, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblApellido))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(dato_telefono, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblTelefono))))
                 .addGap(18, 18, 18)
-                .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(label_estado)
-                    .addComponent(check_estado))
+                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblEstado)
+                    .addComponent(checkEstado))
                 .addContainerGap())
         );
 
-        boton_limpiar.setText("Limpiar Campos");
-        boton_limpiar.addActionListener(this::boton_limpiarActionPerformed);
+        PanelBotones.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Funciones", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.TOP));
 
-        boton_guardar.setText("Guardar");
-        boton_guardar.addActionListener(this::boton_guardarActionPerformed);
+        btnNuevo.setText("Nuevo");
+        btnNuevo.addActionListener(this::btnNuevoActionPerformed);
 
-        boton_modificar.setText("Modificar");
-        boton_modificar.addActionListener(this::boton_modificarActionPerformed);
+        btnGuardar.setText("Guardar");
+        btnGuardar.addActionListener(this::btnGuardarActionPerformed);
 
-        boton_darBaja.setText("Dar De Baja");
-        boton_darBaja.addActionListener(this::boton_darBajaActionPerformed);
+        btnModificar.setText("Modificar");
+        btnModificar.addActionListener(this::btnModificarActionPerformed);
 
-        label_busqueda.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        label_busqueda.setText("Buscar por DNI:");
+        btnRecargar.setText("Recargar Tabla");
+        btnRecargar.addActionListener(this::btnRecargarActionPerformed);
 
-        boton_buscar.setText("Buscar");
-        boton_buscar.addActionListener(this::boton_buscarActionPerformed);
+        btnDarAlta.setForeground(new java.awt.Color(0, 102, 0));
+        btnDarAlta.setText("Dar Alta");
+        btnDarAlta.addActionListener(this::btnDarAltaActionPerformed);
 
-        boton_recargar.setText("Recargar Tabla");
-        boton_recargar.addActionListener(this::boton_recargarActionPerformed);
+        btnDarBaja.setForeground(new java.awt.Color(153, 0, 0));
+        btnDarBaja.setText("Dar Baja");
+        btnDarBaja.addActionListener(this::btnDarBajaActionPerformed);
 
-        tabla_datos.setModel(new javax.swing.table.DefaultTableModel(
+        lblBuscar.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblBuscar.setText("Buscar por:");
+
+        cboxBusqueda.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ID Pasajero", "DNI Pasajero" }));
+
+        btnBuscar.setText("Buscar");
+        btnBuscar.addActionListener(this::btnBuscarActionPerformed);
+
+        btnBuscarInactivo.setText("Buscar Inactivo");
+        btnBuscarInactivo.addActionListener(this::btnBuscarInactivoActionPerformed);
+
+        boton_listarActivos.setText("Listar Activos");
+        boton_listarActivos.addActionListener(this::boton_listarActivosActionPerformed);
+
+        btnBuscarActivo.setText("Buscar Activo");
+        btnBuscarActivo.addActionListener(this::btnBuscarActivoActionPerformed);
+
+        boton_listarInactivos.setText("Listar Inactivos");
+        boton_listarInactivos.addActionListener(this::boton_listarInactivosActionPerformed);
+
+        boton_listarTodos.setText("Listar Todos");
+        boton_listarTodos.addActionListener(this::boton_listarTodosActionPerformed);
+
+        javax.swing.GroupLayout PanelBotonesLayout = new javax.swing.GroupLayout(PanelBotones);
+        PanelBotones.setLayout(PanelBotonesLayout);
+        PanelBotonesLayout.setHorizontalGroup(
+            PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelBotonesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(btnNuevo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblBuscar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(PanelBotonesLayout.createSequentialGroup()
+                        .addComponent(btnGuardar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnModificar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnDarAlta))
+                    .addGroup(PanelBotonesLayout.createSequentialGroup()
+                        .addComponent(cboxBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(dato_buscar)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, PanelBotonesLayout.createSequentialGroup()
+                        .addComponent(btnDarBaja)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(boton_listarTodos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(PanelBotonesLayout.createSequentialGroup()
+                        .addComponent(btnBuscar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnBuscarInactivo)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(boton_listarActivos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnBuscarActivo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(boton_listarInactivos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnRecargar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        PanelBotonesLayout.setVerticalGroup(
+            PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelBotonesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnNuevo)
+                    .addComponent(btnGuardar)
+                    .addComponent(btnModificar)
+                    .addComponent(btnDarAlta)
+                    .addComponent(btnDarBaja)
+                    .addComponent(boton_listarActivos)
+                    .addComponent(boton_listarInactivos)
+                    .addComponent(boton_listarTodos))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(lblBuscar)
+                        .addComponent(dato_buscar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(cboxBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnBuscar)
+                        .addComponent(btnBuscarInactivo))
+                    .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnRecargar, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnBuscarActivo)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        TablaPasajeros.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null, null},
                 {null, null, null, null, null, null, null},
@@ -235,7 +401,7 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
                 false, false, false, false, false, false, false
@@ -249,385 +415,234 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
                 return canEdit [columnIndex];
             }
         });
-        tabla_datos.addMouseListener(new java.awt.event.MouseAdapter() {
+        TablaPasajeros.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tabla_datosMouseClicked(evt);
+                TablaPasajerosMouseClicked(evt);
             }
         });
-        jScrollPane1.setViewportView(tabla_datos);
+        jScrollPane1.setViewportView(TablaPasajeros);
 
-        boton_buscarInactivo.setText("Buscar inactivo");
-        boton_buscarInactivo.addActionListener(this::boton_buscarInactivoActionPerformed);
-
-        boton_listarInactivos.setText("Listar Inactivos");
-        boton_listarInactivos.addActionListener(this::boton_listarInactivosActionPerformed);
-
-        boton_listarActivos.setText("Listar Activos");
-        boton_listarActivos.addActionListener(this::boton_listarActivosActionPerformed);
-
-        boton_darAlta.setText("Dar De Alta");
-        boton_darAlta.addActionListener(this::boton_darAltaActionPerformed);
+        javax.swing.GroupLayout PanelTablaLayout = new javax.swing.GroupLayout(PanelTabla);
+        PanelTabla.setLayout(PanelTablaLayout);
+        PanelTablaLayout.setHorizontalGroup(
+            PanelTablaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelTablaLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1)
+                .addContainerGap())
+        );
+        PanelTablaLayout.setVerticalGroup(
+            PanelTablaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelTablaLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 308, Short.MAX_VALUE)
+                .addContainerGap())
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(escritorio, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addComponent(boton_limpiar, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(boton_guardar, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(boton_modificar, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(boton_darAlta, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(boton_darBaja, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(boton_recargar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(label_busqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dato_buscar, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(boton_buscar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(boton_buscarInactivo, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(boton_listarActivos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(boton_listarInactivos, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(PanelBotones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(PanelDatos, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(PanelTabla, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(escritorio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(PanelDatos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(boton_limpiar)
-                    .addComponent(boton_guardar)
-                    .addComponent(boton_modificar)
-                    .addComponent(boton_darBaja)
-                    .addComponent(boton_recargar)
-                    .addComponent(boton_darAlta))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(label_busqueda)
-                    .addComponent(dato_buscar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(boton_buscar)
-                    .addComponent(boton_buscarInactivo)
-                    .addComponent(boton_listarActivos)
-                    .addComponent(boton_listarInactivos))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 182, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(PanelBotones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(PanelTabla, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void boton_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_guardarActionPerformed
-        // Validamos campo por campo en orden de aparición
-        if (dato_dni.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debes completar el DNI.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            dato_dni.requestFocusInWindow(); // Devuelve el cursor aquí
-            return;
-        }
-        if (dato_apellido.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debes completar el apellido.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            dato_apellido.requestFocusInWindow();
-            return;
-        }
-        if (dato_nombre.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debes completar el nombre.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            dato_nombre.requestFocusInWindow();
-            return;
-        }
-        if (dato_correo.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debes completar el correo electrónico.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            dato_correo.requestFocusInWindow();
-            return;
-        }
-        if (dato_telefono.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debes completar el teléfono.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            dato_telefono.requestFocusInWindow();
+    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
+        Pasajero nuevoPasajero = obtenerYValidarDatos(0);
+
+        if (nuevoPasajero == null) {
             return;
         }
 
-        try {
-            //Manejamos los datos ingresados. Los int se parsean.
-            String dni = dato_dni.getText();
-            String apellido = dato_apellido.getText();
-            String nombre = dato_nombre.getText();
-            String telefono = dato_telefono.getText();
-            String correo = dato_correo.getText();
-            int estado = check_estado.isSelected() ? 1 : 0;
+        if (PasajeroData.guardarPasajero(nuevoPasajero)) {
+            JOptionPane.showMessageDialog(this, "Pasajero guardado con éxito. ID: " + nuevoPasajero.getID_pasajero());
 
-            if (ControladorDatos.ValidarDNILongitud(dni) == false) {
-                JOptionPane.showMessageDialog(this, "El DNI debe tener 8 digitos. (Solo numeros)", "Error de Validacion", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            if (ControladorDatos.ValidarDNINumeros(dni)) {
-                JOptionPane.showMessageDialog(this, "El DNI solo puede contener numeros.", "Error de Validacion", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            if (ControladorDatos.ValidarTelefonoLongitud(telefono) == false) {
-                JOptionPane.showMessageDialog(this, "El telefono debe ser Codigo de area + resto del numero \n Ejemplo: 26665064842", "Error de validacion", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            if (ControladorDatos.ValidarTelefonoNumeros(telefono) == false) {
-                JOptionPane.showMessageDialog(this, "El telefono solo puede contener numeros.", "Error de Validacion", JOptionPane.ERROR_MESSAGE);
-            }
-
-            Pasajero nuevoPasajero = new Pasajero(dni, nombre, apellido, correo, telefono, estado);
-            PasajeroData.guardarPasajero(nuevoPasajero);
-
-            //Limpiamos los campos y recargamos la tabla
-            limpiarCampos();
-            cargarTabla();
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "El DNI debe ser solo números.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+            cargarTabla(PasajeroData.listarTodosLosPasajeros());
+        } else {
+            JOptionPane.showMessageDialog(this, "No se pudo guardar el pasajero. Verificá que el DNI no esté registrado.", "Error", JOptionPane.ERROR_MESSAGE);
         }
-    }//GEN-LAST:event_boton_guardarActionPerformed
+    }//GEN-LAST:event_btnGuardarActionPerformed
 
-    private void boton_modificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_modificarActionPerformed
-        //Verificamos que se haya seleccionado una fila de la tabla.
-        int filaSeleccionada = tabla_datos.getSelectedRow();
+    private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
+        int filaSeleccionada = TablaPasajeros.getSelectedRow();
 
         if (filaSeleccionada == -1) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar un pasajero de la tabla para actualizar sus datos.", "Ningún pasajero seleccionado", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un pasajero de la tabla para modificarlo.", "Ningún pasajero seleccionado", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Validamos campo por campo en orden de aparición
-        if (dato_dni.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debes completar el DNI.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            dato_dni.requestFocusInWindow(); // Devuelve el cursor aquí
-            return;
-        }
-        if (dato_apellido.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debes completar el apellido.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            dato_apellido.requestFocusInWindow();
-            return;
-        }
-        if (dato_nombre.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debes completar el nombre.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            dato_nombre.requestFocusInWindow();
-            return;
-        }
-        if (dato_correo.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debes completar el correo electrónico.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            dato_correo.requestFocusInWindow();
-            return;
-        }
-        if (dato_telefono.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debes completar el teléfono.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            dato_telefono.requestFocusInWindow();
+        int id = (int) TablaPasajeros.getValueAt(filaSeleccionada, 0);
+
+        Pasajero pasajeroModificado = obtenerYValidarDatos(id);
+
+        if (pasajeroModificado == null) {
             return;
         }
 
-        try {
-            //Obtenemos el id_alumno de la primera columna(0).
-            int ID_pasajero = (int) tabla_datos.getValueAt(filaSeleccionada, 0);
+        if (PasajeroData.modificarPasajero(pasajeroModificado)) {
+            JOptionPane.showMessageDialog(this, "Pasajero modificado con éxito.");
 
-            //Leemos los campos modificados
-            String dni = dato_dni.getText();
-            String apellido = dato_apellido.getText();
-            String nombre = dato_nombre.getText();
-            String telefono = dato_telefono.getText();
-            String correo = dato_correo.getText();
-            int estado = check_estado.isSelected() ? 1 : 0;
-
-            //Creamos el objeto Alumno usando el constructor que si tiene id.
-            Pasajero PasajeroModificado = new Pasajero(ID_pasajero, dni, nombre, apellido, correo, telefono, estado);
-
-            //Enviamos el alumno actualizado a la base de datos.
-            PasajeroData.modificarPasajero(PasajeroModificado);
-
-            //Limpiamos los campos y recargamos la tabla.
-            limpiarCampos();
-            cargarTabla();
-
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "El Dni debe ser solo números.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+            cargarTabla(PasajeroData.listarTodosLosPasajeros());
+        } else {
+            JOptionPane.showMessageDialog(this, "No se pudo modificar el pasajero. Verificá que el DNI no esté registrado.", "Error", JOptionPane.ERROR_MESSAGE);
         }
-    }//GEN-LAST:event_boton_modificarActionPerformed
+    }//GEN-LAST:event_btnModificarActionPerformed
 
-    private void boton_limpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_limpiarActionPerformed
+    private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
+        if (!dato_dni.getText().trim().isEmpty()
+                || !dato_nombre.getText().trim().isEmpty()
+                || !dato_apellido.getText().trim().isEmpty()
+                || !dato_correo.getText().trim().isEmpty()
+                || !dato_telefono.getText().trim().isEmpty()) {
+
+            int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea descartar los datos actuales y comenzar un nuevo pasajero?", "Nuevo pasajero", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+            if (respuesta != JOptionPane.YES_OPTION) {
+                return;
+            }
+        }
         limpiarCampos();
-    }//GEN-LAST:event_boton_limpiarActionPerformed
+    }//GEN-LAST:event_btnNuevoActionPerformed
 
-    private void boton_darBajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_darBajaActionPerformed
-        int filaSeleccionada = tabla_datos.getSelectedRow();
+    private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
+        buscarYMostrar(PasajeroData.TODOS);
+    }//GEN-LAST:event_btnBuscarActionPerformed
+
+    private void btnRecargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRecargarActionPerformed
+        cargarTabla(PasajeroData.listarTodosLosPasajeros());
+    }//GEN-LAST:event_btnRecargarActionPerformed
+
+    private void TablaPasajerosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TablaPasajerosMouseClicked
+        int filaSeleccionada = TablaPasajeros.getSelectedRow();
 
         if (filaSeleccionada == -1) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar un pasajero de la tabla para darlo de baja.", "Ningún pasajero seleccionado", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        //Pedimos confirmación antes de borrar.
-        int respuesta = JOptionPane.showConfirmDialog(this, "¿Estás seguro de que queres dar de baja al pasajero seleccionado?", "Confirmar Eliminación", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        dato_id.setText(TablaPasajeros.getValueAt(filaSeleccionada, 0).toString());
+        dato_dni.setText(TablaPasajeros.getValueAt(filaSeleccionada, 1).toString());
+        dato_apellido.setText(TablaPasajeros.getValueAt(filaSeleccionada, 2).toString());
+        dato_nombre.setText(TablaPasajeros.getValueAt(filaSeleccionada, 3).toString());
+        dato_correo.setText(TablaPasajeros.getValueAt(filaSeleccionada, 4).toString());
+        dato_telefono.setText(TablaPasajeros.getValueAt(filaSeleccionada, 5).toString());
 
-        //Si se confirma:
-        if (respuesta == JOptionPane.YES_OPTION) {
-            //Obtenemos el iD_pasajero de la primera columna(0).
-            int ID_pasajero = (int) tabla_datos.getValueAt(filaSeleccionada, 0);
-            PasajeroData.bajaLogicaPasajero(ID_pasajero);
+        boolean activo = TablaPasajeros.getValueAt(filaSeleccionada, 6).toString().equals("1");
 
-            //Limpiamos los campos y recargamos la tabla.
-            limpiarCampos();
-            cargarTabla();
-        }
-    }//GEN-LAST:event_boton_darBajaActionPerformed
+        checkEstado.setSelected(activo);
 
-    private void boton_buscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_buscarActionPerformed
-        if (dato_buscar.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debe colocar el DNI o nombre del Pasajero.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            dato_buscar.requestFocusInWindow(); // Devuelve el cursor al campo de búsqueda
-            return;
-        }
+        btnGuardar.setEnabled(false);
+        btnModificar.setEnabled(true);
+        btnDarBaja.setEnabled(activo);
+        btnDarAlta.setEnabled(!activo);
+    }//GEN-LAST:event_TablaPasajerosMouseClicked
 
-        try {
-            int dni = Integer.parseInt(dato_buscar.getText());
-
-            //Consultamos a la base de datos con el metodo adecuado
-            Pasajero pasajeroEncontrado = PasajeroData.buscarPasajero(dni);
-
-            //Vemos si la base de datos nos devolvio un pasajero o no
-            if (pasajeroEncontrado != null) {
-                //Llenamoss los campos con la informacion dada
-                dato_nombre.setText(pasajeroEncontrado.getNombre());
-                dato_apellido.setText(pasajeroEncontrado.getApellido());
-                dato_dni.setText(pasajeroEncontrado.getDni());
-                dato_correo.setText(pasajeroEncontrado.getCorreo());
-                dato_telefono.setText(pasajeroEncontrado.getTelefono());
-
-                if (pasajeroEncontrado.getEstado() == 1) {
-                    check_estado.setSelected(true);
-                } else {
-                    check_estado.setSelected(false);
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "No se encontró ningún pasajero con el DNI ingresado.", "Sin Resultados", JOptionPane.INFORMATION_MESSAGE);
-            }
-        } catch (NumberFormatException ex) { // Se ejecuta si el usuario ingresó letras o símbolos en el DNI
-            JOptionPane.showMessageDialog(this, "El DNI debe ser solo números.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
-        }
-    }//GEN-LAST:event_boton_buscarActionPerformed
-
-    private void boton_recargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_recargarActionPerformed
-        cargarTabla();
-    }//GEN-LAST:event_boton_recargarActionPerformed
-
-    private void tabla_datosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabla_datosMouseClicked
-        int filaSeleccionada = tabla_datos.getSelectedRow();
-
-        if (filaSeleccionada != -1) {
-            //Leemos cada celda de la fila usando getValueAt(fila, columna) y pasamos a String
-            dato_id.setText(tabla_datos.getValueAt(filaSeleccionada, 0).toString());
-            dato_dni.setText(tabla_datos.getValueAt(filaSeleccionada, 1).toString());
-            dato_nombre.setText(tabla_datos.getValueAt(filaSeleccionada, 3).toString());
-            dato_apellido.setText(tabla_datos.getValueAt(filaSeleccionada, 2).toString());
-            dato_correo.setText(tabla_datos.getValueAt(filaSeleccionada, 4).toString());
-            dato_telefono.setText(tabla_datos.getValueAt(filaSeleccionada, 5).toString());
-
-            //Evaluamos la columna de activo para marcar el RadioButton
-            String estado = tabla_datos.getValueAt(filaSeleccionada, 6).toString();
-            
-            check_estado.setSelected(estado.equals("1"));
-            
-            //Para evitar que el usuario toque guardar cuando selecciona un alumno de la tabla
-            boton_guardar.setEnabled(false);
-            boton_modificar.setEnabled(true);
-            boton_darBaja.setEnabled(true);
-        }
-    }//GEN-LAST:event_tabla_datosMouseClicked
-
-    private void boton_buscarInactivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_buscarInactivoActionPerformed
-        if (dato_buscar.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debe colocar el DNI o nombre del Pasajero.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            dato_buscar.requestFocusInWindow(); // Devuelve el cursor al campo de búsqueda
-            return;
-        }
-
-        try {
-            int dni = Integer.parseInt(dato_buscar.getText());
-
-            //Consultamos a la base de datos con el metodo adecuado
-            Pasajero pasajeroEncontrado = PasajeroData.buscarPasajeroInactivo(dni);
-
-            //Vemos si la base de datos nos devolvio un pasajero o no
-            if (pasajeroEncontrado != null) {
-                //Llenamoss los campos con la informacion dada
-                dato_nombre.setText(pasajeroEncontrado.getNombre());
-                dato_apellido.setText(pasajeroEncontrado.getApellido());
-                dato_dni.setText(pasajeroEncontrado.getDni());
-                dato_correo.setText(pasajeroEncontrado.getCorreo());
-                dato_telefono.setText(pasajeroEncontrado.getTelefono());
-
-                if (pasajeroEncontrado.getEstado() == 1) {
-                    check_estado.setSelected(true);
-                } else {
-                    check_estado.setSelected(false);
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "No se encontró ningún pasajero con el DNI ingresado.", "Sin Resultados", JOptionPane.INFORMATION_MESSAGE);
-            }
-        } catch (NumberFormatException ex) { // Se ejecuta si el usuario ingresó letras o símbolos en el DNI
-            JOptionPane.showMessageDialog(this, "El DNI debe ser solo números.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
-        }
-    }//GEN-LAST:event_boton_buscarInactivoActionPerformed
+    private void btnBuscarInactivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarInactivoActionPerformed
+        buscarYMostrar(0);
+    }//GEN-LAST:event_btnBuscarInactivoActionPerformed
 
     private void boton_listarInactivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_listarInactivosActionPerformed
-        PasajeroData.listarPasajerosInactivos();
-        cargarTablaInactivos();
+        cargarTabla(PasajeroData.listarPasajerosInactivos());
     }//GEN-LAST:event_boton_listarInactivosActionPerformed
 
     private void boton_listarActivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_listarActivosActionPerformed
-        cargarTabla();
+        cargarTabla(PasajeroData.listarPasajerosActivos());
     }//GEN-LAST:event_boton_listarActivosActionPerformed
 
-    private void boton_darAltaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_darAltaActionPerformed
-        int filaSeleccionada = tabla_datos.getSelectedRow();
-        
-        if (filaSeleccionada == -1) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar un pasajero de la tabla para darlo de alta.", "Ningún pasajero seleccionado", JOptionPane.WARNING_MESSAGE);
+    private void btnDarAltaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDarAltaActionPerformed
+        if (checkEstado.isSelected()) {
+            JOptionPane.showMessageDialog(this, "El pasajero seleccionado ya está activo.", "Estado del pasajero", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        
-        int respuesta = JOptionPane.showConfirmDialog(this, "¿Estás seguro de que queres dar de baja al pasajero seleccionado?", "Confirmar Eliminación", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-        
-        if (respuesta == JOptionPane.YES_OPTION) {
-            int ID_pasajero = (int) tabla_datos.getValueAt(filaSeleccionada, 0);
-            PasajeroData.altaLogicaPasajero(ID_pasajero);
+
+        int id = Integer.parseInt(dato_id.getText());
+
+        int respuesta = JOptionPane.showConfirmDialog(this, "¿Está seguro de que desea dar de alta a este pasajero?", "Confirmar alta", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+        if (respuesta != JOptionPane.YES_OPTION) {
+            return;
         }
-        
-        limpiarCampos();
-        cargarTabla();
-    }//GEN-LAST:event_boton_darAltaActionPerformed
+
+        if (PasajeroData.altaLogicaPasajero(id)) {
+            JOptionPane.showMessageDialog(this, "Pasajero dado de alta correctamente.");
+            cargarTabla(PasajeroData.listarTodosLosPasajeros());
+        } else {
+            JOptionPane.showMessageDialog(this, "No se pudo dar de alta al pasajero.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnDarAltaActionPerformed
+
+    private void btnDarBajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDarBajaActionPerformed
+        if (!checkEstado.isSelected()) {
+            JOptionPane.showMessageDialog(this, "El pasajero seleccionado ya está inactivo.", "Estado del pasajero", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int id = Integer.parseInt(dato_id.getText());
+
+        int respuesta = JOptionPane.showConfirmDialog(this, "¿Está seguro de que desea dar de baja a este pasajero?", "Confirmar baja", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+        if (respuesta != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        if (PasajeroData.bajaLogicaPasajero(id)) {
+            JOptionPane.showMessageDialog(this, "Pasajero dado de baja correctamente.");
+            cargarTabla(PasajeroData.listarTodosLosPasajeros());
+        } else {
+            JOptionPane.showMessageDialog(this, "No se pudo dar de baja al pasajero.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnDarBajaActionPerformed
+
+    private void btnBuscarActivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActivoActionPerformed
+        buscarYMostrar(1);
+    }//GEN-LAST:event_btnBuscarActivoActionPerformed
+
+    private void checkEstadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkEstadoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_checkEstadoActionPerformed
+
+    private void boton_listarTodosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_listarTodosActionPerformed
+        cargarTabla(PasajeroData.listarTodosLosPasajeros());
+    }//GEN-LAST:event_boton_listarTodosActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton boton_buscar;
-    private javax.swing.JButton boton_buscarInactivo;
-    private javax.swing.JButton boton_darAlta;
-    private javax.swing.JButton boton_darBaja;
-    private javax.swing.JButton boton_guardar;
-    private javax.swing.JButton boton_limpiar;
+    private javax.swing.JPanel PanelBotones;
+    private javax.swing.JPanel PanelDatos;
+    private javax.swing.JPanel PanelTabla;
+    private javax.swing.JTable TablaPasajeros;
     private javax.swing.JButton boton_listarActivos;
     private javax.swing.JButton boton_listarInactivos;
-    private javax.swing.JButton boton_modificar;
-    private javax.swing.JButton boton_recargar;
-    private javax.swing.JCheckBox check_estado;
+    private javax.swing.JButton boton_listarTodos;
+    private javax.swing.JButton btnBuscar;
+    private javax.swing.JButton btnBuscarActivo;
+    private javax.swing.JButton btnBuscarInactivo;
+    private javax.swing.JButton btnDarAlta;
+    private javax.swing.JButton btnDarBaja;
+    private javax.swing.JButton btnGuardar;
+    private javax.swing.JButton btnModificar;
+    private javax.swing.JButton btnNuevo;
+    private javax.swing.JButton btnRecargar;
+    private javax.swing.JComboBox<String> cboxBusqueda;
+    private javax.swing.JCheckBox checkEstado;
     private javax.swing.JTextField dato_apellido;
     private javax.swing.JTextField dato_buscar;
     private javax.swing.JTextField dato_correo;
@@ -635,16 +650,14 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
     private javax.swing.JTextField dato_id;
     private javax.swing.JTextField dato_nombre;
     private javax.swing.JTextField dato_telefono;
-    private javax.swing.JPanel escritorio;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JLabel label_apellido;
-    private javax.swing.JLabel label_busqueda;
-    private javax.swing.JLabel label_correo;
-    private javax.swing.JLabel label_dni;
-    private javax.swing.JLabel label_estado;
-    private javax.swing.JLabel label_id;
-    private javax.swing.JLabel label_nombre;
-    private javax.swing.JLabel label_telefono;
-    private javax.swing.JTable tabla_datos;
+    private javax.swing.JLabel lblApellido;
+    private javax.swing.JLabel lblBuscar;
+    private javax.swing.JLabel lblCorreo;
+    private javax.swing.JLabel lblDNI;
+    private javax.swing.JLabel lblEstado;
+    private javax.swing.JLabel lblID;
+    private javax.swing.JLabel lblNombre;
+    private javax.swing.JLabel lblTelefono;
     // End of variables declaration//GEN-END:variables
 }

@@ -451,28 +451,19 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-
         if (!dato_matricula.getText().trim().isEmpty()
                 || !dato_marca.getText().trim().isEmpty()
                 || !dato_modelo.getText().trim().isEmpty()
                 || !dato_capacidad.getText().trim().isEmpty()
                 || !dato_chofer.getText().trim().isEmpty()) {
 
-            int respuesta = JOptionPane.showConfirmDialog(
-                    this,
-                    "¿Desea descartar los datos actuales y comenzar un nuevo colectivo?",
-                    "Nuevo colectivo",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE
-            );
+            int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea descartar los datos actuales y comenzar un nuevo colectivo?", "Nuevo colectivo", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
             if (respuesta != JOptionPane.YES_OPTION) {
                 return;
             }
         }
-
         limpiarCampos();
-
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void TablaColectivosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TablaColectivosMouseClicked

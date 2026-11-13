@@ -223,6 +223,7 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
         btnBuscar.setText("Buscar");
         btnBuscar.addActionListener(this::btnBuscarActionPerformed);
 
+        btnBaja.setForeground(new java.awt.Color(255, 0, 0));
         btnBaja.setText("Dar De Baja");
         btnBaja.addActionListener(this::btnBajaActionPerformed);
 
@@ -237,6 +238,7 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
         btnEliminar.setText("Eliminar");
         btnEliminar.addActionListener(this::btnEliminarActionPerformed);
 
+        btnAlta.setForeground(new java.awt.Color(51, 204, 0));
         btnAlta.setText("Dar De Alta");
         btnAlta.addActionListener(this::btnAltaActionPerformed);
 

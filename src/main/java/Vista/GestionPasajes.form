@@ -350,6 +350,9 @@
             </Component>
             <Component class="javax.swing.JButton" name="btnBaja">
               <Properties>
+                <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="0" green="0" red="ff" type="rgb"/>
+                </Property>
                 <Property name="text" type="java.lang.String" value="Dar De Baja"/>
               </Properties>
               <Events>
@@ -396,6 +399,9 @@
             </Component>
             <Component class="javax.swing.JButton" name="btnAlta">
               <Properties>
+                <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="0" green="cc" red="33" type="rgb"/>
+                </Property>
                 <Property name="text" type="java.lang.String" value="Dar De Alta"/>
               </Properties>
               <Events>
