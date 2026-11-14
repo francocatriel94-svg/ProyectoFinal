@@ -371,7 +371,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="btnBuscar" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="btnMostrarTodo" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnListarTodo" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" attributes="0">
                           <Component id="btnNuevo" min="-2" max="-2" attributes="0"/>
@@ -387,7 +387,7 @@
                           <Component id="btnCancelar" max="32767" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <EmptySpace pref="12" max="32767" attributes="0"/>
                   <Component id="btnRecargarTabla" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
@@ -413,7 +413,7 @@
                               <Component id="lblBusqueda" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="dato_buscar" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnBuscar" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="btnMostrarTodo" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="btnListarTodo" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
@@ -492,12 +492,12 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnBuscarActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="btnMostrarTodo">
+        <Component class="javax.swing.JButton" name="btnListarTodo">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Mostrar todos"/>
+            <Property name="text" type="java.lang.String" value="Listar todos"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnMostrarTodoActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnListarTodoActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JButton" name="btnRecargarTabla">

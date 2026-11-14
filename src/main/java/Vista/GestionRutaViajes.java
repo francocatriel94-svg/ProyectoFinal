@@ -17,28 +17,178 @@ import javax.swing.table.DefaultTableModel;
 
 public class GestionRutaViajes extends javax.swing.JInternalFrame {
 
+    private ColectivoData colectivoData;
+    private RutaViajeData rutaData;
     private DefaultTableModel modelo;
 
     public GestionRutaViajes() {
         initComponents();
+
+        colectivoData = new ColectivoData();
+        rutaData = new RutaViajeData();
         modelo = (DefaultTableModel) TablaRutaViaje.getModel();
+
         llenarComboColectivos();
         llenarCombosHorasYMinutos();
+        btnListarTodo.setEnabled(false);
         cargarTabla();
     }
 
-    private void llenarComboColectivos() {
+    private void cargarTabla() {
+        limpiarCampos();
+        modelo.setRowCount(0);
 
-        dato_colectivo.removeAllItems();
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-        dato_colectivo.addItem("Colectivos");
+        for (RutaViaje r : rutaData.listarRutas()) {
+            String estadoTexto = (r.getEstado() == 1) ? "Activo" : "Inactivo";
+            String salida = LocalDateTime.of(r.getFechaSalida(), r.getHoraSalida()).format(formato);
+            String llegada = LocalDateTime.of(r.getFechaLlegada(), r.getHoraLlegada()).format(formato);
 
-        ColectivoData colData = new ColectivoData();
+            modelo.addRow(new Object[]{
+                r.getID_ruta(),
+                r.getOrigen(),
+                r.getDestino(),
+                salida,
+                llegada,
+                r.getID_colectivo(),
+                "$" + r.getPrecio(),
+                estadoTexto
+            });
+        }
+    }
 
-        for (Colectivo c : colData.listarColectivosActivos()) {
-            dato_colectivo.addItem(c);
+    private void limpiarCampos() {
+        dato_id.setText("");
+        dato_origen.setText("");
+        dato_destino.setText("");
+        dato_precio.setText("");
+        dateFechaSalida.setDate(null);
+        dateFechaLlegada.setDate(null);
+        checkEstado.setSelected(true);
+        dato_colectivo.setSelectedIndex(0);
+        cboxHoraSalida.setSelectedIndex(0);
+        cboxMinSalida.setSelectedIndex(0);
+        cboxHoraLlegada.setSelectedIndex(0);
+        cboxMinLlegada.setSelectedIndex(0);
+        TablaRutaViaje.clearSelection();
+        dato_origen.requestFocus();
+
+        habilitarBotones(false);
+    }
+
+    private void cargarDatosSeleccionados() {
+        int filaSeleccionada = TablaRutaViaje.getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            return;
         }
 
+        int idRuta = Integer.parseInt(TablaRutaViaje.getValueAt(filaSeleccionada, 0).toString());
+        RutaViaje ruta = rutaData.buscarRuta(idRuta);
+
+        if (ruta == null) {
+            JOptionPane.showMessageDialog(this, "No se encontró la ruta seleccionada.");
+            return;
+        }
+
+        dato_id.setText(String.valueOf(ruta.getID_ruta()));
+        dato_origen.setText(ruta.getOrigen());
+        dato_destino.setText(ruta.getDestino());
+        dateFechaSalida.setDate(java.sql.Date.valueOf(ruta.getFechaSalida()));
+        dateFechaLlegada.setDate(java.sql.Date.valueOf(ruta.getFechaLlegada()));
+        cboxHoraSalida.setSelectedItem(String.format("%02d", ruta.getHoraSalida().getHour()));
+        cboxMinSalida.setSelectedItem(String.format("%02d", ruta.getHoraSalida().getMinute()));
+        cboxHoraLlegada.setSelectedItem(String.format("%02d", ruta.getHoraLlegada().getHour()));
+        cboxMinLlegada.setSelectedItem(String.format("%02d", ruta.getHoraLlegada().getMinute()));
+
+        for (int i = 0; i < dato_colectivo.getItemCount(); i++) {
+            Object item = dato_colectivo.getItemAt(i);
+
+            if (item instanceof Colectivo && ((Colectivo) item).getID_colectivo() == ruta.getID_colectivo()) {
+                dato_colectivo.setSelectedIndex(i);
+                break;
+            }
+        }
+
+        dato_precio.setText(ruta.getPrecio().toString());
+        checkEstado.setSelected(ruta.getEstado() == 1);
+    }
+
+    private void habilitarBotones(boolean seleccionado) {
+        boolean activo = seleccionado && checkEstado.isSelected();
+
+        btnGuardar.setEnabled(!seleccionado);
+        btnModificar.setEnabled(seleccionado);
+        btnCancelar.setEnabled(seleccionado);
+        btnDarAlta.setEnabled(seleccionado && !activo);
+        btnDarBaja.setEnabled(activo);
+    }
+
+    private RutaViaje obtenerYValidarDatos(int idActual) {
+        String origen = dato_origen.getText().trim();
+        String destino = dato_destino.getText().trim();
+
+        if (dateFechaSalida.getDate() == null || dateFechaLlegada.getDate() == null) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar las fechas de salida y llegada.", "Error de validación", JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+
+        if (!(dato_colectivo.getSelectedItem() instanceof Colectivo)) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un colectivo válido.", "Error de validación", JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+
+        if (dato_precio.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "El campo precio no puede estar vacío.", "Error de validación", JOptionPane.WARNING_MESSAGE);
+            dato_precio.requestFocus();
+            return null;
+        }
+
+        Colectivo colectivoSeleccionado = (Colectivo) dato_colectivo.getSelectedItem();
+
+        LocalDate fechaSalida = dateFechaSalida.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate fechaLlegada = dateFechaLlegada.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        int hSalida = Integer.parseInt(cboxHoraSalida.getSelectedItem().toString());
+        int mSalida = Integer.parseInt(cboxMinSalida.getSelectedItem().toString());
+        LocalTime horaSalida = LocalTime.of(hSalida, mSalida);
+
+        int hLlegada = Integer.parseInt(cboxHoraLlegada.getSelectedItem().toString());
+        int mLlegada = Integer.parseInt(cboxMinLlegada.getSelectedItem().toString());
+        LocalTime horaLlegada = LocalTime.of(hLlegada, mLlegada);
+
+        BigDecimal precio = new BigDecimal(dato_precio.getText().trim().replace("$", ""));
+
+        RutaViaje ruta = new RutaViaje();
+        ruta.setID_ruta(idActual);
+        ruta.setOrigen(origen);
+        ruta.setDestino(destino);
+        ruta.setFechaSalida(fechaSalida);
+        ruta.setFechaLlegada(fechaLlegada);
+        ruta.setHoraSalida(horaSalida);
+        ruta.setHoraLlegada(horaLlegada);
+        ruta.setID_colectivo(colectivoSeleccionado.getID_colectivo());
+        ruta.setPrecio(precio);
+        ruta.setEstado(checkEstado.isSelected() ? 1 : 0);
+
+        String error = ValidacionRutaViaje.validarRutaViaje(ruta, colectivoData);
+
+        if (error != null) {
+            JOptionPane.showMessageDialog(this, error, "Error de validación", JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+
+        return ruta;
+    }
+
+    private void llenarComboColectivos() {
+        dato_colectivo.removeAllItems();
+        dato_colectivo.addItem("Colectivos");
+
+        for (Colectivo c : colectivoData.listarColectivosActivos()) {
+            dato_colectivo.addItem(c);
+        }
         dato_colectivo.setSelectedIndex(0);
     }
 
@@ -77,84 +227,17 @@ public class GestionRutaViajes extends javax.swing.JInternalFrame {
             }
 
             int idRuta = Integer.parseInt(dato_id.getText().trim());
-            RutaViajeData data = new RutaViajeData();
-            boolean resultado = activar ? data.altaLogicaRuta(idRuta) : data.bajaLogicaRuta(idRuta);
+            boolean resultado = activar ? rutaData.altaLogicaRuta(idRuta) : rutaData.bajaLogicaRuta(idRuta);
 
             if (resultado) {
                 JOptionPane.showMessageDialog(this, activar ? "Viaje activado correctamente." : "Viaje dado de baja correctamente.");
-                limpiarCampos();
+                cargarTabla();
             } else {
                 JOptionPane.showMessageDialog(this, "No se pudo modificar el estado del viaje.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-    }
-
-    private void cargarTabla() {
-        modelo.setRowCount(0);
-
-        RutaViajeData rutaData = new RutaViajeData();
-        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-
-        for (RutaViaje r : rutaData.listarRutas()) {
-            String estadoTexto = (r.getEstado() == 1) ? "Activo" : "Inactivo";
-            String salida = LocalDateTime.of(r.getFechaSalida(), r.getHoraSalida()).format(formato);
-            String llegada = LocalDateTime.of(r.getFechaLlegada(), r.getHoraLlegada()).format(formato);
-
-            modelo.addRow(new Object[]{
-                r.getID_ruta(),
-                r.getOrigen(),
-                r.getDestino(),
-                salida,
-                llegada,
-                r.getID_colectivo(),
-                "$" + r.getPrecio(),
-                estadoTexto
-            });
-        }
-    }
-
-    private void limpiarCampos() {
-        dato_id.setText("");
-        dato_origen.setText("");
-        dato_destino.setText("");
-        dato_precio.setText("");
-
-        // Limpiar fechas.
-        dateFechaSalida.setDate(null);
-        dateFechaLlegada.setDate(null);
-
-        checkEstado.setSelected(true);
-
-        if (dato_colectivo.getItemCount() > 0) {
-            dato_colectivo.setSelectedIndex(0);
-        }
-
-        if (cboxHoraSalida.getItemCount() > 0) {
-            cboxHoraSalida.setSelectedIndex(0);
-        }
-
-        if (cboxMinSalida.getItemCount() > 0) {
-            cboxMinSalida.setSelectedIndex(0);
-        }
-
-        if (cboxHoraLlegada.getItemCount() > 0) {
-            cboxHoraLlegada.setSelectedIndex(0);
-        }
-
-        if (cboxMinLlegada.getItemCount() > 0) {
-            cboxMinLlegada.setSelectedIndex(0);
-        }
-
-        dato_origen.requestFocus();
-
-        btnDarAlta.setEnabled(false);
-        btnDarBaja.setEnabled(false);
-        btnModificar.setEnabled(false);
-        btnCancelar.setEnabled(false);
-
-        cargarTabla();
     }
 
     /**
@@ -199,7 +282,7 @@ public class GestionRutaViajes extends javax.swing.JInternalFrame {
         lblBusqueda = new javax.swing.JLabel();
         dato_buscar = new javax.swing.JTextField();
         btnBuscar = new javax.swing.JButton();
-        btnMostrarTodo = new javax.swing.JButton();
+        btnListarTodo = new javax.swing.JButton();
         btnRecargarTabla = new javax.swing.JButton();
         PanelTabla = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -396,8 +479,8 @@ public class GestionRutaViajes extends javax.swing.JInternalFrame {
         btnBuscar.setText("Buscar");
         btnBuscar.addActionListener(this::btnBuscarActionPerformed);
 
-        btnMostrarTodo.setText("Mostrar todos");
-        btnMostrarTodo.addActionListener(this::btnMostrarTodoActionPerformed);
+        btnListarTodo.setText("Listar todos");
+        btnListarTodo.addActionListener(this::btnListarTodoActionPerformed);
 
         btnRecargarTabla.setText("Recargar Tabla");
         btnRecargarTabla.setActionCommand("");
@@ -417,7 +500,7 @@ public class GestionRutaViajes extends javax.swing.JInternalFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnBuscar)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnMostrarTodo))
+                        .addComponent(btnListarTodo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(PanelBotonesLayout.createSequentialGroup()
                         .addComponent(btnNuevo)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -430,7 +513,7 @@ public class GestionRutaViajes extends javax.swing.JInternalFrame {
                         .addComponent(btnDarBaja)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnCancelar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
                 .addComponent(btnRecargarTabla)
                 .addContainerGap())
         );
@@ -453,7 +536,7 @@ public class GestionRutaViajes extends javax.swing.JInternalFrame {
                             .addComponent(lblBusqueda)
                             .addComponent(dato_buscar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnBuscar)
-                            .addComponent(btnMostrarTodo))))
+                            .addComponent(btnListarTodo))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -535,83 +618,21 @@ public class GestionRutaViajes extends javax.swing.JInternalFrame {
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
         try {
-            String origen = dato_origen.getText().trim();
-            String destino = dato_destino.getText().trim();
+            RutaViaje ruta = obtenerYValidarDatos(0);
 
-            // Comprobar que se hayan seleccionado las fechas.
-            if (dateFechaSalida.getDate() == null || dateFechaLlegada.getDate() == null) {
-                JOptionPane.showMessageDialog(this, "Debe seleccionar las fechas de salida y llegada.", "Error de validación", JOptionPane.WARNING_MESSAGE);
+            if (ruta == null) {
                 return;
             }
 
-            // Comprobar que se haya seleccionado un colectivo.
-            if (!(dato_colectivo.getSelectedItem() instanceof Colectivo)) {
-                JOptionPane.showMessageDialog(this, "Debe seleccionar un colectivo válido.", "Error de validación", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            Colectivo colectivoSeleccionado = (Colectivo) dato_colectivo.getSelectedItem();
-
-            // Obtener las fechas seleccionadas.
-            LocalDate fechaSalida = dateFechaSalida.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            LocalDate fechaLlegada = dateFechaLlegada.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-
-            // Obtener la hora de salida.
-            int hSalida = Integer.parseInt(cboxHoraSalida.getSelectedItem().toString());
-            int mSalida = Integer.parseInt(cboxMinSalida.getSelectedItem().toString());
-            LocalTime horaSalida = LocalTime.of(hSalida, mSalida);
-
-            // Obtener la hora de llegada.
-            int hLlegada = Integer.parseInt(cboxHoraLlegada.getSelectedItem().toString());
-            int mLlegada = Integer.parseInt(cboxMinLlegada.getSelectedItem().toString());
-            LocalTime horaLlegada = LocalTime.of(hLlegada, mLlegada);
-
-            // Comprobar el precio.
-            if (dato_precio.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(this, "El campo precio no puede estar vacío.", "Error de validación", JOptionPane.WARNING_MESSAGE);
-                dato_precio.requestFocus();
-                return;
-            }
-
-            BigDecimal precio = new BigDecimal(dato_precio.getText().trim().replace("$", ""));
-
-            int estado = checkEstado.isSelected() ? 1 : 0;
-
-            // Crear el objeto RutaViaje.
-            RutaViaje ruta = new RutaViaje();
-            ruta.setOrigen(origen);
-            ruta.setDestino(destino);
-            ruta.setFechaSalida(fechaSalida);
-            ruta.setFechaLlegada(fechaLlegada);
-            ruta.setHoraSalida(horaSalida);
-            ruta.setHoraLlegada(horaLlegada);
-            ruta.setID_colectivo(colectivoSeleccionado.getID_colectivo());
-            ruta.setPrecio(precio);
-            ruta.setEstado(estado);
-
-            // Validar los datos.
-            ColectivoData colectivoData = new ColectivoData();
-
-            String error = ValidacionRutaViaje.validarRutaViaje(ruta, colectivoData);
-
-            if (error != null) {
-                JOptionPane.showMessageDialog(this, error, "Error de validación", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            // Confirmar el guardado.
             int respuesta = JOptionPane.showConfirmDialog(this, "¿Está seguro que desea guardar esta ruta de viaje?", "Confirmar guardado", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
             if (respuesta != JOptionPane.YES_OPTION) {
                 return;
             }
 
-            // Guardar la ruta.
-            RutaViajeData rutaData = new RutaViajeData();
-
             if (rutaData.guardarRutaViaje(ruta)) {
                 JOptionPane.showMessageDialog(this, "La ruta de viaje se guardó correctamente.", "Operación exitosa", JOptionPane.INFORMATION_MESSAGE);
-                limpiarCampos();
+                cargarTabla();
             } else {
                 JOptionPane.showMessageDialog(this, "No se pudo guardar la ruta de viaje.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -623,17 +644,11 @@ public class GestionRutaViajes extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
+        if (TablaRutaViaje.getSelectedRow() != -1 || !dato_origen.getText().trim().isEmpty()
+                || !dato_destino.getText().trim().isEmpty() || !dato_precio.getText().trim().isEmpty()
+                || dateFechaSalida.getDate() != null || dateFechaLlegada.getDate() != null) {
 
-        if (!dato_origen.getText().trim().isEmpty() || !dato_destino.getText().trim().isEmpty() 
-                || !dato_precio.getText().trim().isEmpty() || dateFechaSalida.getDate() != null || dateFechaLlegada.getDate() != null) {
-            
-            int respuesta = JOptionPane.showConfirmDialog(
-                    this,
-                    "¿Desea descartar los datos actuales y comenzar un nuevo viaje?",
-                    "Nuevo viaje",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE
-            );
+            int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea descartar los datos actuales y comenzar un nuevo viaje?", "Nuevo viaje", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
             if (respuesta != JOptionPane.YES_OPTION) {
                 return;
@@ -643,49 +658,8 @@ public class GestionRutaViajes extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void TablaRutaViajeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TablaRutaViajeMouseClicked
-        int filaSeleccionada = TablaRutaViaje.getSelectedRow();
-
-        if (filaSeleccionada != -1) {
-            int idRuta = Integer.parseInt(TablaRutaViaje.getValueAt(filaSeleccionada, 0).toString());
-            RutaViajeData rutaData = new RutaViajeData();
-            RutaViaje ruta = rutaData.buscarRuta(idRuta);
-
-            if (ruta == null) {
-                JOptionPane.showMessageDialog(this, "No se encontró la ruta seleccionada.");
-                return;
-            }
-
-            dato_id.setText(String.valueOf(ruta.getID_ruta()));
-            dato_origen.setText(ruta.getOrigen());
-            dato_destino.setText(ruta.getDestino());
-
-            dateFechaSalida.setDate(java.sql.Date.valueOf(ruta.getFechaSalida()));
-            dateFechaLlegada.setDate(java.sql.Date.valueOf(ruta.getFechaLlegada()));
-
-            cboxHoraSalida.setSelectedItem(String.format("%02d", ruta.getHoraSalida().getHour()));
-            cboxMinSalida.setSelectedItem(String.format("%02d", ruta.getHoraSalida().getMinute()));
-            cboxHoraLlegada.setSelectedItem(String.format("%02d", ruta.getHoraLlegada().getHour()));
-            cboxMinLlegada.setSelectedItem(String.format("%02d", ruta.getHoraLlegada().getMinute()));
-
-            for (int i = 0; i < dato_colectivo.getItemCount(); i++) {
-                Object item = dato_colectivo.getItemAt(i);
-                if (item instanceof Colectivo && ((Colectivo) item).getID_colectivo() == ruta.getID_colectivo()) {
-                    dato_colectivo.setSelectedIndex(i);
-                    break;
-                }
-            }
-
-            dato_precio.setText(ruta.getPrecio().toString());
-
-            boolean esActivo = ruta.getEstado() == 1;
-            checkEstado.setSelected(esActivo);
-
-            btnDarAlta.setEnabled(!esActivo);
-            btnDarBaja.setEnabled(esActivo);
-            btnModificar.setEnabled(true);
-            btnCancelar.setEnabled(true);
-        }
-
+        cargarDatosSeleccionados();
+        habilitarBotones(TablaRutaViaje.getSelectedRow() != -1);
     }//GEN-LAST:event_TablaRutaViajeMouseClicked
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
@@ -699,83 +673,21 @@ public class GestionRutaViajes extends javax.swing.JInternalFrame {
 
             int idRuta = Integer.parseInt(TablaRutaViaje.getValueAt(filaSeleccionada, 0).toString());
 
-            String origen = dato_origen.getText().trim();
-            String destino = dato_destino.getText().trim();
+            RutaViaje ruta = obtenerYValidarDatos(idRuta);
 
-            // Comprobar fechas.
-            if (dateFechaSalida.getDate() == null || dateFechaLlegada.getDate() == null) {
-                JOptionPane.showMessageDialog(this, "Debe seleccionar las fechas de salida y llegada.", "Error de validación", JOptionPane.WARNING_MESSAGE);
+            if (ruta == null) {
                 return;
             }
 
-            // Comprobar colectivo.
-            if (!(dato_colectivo.getSelectedItem() instanceof Colectivo)) {
-                JOptionPane.showMessageDialog(this, "Debe seleccionar un colectivo válido.", "Error de validación", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            Colectivo colectivoSeleccionado = (Colectivo) dato_colectivo.getSelectedItem();
-
-            // Obtener fechas.
-            LocalDate fechaSalida = dateFechaSalida.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            LocalDate fechaLlegada = dateFechaLlegada.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-
-            // Obtener hora de salida.
-            int hSalida = Integer.parseInt(cboxHoraSalida.getSelectedItem().toString());
-            int mSalida = Integer.parseInt(cboxMinSalida.getSelectedItem().toString());
-            LocalTime horaSalida = LocalTime.of(hSalida, mSalida);
-
-            // Obtener hora de llegada.
-            int hLlegada = Integer.parseInt(cboxHoraLlegada.getSelectedItem().toString());
-            int mLlegada = Integer.parseInt(cboxMinLlegada.getSelectedItem().toString());
-            LocalTime horaLlegada = LocalTime.of(hLlegada, mLlegada);
-
-            // Comprobar precio.
-            if (dato_precio.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(this, "El campo precio no puede estar vacío.", "Error de validación", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            BigDecimal precio = new BigDecimal(dato_precio.getText().trim().replace("$", ""));
-
-            int estado = checkEstado.isSelected() ? 1 : 0;
-
-            // Crear objeto RutaViaje.
-            RutaViaje ruta = new RutaViaje();
-            ruta.setID_ruta(idRuta);
-            ruta.setOrigen(origen);
-            ruta.setDestino(destino);
-            ruta.setFechaSalida(fechaSalida);
-            ruta.setFechaLlegada(fechaLlegada);
-            ruta.setHoraSalida(horaSalida);
-            ruta.setHoraLlegada(horaLlegada);
-            ruta.setID_colectivo(colectivoSeleccionado.getID_colectivo());
-            ruta.setPrecio(precio);
-            ruta.setEstado(estado);
-
-            // Validar datos.
-            ColectivoData colectivoData = new ColectivoData();
-
-            String error = ValidacionRutaViaje.validarRutaViaje(ruta, colectivoData);
-
-            if (error != null) {
-                JOptionPane.showMessageDialog(this, error, "Error de validación", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            // Confirmar modificación.
             int respuesta = JOptionPane.showConfirmDialog(this, "¿Está seguro que desea modificar esta ruta de viaje?", "Confirmar modificación", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
             if (respuesta != JOptionPane.YES_OPTION) {
                 return;
             }
 
-            // Modificar ruta.
-            RutaViajeData rutaData = new RutaViajeData();
-
             if (rutaData.modificarRutaViaje(ruta)) {
                 JOptionPane.showMessageDialog(this, "La ruta de viaje se modificó correctamente.", "Operación exitosa", JOptionPane.INFORMATION_MESSAGE);
-                limpiarCampos();
+                cargarTabla();
             } else {
                 JOptionPane.showMessageDialog(this, "No se pudo modificar la ruta de viaje.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -801,17 +713,16 @@ public class GestionRutaViajes extends javax.swing.JInternalFrame {
             JOptionPane.showMessageDialog(this, "Por favor, ingrese un destino para buscar.", "Atención", JOptionPane.WARNING_MESSAGE);
             return;
         }
-
+        limpiarCampos();
         modelo.setRowCount(0);
-        RutaViajeData rutaData = new RutaViajeData();
+
         List<RutaViaje> listaFiltrada = rutaData.buscarRutasPorDestino(destinoBuscado);
 
         if (listaFiltrada.isEmpty()) {
             JOptionPane.showMessageDialog(this, "No se encontraron rutas con ese destino.", "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
-            btnMostrarTodo.setEnabled(true);
+            btnListarTodo.setEnabled(true);
             return;
         }
-
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
         for (RutaViaje r : listaFiltrada) {
@@ -821,15 +732,14 @@ public class GestionRutaViajes extends javax.swing.JInternalFrame {
 
             modelo.addRow(new Object[]{r.getID_ruta(), r.getOrigen(), r.getDestino(), salida, llegada, r.getID_colectivo(), "$" + r.getPrecio(), estadoTexto});
         }
-
-        btnMostrarTodo.setEnabled(true);
+        btnListarTodo.setEnabled(true);
     }//GEN-LAST:event_btnBuscarActionPerformed
 
-    private void btnMostrarTodoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMostrarTodoActionPerformed
+    private void btnListarTodoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListarTodoActionPerformed
         dato_buscar.setText("");
         cargarTabla();
-        btnMostrarTodo.setEnabled(false);
-    }//GEN-LAST:event_btnMostrarTodoActionPerformed
+        btnListarTodo.setEnabled(false);
+    }//GEN-LAST:event_btnListarTodoActionPerformed
 
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
         if (TablaRutaViaje.getSelectedRow() == -1) {
@@ -838,14 +748,17 @@ public class GestionRutaViajes extends javax.swing.JInternalFrame {
 
         int respuesta = JOptionPane.showConfirmDialog(this, "¿Está seguro de que desea descartar los cambios realizados?", "Confirmar cancelación", JOptionPane.YES_NO_OPTION);
 
-        if (respuesta == JOptionPane.YES_OPTION)
-            TablaRutaViajeMouseClicked(null);
+        if (respuesta == JOptionPane.YES_OPTION) {
+            cargarDatosSeleccionados();
+            habilitarBotones(true);
+        }
     }//GEN-LAST:event_btnCancelarActionPerformed
 
     private void btnRecargarTablaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRecargarTablaActionPerformed
+        dato_buscar.setText("");
+        btnListarTodo.setEnabled(false);
         cargarTabla();
     }//GEN-LAST:event_btnRecargarTablaActionPerformed
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel PanelBotones;
@@ -857,8 +770,8 @@ public class GestionRutaViajes extends javax.swing.JInternalFrame {
     private javax.swing.JButton btnDarAlta;
     private javax.swing.JButton btnDarBaja;
     private javax.swing.JButton btnGuardar;
+    private javax.swing.JButton btnListarTodo;
     private javax.swing.JButton btnModificar;
-    private javax.swing.JButton btnMostrarTodo;
     private javax.swing.JButton btnNuevo;
     private javax.swing.JButton btnRecargarTabla;
     private javax.swing.JComboBox<String> cboxHoraLlegada;

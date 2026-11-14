@@ -42,7 +42,7 @@ public class LugarData {
         }
         return false;
     }
-    
+
     // Modificamos los valores de un lugar.
     public boolean modificarLugar(Lugar asiento) {
         String sql = "UPDATE lugar SET ID_ruta = ?, numeroAsiento = ?, estado = ? WHERE ID_lugar = ?";
@@ -54,6 +54,70 @@ public class LugarData {
             ps.setInt(4, asiento.getID_lugar());
 
             return ps.executeUpdate() == 1;
+
+        } catch (SQLException ex) {
+            return false;
+        }
+    }
+
+    // Marcar como ocupado (al vender un pasaje).
+    public boolean ocuparLugar(int id) {
+        return cambiarEstado(id, OCUPADO);
+    }
+
+    // Marcar como libre (al anular un pasaje).
+    public boolean desocuparLugar(int id) {
+        return cambiarEstado(id, LIBRE);
+    }
+    
+    // Borra un lugar.
+    public boolean eliminarLugar(int id) {
+        String sql = "DELETE FROM lugar WHERE ID_lugar = ?";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+
+            return ps.executeUpdate() == 1;
+
+        } catch (SQLException ex) {
+            return false;
+        }
+    }
+    
+    // Comprueba si un asiento está disponible para un pasaje.
+    public boolean estaDisponibleParaPasaje(int idLugar, int idRuta, int idPasajeActual) {
+        String sql = "SELECT l.estado, EXISTS (SELECT 1 FROM pasaje p WHERE p.ID_lugar = l.ID_lugar AND p.ID_ruta = l.ID_ruta AND p.estado = 1 AND p.ID_pasaje <> ?) AS ocupadoPorOtro, EXISTS (SELECT 1 FROM pasaje p "
+                + "WHERE p.ID_lugar = l.ID_lugar AND p.ID_ruta = l.ID_ruta AND p.estado = 1 AND p.ID_pasaje = ?) AS ocupadoPorActual FROM lugar l WHERE l.ID_lugar = ? AND l.ID_ruta = ?";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idPasajeActual);
+            ps.setInt(2, idPasajeActual);
+            ps.setInt(3, idLugar);
+            ps.setInt(4, idRuta);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    return false;
+                }
+
+                int estado = rs.getInt("estado");
+                boolean ocupadoPorOtro = rs.getBoolean("ocupadoPorOtro");
+                boolean ocupadoPorActual = rs.getBoolean("ocupadoPorActual");
+
+                if (ocupadoPorOtro) {
+                    return false;
+                }
+
+                if (estado == LIBRE) {
+                    return !ocupadoPorActual;
+                }
+
+                if (estado == OCUPADO) {
+                    return ocupadoPorActual;
+                }
+
+                return false;
+            }
 
         } catch (SQLException ex) {
             return false;
@@ -79,16 +143,6 @@ public class LugarData {
         return asiento;
     }
 
-    // Marcar como ocupado (al vender un pasaje).
-    public boolean ocuparLugar(int id) {
-        return cambiarEstado(id, OCUPADO);
-    }
-
-    // Marcar como libre (al anular un pasaje).
-    public boolean desocuparLugar(int id) {
-        return cambiarEstado(id, LIBRE);
-    }
-    
     // Busca un asiento por su ruta y id(para evitar duplicados).
     public Lugar buscarLugarPorNumero(int idRuta, int numeroAsiento) {
         String sql = "SELECT * FROM lugar WHERE ID_ruta = ? AND numeroAsiento = ?";
@@ -108,7 +162,7 @@ public class LugarData {
         }
         return asiento;
     }
-
+    
     // Lista todos los lugares.
     public List<Lugar> listarLugares() {
         String sql = "SELECT * FROM lugar";
@@ -164,20 +218,38 @@ public class LugarData {
         return asientos;
     }
 
-    // Borra un lugar.
-    public boolean eliminarLugar(int id) {
-        String sql = "DELETE FROM lugar WHERE ID_lugar = ?";
+    // Ocupa un lugar dentro de una transacción externa.
+    void ocuparLugar(Connection conexion, int idLugar, int idRuta) throws SQLException {
+        String sql = "UPDATE lugar SET estado = ? WHERE ID_lugar = ? AND ID_ruta = ? AND estado = ?";
 
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, id);
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setInt(1, OCUPADO);
+            ps.setInt(2, idLugar);
+            ps.setInt(3, idRuta);
+            ps.setInt(4, LIBRE);
 
-            return ps.executeUpdate() == 1;
-
-        } catch (SQLException ex) {
-            return false;
+            if (ps.executeUpdate() != 1) {
+                throw new SQLException("El asiento no existe, no pertenece a esta ruta o ya está ocupado.");
+            }
         }
     }
-    
+
+    // Libera un lugar dentro de una transacción externa.
+    void desocuparLugar(Connection conexion, int idLugar, int idRuta) throws SQLException {
+        String sql = "UPDATE lugar SET estado = ? WHERE ID_lugar = ? AND ID_ruta = ? AND estado = ?";
+
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setInt(1, LIBRE);
+            ps.setInt(2, idLugar);
+            ps.setInt(3, idRuta);
+            ps.setInt(4, OCUPADO);
+
+            if (ps.executeUpdate() != 1) {
+                throw new SQLException("No se pudo liberar el asiento.");
+            }
+        }
+    }
+
     // Cambia el estado de un lugar.
     private boolean cambiarEstado(int id, int estado) {
         String sql = "UPDATE lugar SET estado = ? WHERE ID_lugar = ? AND estado <> ?";
@@ -193,7 +265,7 @@ public class LugarData {
             return false;
         }
     }
-    
+
     // Convierte una fila del ResultSet en un Lugar.
     private Lugar armarLugar(ResultSet rs) throws SQLException {
         Lugar asiento = new Lugar();

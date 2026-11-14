@@ -7,12 +7,18 @@ import Modelo.Lugar;
 import Persistencia.PasajeroData;
 import Persistencia.RutaViajeData;
 import Persistencia.LugarData;
+import java.math.BigDecimal;
 
 public class ValidacionPasaje {
-    
-    public static String validarPasaje(Pasaje pasaje,PasajeroData pasajeroData,RutaViajeData rutaData,LugarData lugarData) {
+
+    public static String validarPasaje(Pasaje pasaje, int idPasajeActual, PasajeroData pasajeroData, RutaViajeData rutaData, LugarData lugarData) {
         if (pasaje == null) {
             return "No se recibieron los datos del pasaje.";
+        }
+
+        // Comprobar estado.
+        if (pasaje.getEstado() != 0 && pasaje.getEstado() != 1) {
+            return "El estado del pasaje no es válido.";
         }
 
         // Comprobar pasajero.
@@ -50,13 +56,19 @@ public class ValidacionPasaje {
             return "El asiento no pertenece a la ruta seleccionada.";
         }
 
-        if (lugar.getEstado() != LugarData.LIBRE) {
-            return "El asiento seleccionado ya está ocupado.";
+        if (pasaje.getEstado() == 1) {
+            if (!lugarData.estaDisponibleParaPasaje(
+                    pasaje.getID_lugar(),
+                    pasaje.getID_ruta(),
+                    idPasajeActual)) {
+
+                return "El asiento seleccionado ya está ocupado.";
+            }
         }
 
         // Comprobar precio.
-        if (!Double.isFinite(pasaje.getPrecio())
-                || pasaje.getPrecio() <= 0) {
+        if (pasaje.getPrecio() == null
+                || pasaje.getPrecio().compareTo(BigDecimal.ZERO) <= 0) {
             return "El precio del pasaje debe ser mayor que cero.";
         }
 

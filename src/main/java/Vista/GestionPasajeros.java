@@ -9,15 +9,16 @@ import javax.swing.table.DefaultTableModel;
 
 public class GestionPasajeros extends javax.swing.JInternalFrame {
 
-    private PasajeroData PasajeroData;
+    private PasajeroData pasajeroData;
     private DefaultTableModel modeloTabla;
 
     public GestionPasajeros() {
         initComponents();
-        PasajeroData = new PasajeroData();
+        pasajeroData = new PasajeroData();
+
         modeloTabla = (DefaultTableModel) TablaPasajeros.getModel();
 
-        cargarTabla(PasajeroData.listarTodosLosPasajeros());
+        cargarTabla(pasajeroData.listarTodosLosPasajeros());
     }
 
     private void cargarTabla(List<Pasajero> listaPasajeros) {
@@ -32,7 +33,7 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
                 p.getNombre(),
                 p.getCorreo(),
                 p.getTelefono(),
-                p.getEstado()
+                p.getEstado() == 1 ? "Activo" : "Inactivo"
             });
         }
     }
@@ -44,15 +45,38 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
         dato_apellido.setText("");
         dato_telefono.setText("");
         dato_correo.setText("");
-        checkEstado.setSelected(false);
-
-        btnGuardar.setEnabled(true);
-        btnModificar.setEnabled(false);
-        btnDarAlta.setEnabled(false);
-        btnDarBaja.setEnabled(false);
-        btnCancelar.setEnabled(false);
+        checkEstado.setSelected(true);
 
         TablaPasajeros.clearSelection();
+        habilitarBotones(false);
+    }
+
+    private void cargarDatosSeleccionados() {
+        int fila = TablaPasajeros.getSelectedRow();
+
+        if (fila == -1) {
+            return;
+        }
+
+        dato_id.setText(TablaPasajeros.getValueAt(fila, 0).toString());
+        dato_dni.setText(TablaPasajeros.getValueAt(fila, 1).toString());
+        dato_apellido.setText(TablaPasajeros.getValueAt(fila, 2).toString());
+        dato_nombre.setText(TablaPasajeros.getValueAt(fila, 3).toString());
+        dato_correo.setText(TablaPasajeros.getValueAt(fila, 4).toString());
+        dato_telefono.setText(TablaPasajeros.getValueAt(fila, 5).toString());
+
+        boolean activo = TablaPasajeros.getValueAt(fila, 6).toString().equals("Activo");
+        checkEstado.setSelected(activo);
+    }
+
+    private void habilitarBotones(boolean seleccionado) {
+        boolean activo = seleccionado && checkEstado.isSelected();
+
+        btnGuardar.setEnabled(!seleccionado);
+        btnModificar.setEnabled(seleccionado);
+        btnDarBaja.setEnabled(activo);
+        btnDarAlta.setEnabled(seleccionado && !activo);
+        btnCancelar.setEnabled(seleccionado);
     }
 
     private Pasajero obtenerYValidarDatos(int idActual) {
@@ -68,7 +92,7 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
                 ? new Pasajero(dni, nombre, apellido, correo, telefono, estado)
                 : new Pasajero(idActual, dni, nombre, apellido, correo, telefono, estado);
 
-        String error = ValidacionPasajero.validarPasajero(pasajero, PasajeroData, idActual);
+        String error = ValidacionPasajero.validarPasajero(pasajero, pasajeroData, idActual);
 
         if (error != null) {
             JOptionPane.showMessageDialog(this, error, "Error de validación", JOptionPane.WARNING_MESSAGE);
@@ -91,14 +115,14 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
         if (cboxBusqueda.getSelectedIndex() == 0) {
             try {
                 int id = Integer.parseInt(busqueda);
-                pasajeroEncontrado = PasajeroData.buscarPasajero(id, estado);
+                pasajeroEncontrado = pasajeroData.buscarPasajero(id, estado);
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "El ID debe contener solamente números.", "Error de formato", JOptionPane.WARNING_MESSAGE);
                 dato_buscar.requestFocusInWindow();
                 return;
             }
         } else {
-            pasajeroEncontrado = PasajeroData.buscarPasajeroPorDni(busqueda, estado);
+            pasajeroEncontrado = pasajeroData.buscarPasajeroPorDni(busqueda, estado);
         }
 
         if (pasajeroEncontrado != null) {
@@ -108,14 +132,13 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
 
             String mensaje;
 
-            if (estado == PasajeroData.TODOS) {
+            if (estado == pasajeroData.TODOS) {
                 mensaje = "No se encontró ningún pasajero.";
             } else if (estado == 1) {
                 mensaje = "No se encontró ningún pasajero activo.";
             } else {
                 mensaje = "No se encontró ningún pasajero inactivo.";
             }
-
             JOptionPane.showMessageDialog(this, mensaje, "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
         }
     }
@@ -168,7 +191,7 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
         setIconifiable(true);
         setTitle("Gestión de Pasajeros");
 
-        PanelDatos.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos del pasajero ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14), new java.awt.Color(255, 255, 255))); // NOI18N
+        PanelDatos.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos Del Pasajero ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14), new java.awt.Color(0, 0, 0))); // NOI18N
         PanelDatos.setForeground(new java.awt.Color(0, 0, 0));
         PanelDatos.setToolTipText("");
         PanelDatos.setName("asdaf"); // NOI18N
@@ -202,7 +225,6 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
         checkEstado.setSelected(true);
         checkEstado.setText("Activo");
         checkEstado.setEnabled(false);
-        checkEstado.addActionListener(this::checkEstadoActionPerformed);
 
         javax.swing.GroupLayout PanelDatosLayout = new javax.swing.GroupLayout(PanelDatos);
         PanelDatos.setLayout(PanelDatosLayout);
@@ -283,7 +305,7 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
                 .addContainerGap())
         );
 
-        PanelBotones.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Funciones", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.TOP));
+        PanelBotones.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Funciones", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14), new java.awt.Color(0, 0, 0))); // NOI18N
         PanelBotones.setForeground(new java.awt.Color(0, 0, 0));
 
         btnNuevo.setText("Nuevo");
@@ -489,10 +511,10 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
             return;
         }
 
-        if (PasajeroData.guardarPasajero(nuevoPasajero)) {
+        if (pasajeroData.guardarPasajero(nuevoPasajero)) {
             JOptionPane.showMessageDialog(this, "Pasajero guardado con éxito. ID: " + nuevoPasajero.getID_pasajero());
 
-            cargarTabla(PasajeroData.listarTodosLosPasajeros());
+            cargarTabla(pasajeroData.listarTodosLosPasajeros());
         } else {
             JOptionPane.showMessageDialog(this, "No se pudo guardar el pasajero. Verificá que el DNI no esté registrado.", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -514,21 +536,16 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
             return;
         }
 
-        if (PasajeroData.modificarPasajero(pasajeroModificado)) {
+        if (pasajeroData.modificarPasajero(pasajeroModificado)) {
             JOptionPane.showMessageDialog(this, "Pasajero modificado con éxito.");
-
-            cargarTabla(PasajeroData.listarTodosLosPasajeros());
+            cargarTabla(pasajeroData.listarTodosLosPasajeros());
         } else {
             JOptionPane.showMessageDialog(this, "No se pudo modificar el pasajero. Verificá que el DNI no esté registrado.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnModificarActionPerformed
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-        if (!dato_dni.getText().trim().isEmpty()
-                || !dato_nombre.getText().trim().isEmpty()
-                || !dato_apellido.getText().trim().isEmpty()
-                || !dato_correo.getText().trim().isEmpty()
-                || !dato_telefono.getText().trim().isEmpty()) {
+        if (!dato_dni.getText().trim().isEmpty() || !dato_nombre.getText().trim().isEmpty() || !dato_apellido.getText().trim().isEmpty() || !dato_correo.getText().trim().isEmpty() || !dato_telefono.getText().trim().isEmpty()) {
 
             int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea descartar los datos actuales y comenzar un nuevo pasajero?", "Nuevo pasajero", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
@@ -540,36 +557,16 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-        buscarYMostrar(PasajeroData.TODOS);
+        buscarYMostrar(pasajeroData.TODOS);
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void btnRecargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRecargarActionPerformed
-        cargarTabla(PasajeroData.listarTodosLosPasajeros());
+        cargarTabla(pasajeroData.listarTodosLosPasajeros());
     }//GEN-LAST:event_btnRecargarActionPerformed
 
     private void TablaPasajerosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TablaPasajerosMouseClicked
-        int filaSeleccionada = TablaPasajeros.getSelectedRow();
-
-        if (filaSeleccionada == -1) {
-            return;
-        }
-
-        dato_id.setText(TablaPasajeros.getValueAt(filaSeleccionada, 0).toString());
-        dato_dni.setText(TablaPasajeros.getValueAt(filaSeleccionada, 1).toString());
-        dato_apellido.setText(TablaPasajeros.getValueAt(filaSeleccionada, 2).toString());
-        dato_nombre.setText(TablaPasajeros.getValueAt(filaSeleccionada, 3).toString());
-        dato_correo.setText(TablaPasajeros.getValueAt(filaSeleccionada, 4).toString());
-        dato_telefono.setText(TablaPasajeros.getValueAt(filaSeleccionada, 5).toString());
-
-        boolean activo = TablaPasajeros.getValueAt(filaSeleccionada, 6).toString().equals("1");
-
-        checkEstado.setSelected(activo);
-
-        btnGuardar.setEnabled(false);
-        btnModificar.setEnabled(true);
-        btnDarBaja.setEnabled(activo);
-        btnDarAlta.setEnabled(!activo);
-        btnCancelar.setEnabled(true);
+        cargarDatosSeleccionados();
+        habilitarBotones(TablaPasajeros.getSelectedRow() != -1);
     }//GEN-LAST:event_TablaPasajerosMouseClicked
 
     private void btnBuscarInactivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarInactivoActionPerformed
@@ -577,11 +574,11 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btnBuscarInactivoActionPerformed
 
     private void btnListarInactivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListarInactivosActionPerformed
-        cargarTabla(PasajeroData.listarPasajerosInactivos());
+        cargarTabla(pasajeroData.listarPasajerosInactivos());
     }//GEN-LAST:event_btnListarInactivosActionPerformed
 
     private void btnListarActivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListarActivosActionPerformed
-        cargarTabla(PasajeroData.listarPasajerosActivos());
+        cargarTabla(pasajeroData.listarPasajerosActivos());
     }//GEN-LAST:event_btnListarActivosActionPerformed
 
     private void btnDarAltaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDarAltaActionPerformed
@@ -598,9 +595,9 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
             return;
         }
 
-        if (PasajeroData.altaLogicaPasajero(id)) {
+        if (pasajeroData.altaLogicaPasajero(id)) {
             JOptionPane.showMessageDialog(this, "Pasajero dado de alta correctamente.");
-            cargarTabla(PasajeroData.listarTodosLosPasajeros());
+            cargarTabla(pasajeroData.listarTodosLosPasajeros());
         } else {
             JOptionPane.showMessageDialog(this, "No se pudo dar de alta al pasajero.", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -620,9 +617,9 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
             return;
         }
 
-        if (PasajeroData.bajaLogicaPasajero(id)) {
+        if (pasajeroData.bajaLogicaPasajero(id)) {
             JOptionPane.showMessageDialog(this, "Pasajero dado de baja correctamente.");
-            cargarTabla(PasajeroData.listarTodosLosPasajeros());
+            cargarTabla(pasajeroData.listarTodosLosPasajeros());
         } else {
             JOptionPane.showMessageDialog(this, "No se pudo dar de baja al pasajero.", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -632,18 +629,26 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
         buscarYMostrar(1);
     }//GEN-LAST:event_btnBuscarActivoActionPerformed
 
-    private void checkEstadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkEstadoActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_checkEstadoActionPerformed
-
     private void btnListarTodosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListarTodosActionPerformed
-        cargarTabla(PasajeroData.listarTodosLosPasajeros());
+        cargarTabla(pasajeroData.listarTodosLosPasajeros());
     }//GEN-LAST:event_btnListarTodosActionPerformed
 
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
-        limpiarCampos();
-    }//GEN-LAST:event_btnCancelarActionPerformed
+        int filaSeleccionada = TablaPasajeros.getSelectedRow();
 
+        if (filaSeleccionada == -1) {
+            return;
+        }
+
+        int opcion = JOptionPane.showConfirmDialog(this, "¿Desea descartar los cambios realizados?", "Cancelar", JOptionPane.YES_NO_OPTION);
+
+        if (opcion != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        cargarDatosSeleccionados();
+        habilitarBotones(true);
+    }//GEN-LAST:event_btnCancelarActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel PanelBotones;

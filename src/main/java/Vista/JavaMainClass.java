@@ -53,94 +53,94 @@ public class JavaMainClass extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        ColectivoData colectivoData = new ColectivoData();
-        RutaViajeData rutaData = new RutaViajeData();
-        PasajeroData pasajeroData = new PasajeroData();
-        PasajeData pasajeData = new PasajeData();
-
-        try {
-            // COLECTIVOS
-            Colectivo colectivo1 = new Colectivo(
-                    "AB123CD", "Mercedes-Benz", "Sprinter", 20, "Carlos Chofer", 1
-            );
-
-            Colectivo colectivo2 = new Colectivo(
-                    "AC456EF", "Scania", "K360", 40, "Juan Perez", 1
-            );
-
-            if (!colectivoData.guardarColectivo(colectivo1)
-                    || !colectivoData.guardarColectivo(colectivo2)) {
-                throw new Exception("No se pudieron guardar los colectivos.");
-            }
-
-            // RUTAS DE VIAJE
-            LocalDate fecha = LocalDate.now().plusDays(5);
-
-            RutaViaje ruta1 = new RutaViaje();
-            ruta1.setOrigen("Villa Mercedes");
-            ruta1.setDestino("San Luis");
-            ruta1.setFechaSalida(fecha);
-            ruta1.setFechaLlegada(fecha);
-            ruta1.setHoraSalida(LocalTime.of(8, 0));
-            ruta1.setHoraLlegada(LocalTime.of(9, 30));
-            ruta1.setID_colectivo(colectivo1.getID_colectivo());
-            ruta1.setPrecio(new BigDecimal("15000.50"));
-            ruta1.setEstado(1);
-
-            RutaViaje ruta2 = new RutaViaje();
-            ruta2.setOrigen("San Luis");
-            ruta2.setDestino("Villa Mercedes");
-            ruta2.setFechaSalida(fecha.plusDays(1));
-            ruta2.setFechaLlegada(fecha.plusDays(1));
-            ruta2.setHoraSalida(LocalTime.of(15, 0));
-            ruta2.setHoraLlegada(LocalTime.of(16, 30));
-            ruta2.setID_colectivo(colectivo2.getID_colectivo());
-            ruta2.setPrecio(new BigDecimal("18000.00"));
-            ruta2.setEstado(1);
-
-            if (!rutaData.guardarRutaViaje(ruta1)
-                    || !rutaData.guardarRutaViaje(ruta2)) {
-                throw new Exception("No se pudieron guardar las rutas.");
-            }
-
-            // PASAJEROS
-            Pasajero pasajero1 = new Pasajero();
-            pasajero1.setDni("38123456");
-            pasajero1.setNombre("Facundo");
-            pasajero1.setApellido("Gonzalez");
-            pasajero1.setCorreo("facundo.test@email.com");
-            pasajero1.setTelefono("2657444444");
-            pasajero1.setEstado(1);
-
-            Pasajero pasajero2 = new Pasajero();
-            pasajero2.setDni("40111222");
-            pasajero2.setNombre("Martin");
-            pasajero2.setApellido("Lopez");
-            pasajero2.setCorreo("martin.test@email.com");
-            pasajero2.setTelefono("2657555555");
-            pasajero2.setEstado(1);
-
-            if (!pasajeroData.guardarPasajero(pasajero1)
-                    || !pasajeroData.guardarPasajero(pasajero2)) {
-                throw new Exception("No se pudieron guardar los pasajeros.");
-            }
-
-            // PASAJES
-            Pasaje pasaje1 = new Pasaje();
-            pasaje1.setID_pasajero(pasajero1.getID_pasajero());
-            pasaje1.setID_lugar(1);
-            pasaje1.setID_ruta(ruta1.getID_ruta());
-            pasaje1.setFechaVenta(LocalDate.now());
-            pasaje1.setHoraVenta(LocalTime.now());
-            pasaje1.setPrecio(ruta1.getPrecio().doubleValue());
-            pasaje1.setEstado(1);
-            
-            pasajeData.guardarPasaje(pasaje1);
-
-        } catch (Exception e) {
-            System.out.println("Error al generar los datos de prueba: " + e.getMessage());
-            e.printStackTrace();
-        }
+//        ColectivoData colectivoData = new ColectivoData();
+//        RutaViajeData rutaData = new RutaViajeData();
+//        PasajeroData pasajeroData = new PasajeroData();
+//        PasajeData pasajeData = new PasajeData();
+//
+//        try {
+//            // COLECTIVOS
+//            Colectivo colectivo1 = new Colectivo(
+//                    "AB123CD", "Mercedes-Benz", "Sprinter", 20, "Carlos Chofer", 1
+//            );
+//
+//            Colectivo colectivo2 = new Colectivo(
+//                    "AC456EF", "Scania", "K360", 40, "Juan Perez", 1
+//            );
+//
+//            if (!colectivoData.guardarColectivo(colectivo1)
+//                    || !colectivoData.guardarColectivo(colectivo2)) {
+//                throw new Exception("No se pudieron guardar los colectivos.");
+//            }
+//
+//            // RUTAS DE VIAJE
+//            LocalDate fecha = LocalDate.now().plusDays(5);
+//
+//            RutaViaje ruta1 = new RutaViaje();
+//            ruta1.setOrigen("Villa Mercedes");
+//            ruta1.setDestino("San Luis");
+//            ruta1.setFechaSalida(fecha);
+//            ruta1.setFechaLlegada(fecha);
+//            ruta1.setHoraSalida(LocalTime.of(8, 0));
+//            ruta1.setHoraLlegada(LocalTime.of(9, 30));
+//            ruta1.setID_colectivo(colectivo1.getID_colectivo());
+//            ruta1.setPrecio(new BigDecimal("15000.50"));
+//            ruta1.setEstado(1);
+//
+//            RutaViaje ruta2 = new RutaViaje();
+//            ruta2.setOrigen("San Luis");
+//            ruta2.setDestino("Villa Mercedes");
+//            ruta2.setFechaSalida(fecha.plusDays(1));
+//            ruta2.setFechaLlegada(fecha.plusDays(1));
+//            ruta2.setHoraSalida(LocalTime.of(15, 0));
+//            ruta2.setHoraLlegada(LocalTime.of(16, 30));
+//            ruta2.setID_colectivo(colectivo2.getID_colectivo());
+//            ruta2.setPrecio(new BigDecimal("18000.00"));
+//            ruta2.setEstado(1);
+//
+//            if (!rutaData.guardarRutaViaje(ruta1)
+//                    || !rutaData.guardarRutaViaje(ruta2)) {
+//                throw new Exception("No se pudieron guardar las rutas.");
+//            }
+//
+//            // PASAJEROS
+//            Pasajero pasajero1 = new Pasajero();
+//            pasajero1.setDni("38123456");
+//            pasajero1.setNombre("Facundo");
+//            pasajero1.setApellido("Gonzalez");
+//            pasajero1.setCorreo("facundo.test@email.com");
+//            pasajero1.setTelefono("2657444444");
+//            pasajero1.setEstado(1);
+//
+//            Pasajero pasajero2 = new Pasajero();
+//            pasajero2.setDni("40111222");
+//            pasajero2.setNombre("Martin");
+//            pasajero2.setApellido("Lopez");
+//            pasajero2.setCorreo("martin.test@email.com");
+//            pasajero2.setTelefono("2657555555");
+//            pasajero2.setEstado(1);
+//
+//            if (!pasajeroData.guardarPasajero(pasajero1)
+//                    || !pasajeroData.guardarPasajero(pasajero2)) {
+//                throw new Exception("No se pudieron guardar los pasajeros.");
+//            }
+//
+//            // PASAJES
+//            Pasaje pasaje1 = new Pasaje();
+//            pasaje1.setID_pasajero(pasajero1.getID_pasajero());
+//            pasaje1.setID_lugar(1);
+//            pasaje1.setID_ruta(ruta1.getID_ruta());
+//            pasaje1.setFechaVenta(LocalDate.now());
+//            pasaje1.setHoraVenta(LocalTime.now());
+//            pasaje1.setPrecio(ruta1.getPrecio().doubleValue());
+//            pasaje1.setEstado(1);
+//            
+//            pasajeData.guardarPasaje(pasaje1);
+//
+//        } catch (Exception e) {
+//            System.out.println("Error al generar los datos de prueba: " + e.getMessage());
+//            e.printStackTrace();
+//        }
 
 // Código de inicialización de la interfaz por defecto de NetBeans
         java.awt.EventQueue.invokeLater(() -> new JavaMainClass().setVisible(true));

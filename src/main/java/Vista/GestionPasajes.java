@@ -2,28 +2,45 @@ package Vista;
 
 import Modelo.Pasaje;
 import Persistencia.PasajeData;
+import Persistencia.PasajeroData;
+import Persistencia.RutaViajeData;
+import Persistencia.LugarData;
+import Validaciones.ValidacionPasaje;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 public class GestionPasajes extends javax.swing.JInternalFrame {
 
     private PasajeData pasajeData;
+    private PasajeroData pasajeroData;
+    private RutaViajeData rutaData;
+    private LugarData lugarData;
     private DefaultTableModel modeloTabla;
 
     public GestionPasajes() {
         initComponents();
+
         pasajeData = new PasajeData();
+        pasajeroData = new PasajeroData();
+        rutaData = new RutaViajeData();
+        lugarData = new LugarData();
+
         modeloTabla = (DefaultTableModel) tablaPasajes.getModel();
+
+        limpiarCampos();
         cargarTabla();
     }
 
     private void cargarTabla() {
+        limpiarCampos();
         modeloTabla.setRowCount(0);
 
-        List<Pasaje> listaPasaje = pasajeData.listarPasajes();
+        List<Pasaje> listaPasajes = pasajeData.listarPasajes();
 
-        for (Pasaje p : listaPasaje) {
+        for (Pasaje p : listaPasajes) {
             modeloTabla.addRow(new Object[]{
                 p.getID_pasaje(),
                 p.getID_pasajero(),
@@ -42,15 +59,90 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
         txtPasajero.setText("");
         txtLugar.setText("");
         txtRuta.setText("");
+        txtFechaVenta.setText("");
+        txtHoraVenta.setText("");
         txtPrecio.setText("");
-        checkEstado.setSelected(false);
-
-        btnGuardar.setEnabled(true);
-        btnModificar.setEnabled(false);
-        btnEliminar.setEnabled(false);
+        checkEstado.setSelected(true);
 
         tablaPasajes.clearSelection();
-        txtPasajero.requestFocusInWindow();//Pone el cursor en el primer campo
+        habilitarBotones(false);
+
+        txtPasajero.requestFocusInWindow();
+    }
+
+    private void cargarDatosSeleccionados() {
+        int fila = tablaPasajes.getSelectedRow();
+
+        if (fila == -1) {
+            return;
+        }
+
+        txtPasaje.setText(tablaPasajes.getValueAt(fila, 0).toString());
+        txtPasajero.setText(tablaPasajes.getValueAt(fila, 1).toString());
+        txtLugar.setText(tablaPasajes.getValueAt(fila, 2).toString());
+        txtRuta.setText(tablaPasajes.getValueAt(fila, 3).toString());
+        txtFechaVenta.setText(tablaPasajes.getValueAt(fila, 4).toString());
+        txtHoraVenta.setText(tablaPasajes.getValueAt(fila, 5).toString());
+        txtPrecio.setText(tablaPasajes.getValueAt(fila, 6).toString());
+
+        boolean activo = tablaPasajes.getValueAt(fila, 7).toString().equals("Activo");
+        checkEstado.setSelected(activo);
+    }
+
+    private void habilitarBotones(boolean seleccionado) {
+        boolean activo = seleccionado && checkEstado.isSelected();
+
+        btnGuardar.setEnabled(!seleccionado);
+        btnModificar.setEnabled(seleccionado);
+        btnEliminar.setEnabled(seleccionado);
+        btnDarBaja.setEnabled(activo);
+        btnDarAlta.setEnabled(seleccionado && !activo);
+        btnCancelar.setEnabled(seleccionado);
+    }
+
+    private Pasaje obtenerYValidarDatos(int idActual) {
+        // Comprobar campos obligatorios.
+        if (txtPasajero.getText().trim().isEmpty() || txtLugar.getText().trim().isEmpty() || txtRuta.getText().trim().isEmpty() || txtPrecio.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Complete todos los campos obligatorios.", "Campos incompletos", JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+
+        try {
+            int idPasajero = Integer.parseInt(txtPasajero.getText().trim());
+            int idLugar = Integer.parseInt(txtLugar.getText().trim());
+            int idRuta = Integer.parseInt(txtRuta.getText().trim());
+            BigDecimal precio = new BigDecimal(txtPrecio.getText().trim().replace(",", "."));
+            int estado = idActual == 0 ? 1 : (checkEstado.isSelected() ? 1 : 0);
+
+            Pasaje pasaje = new Pasaje();
+
+            if (idActual == 0) {
+                pasaje.setFechaVenta(java.time.LocalDate.now());
+                pasaje.setHoraVenta(java.time.LocalTime.now());
+            } else {
+                int fila = tablaPasajes.getSelectedRow();
+                pasaje.setID_pasaje(idActual);
+                pasaje.setFechaVenta((java.time.LocalDate) tablaPasajes.getValueAt(fila, 4));
+                pasaje.setHoraVenta((java.time.LocalTime) tablaPasajes.getValueAt(fila, 5));
+            }
+
+            pasaje.setID_pasajero(idPasajero);
+            pasaje.setID_lugar(idLugar);
+            pasaje.setID_ruta(idRuta);
+            pasaje.setPrecio(precio);
+            pasaje.setEstado(estado);
+
+            String error = ValidacionPasaje.validarPasaje(pasaje, idActual, pasajeroData, rutaData, lugarData);
+
+            if (error != null) {
+                JOptionPane.showMessageDialog(this, error, "Error de validación", JOptionPane.WARNING_MESSAGE);
+                return null;
+            }
+            return pasaje;
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Los IDs deben ser números enteros y el precio debe ser numérico.", "Error de formato", JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
     }
 
     /**
@@ -83,23 +175,24 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
         PanelBotones = new javax.swing.JPanel();
         txtBuscar = new javax.swing.JTextField();
         lblBuscar = new javax.swing.JLabel();
-        btnLimpiar = new javax.swing.JButton();
+        btnNuevo = new javax.swing.JButton();
         btnGuardar = new javax.swing.JButton();
         btnModificar = new javax.swing.JButton();
         btnBuscar = new javax.swing.JButton();
-        btnBaja = new javax.swing.JButton();
+        btnDarBaja = new javax.swing.JButton();
         btnRecargar = new javax.swing.JButton();
         cboxBusqueda = new javax.swing.JComboBox<>();
-        btnListar = new javax.swing.JButton();
+        btnListarTodos = new javax.swing.JButton();
         btnEliminar = new javax.swing.JButton();
-        btnAlta = new javax.swing.JButton();
+        btnDarAlta = new javax.swing.JButton();
+        btnCancelar = new javax.swing.JButton();
         PanelTabla = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaPasajes = new javax.swing.JTable();
 
         setTitle("Gestión De Pasajes");
 
-        PanelDatos.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos Del Pasaje", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.TOP));
+        PanelDatos.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos Del Pasaje", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14), new java.awt.Color(0, 0, 0))); // NOI18N
 
         lblPasaje.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblPasaje.setText("Pasaje:");
@@ -125,6 +218,7 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
         lblEstado.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblEstado.setText("Estado:");
 
+        checkEstado.setSelected(true);
         checkEstado.setText("Activo");
         checkEstado.setEnabled(false);
 
@@ -143,33 +237,31 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
                     .addComponent(lblPasaje, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
                 .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(txtLugar, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(txtPasaje, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                            .addComponent(txtPasajero))
+                        .addComponent(txtRuta, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PanelDatosLayout.createSequentialGroup()
-                        .addComponent(txtLugar, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
                         .addComponent(lblPrecio)
                         .addGap(18, 18, 18)
                         .addComponent(txtPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(PanelDatosLayout.createSequentialGroup()
-                        .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(txtPasaje, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                                .addComponent(txtPasajero))
-                            .addComponent(txtRuta, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(lblFechaVenta)
                         .addGap(18, 18, 18)
-                        .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(PanelDatosLayout.createSequentialGroup()
-                                .addComponent(lblFechaVenta)
-                                .addGap(18, 18, 18)
-                                .addComponent(txtFechaVenta, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(PanelDatosLayout.createSequentialGroup()
-                                .addComponent(lblHoraVenta)
-                                .addGap(18, 18, 18)
-                                .addComponent(txtHoraVenta, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(PanelDatosLayout.createSequentialGroup()
-                                .addComponent(lblEstado)
-                                .addGap(18, 18, 18)
-                                .addComponent(checkEstado)))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(txtFechaVenta, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(PanelDatosLayout.createSequentialGroup()
+                        .addComponent(lblHoraVenta)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtHoraVenta, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(PanelDatosLayout.createSequentialGroup()
+                        .addComponent(lblEstado)
+                        .addGap(18, 18, 18)
+                        .addComponent(checkEstado)))
+                .addGap(73, 73, 73))
         );
 
         PanelDatosLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {lblEstado, lblFechaVenta, lblHoraVenta, lblLugar, lblPasaje, lblPasajero, lblPrecio, lblRuta});
@@ -206,13 +298,13 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        PanelBotones.setBorder(javax.swing.BorderFactory.createTitledBorder("Funciones"));
+        PanelBotones.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Funciones", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14), new java.awt.Color(0, 0, 0))); // NOI18N
 
         lblBuscar.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblBuscar.setText("Buscar por:");
 
-        btnLimpiar.setText("Limpiar Campos");
-        btnLimpiar.addActionListener(this::btnLimpiarActionPerformed);
+        btnNuevo.setText("Nuevo");
+        btnNuevo.addActionListener(this::btnNuevoActionPerformed);
 
         btnGuardar.setText("Guardar");
         btnGuardar.addActionListener(this::btnGuardarActionPerformed);
@@ -223,24 +315,27 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
         btnBuscar.setText("Buscar");
         btnBuscar.addActionListener(this::btnBuscarActionPerformed);
 
-        btnBaja.setForeground(new java.awt.Color(255, 0, 0));
-        btnBaja.setText("Dar De Baja");
-        btnBaja.addActionListener(this::btnBajaActionPerformed);
+        btnDarBaja.setForeground(new java.awt.Color(153, 0, 0));
+        btnDarBaja.setText("Dar Baja");
+        btnDarBaja.addActionListener(this::btnDarBajaActionPerformed);
 
         btnRecargar.setText("Recargar Tabla");
         btnRecargar.addActionListener(this::btnRecargarActionPerformed);
 
         cboxBusqueda.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ID Pasaje", "ID Pasajero", "ID Ruta" }));
 
-        btnListar.setText("Listar Todos");
-        btnListar.addActionListener(this::btnListarActionPerformed);
+        btnListarTodos.setText("Listar Todos");
+        btnListarTodos.addActionListener(this::btnListarTodosActionPerformed);
 
         btnEliminar.setText("Eliminar");
         btnEliminar.addActionListener(this::btnEliminarActionPerformed);
 
-        btnAlta.setForeground(new java.awt.Color(51, 204, 0));
-        btnAlta.setText("Dar De Alta");
-        btnAlta.addActionListener(this::btnAltaActionPerformed);
+        btnDarAlta.setForeground(new java.awt.Color(0, 102, 0));
+        btnDarAlta.setText("Dar Alta");
+        btnDarAlta.addActionListener(this::btnDarAltaActionPerformed);
+
+        btnCancelar.setText("Cancelar");
+        btnCancelar.addActionListener(this::btnCancelarActionPerformed);
 
         javax.swing.GroupLayout PanelBotonesLayout = new javax.swing.GroupLayout(PanelBotones);
         PanelBotones.setLayout(PanelBotonesLayout);
@@ -252,65 +347,68 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
                     .addGroup(PanelBotonesLayout.createSequentialGroup()
                         .addComponent(lblBuscar)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cboxBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(cboxBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(PanelBotonesLayout.createSequentialGroup()
+                        .addComponent(btnNuevo)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnGuardar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PanelBotonesLayout.createSequentialGroup()
                         .addComponent(txtBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnBuscar)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnListar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(btnListarTodos, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnRecargar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(PanelBotonesLayout.createSequentialGroup()
-                        .addComponent(btnLimpiar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnGuardar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnEliminar)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnAlta, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnRecargar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnBaja, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(btnDarAlta, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnDarBaja)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnCancelar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
-        PanelBotonesLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnAlta, btnBaja});
-
-        PanelBotonesLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnEliminar, btnGuardar, btnModificar});
+        PanelBotonesLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnEliminar, btnModificar});
 
         PanelBotonesLayout.setVerticalGroup(
             PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelBotonesLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnLimpiar)
+                    .addComponent(btnNuevo)
                     .addComponent(btnGuardar)
                     .addComponent(btnModificar)
-                    .addComponent(btnBaja)
+                    .addComponent(btnDarBaja)
                     .addComponent(btnEliminar)
-                    .addComponent(btnAlta))
+                    .addComponent(btnDarAlta)
+                    .addComponent(btnCancelar))
                 .addGap(12, 12, 12)
                 .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblBuscar)
                     .addComponent(txtBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnRecargar)
                     .addComponent(cboxBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnListar)
+                    .addComponent(btnListarTodos)
                     .addComponent(btnBuscar))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         tablaPasajes.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "Pasaje", "Pasajero", "Asiento", "Ruta", "Fecha Venta", "Hora Venta", "Estado"
+                "Pasaje", "Pasajero", "Lugar", "Ruta", "Fecha Venta", "Hora Venta", "Precio", "Estado"
             }
         ));
         tablaPasajes.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -333,8 +431,8 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
             PanelTablaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelTablaLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1)
-                .addContainerGap())
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout PanelPrincipalLayout = new javax.swing.GroupLayout(PanelPrincipal);
@@ -375,219 +473,113 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
+    private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
+        if (!txtPasaje.getText().trim().isEmpty() || !txtPasajero.getText().trim().isEmpty() || !txtLugar.getText().trim().isEmpty() || !txtRuta.getText().trim().isEmpty() || !txtPrecio.getText().trim().isEmpty()) {
+
+            int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea descartar los datos actuales y comenzar un nuevo pasaje?", "Nuevo pasaje", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+            if (respuesta != JOptionPane.YES_OPTION) {
+                return;
+            }
+        }
         limpiarCampos();
-    }//GEN-LAST:event_btnLimpiarActionPerformed
+    }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        //Validamos campo por campo en orden de aparición en la interfaz
-        if (txtPasajero.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debes completar el ID del Pasajero.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            txtPasajero.requestFocusInWindow();
-            return;
-        }
-        if (txtLugar.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debes completar el ID del Lugar / Asiento.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            txtLugar.requestFocusInWindow();
-            return;
-        }
-        if (txtRuta.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debes completar el ID de la Ruta.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            txtRuta.requestFocusInWindow();
-            return;
-        }
-        if (txtPrecio.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debes completar el precio.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            txtPrecio.requestFocusInWindow();
+        Pasaje nuevoPasaje = obtenerYValidarDatos(0);
+
+        if (nuevoPasaje == null) {
             return;
         }
 
-        try {
-            //Parseamos los datos numéricos necesarios
-            int idPasajero = Integer.parseInt(txtPasajero.getText().trim());
-            int idLugar = Integer.parseInt(txtLugar.getText().trim());
-            int idRuta = Integer.parseInt(txtRuta.getText().trim());
-            double precio = Double.parseDouble(txtPrecio.getText().trim());
-
-            //Fecha y hora actual automática para la venta
-            java.time.LocalDate fechaVenta = java.time.LocalDate.now();
-            java.time.LocalTime horaVenta = java.time.LocalTime.now();
-
-            //Estado según el checkbox
-            int estado = checkEstado.isSelected() ? 1 : 0;
-
-            //Creamos el objeto Pasaje y llamamos a la persistencia
-            Pasaje nuevoPasaje = new Pasaje(idPasajero, idLugar, idRuta, fechaVenta, horaVenta, precio, estado);
-            PasajeData pasajeData = new PasajeData();
-            pasajeData.guardarPasaje(nuevoPasaje);
-
-            //Limpiamos los campos y recargamos la tabla
+        if (pasajeData.guardarPasaje(nuevoPasaje)) {
+            JOptionPane.showMessageDialog(this, "Pasaje guardado correctamente.");
             limpiarCampos();
             cargarTabla();
-
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Los campos de Pasajero, Lugar, Ruta y Precio deben contener valores numéricos válidos.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, "No se pudo guardar el pasaje.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
-        //Verificamos que se haya seleccionado una fila de la tabla de pasajes.
-        int filaSeleccionada = tablaPasajes.getSelectedRow();
+        int fila = tablaPasajes.getSelectedRow();
 
-        if (filaSeleccionada == -1) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar un pasaje de la tabla para actualizar sus datos.", "Ningún pasaje seleccionado", JOptionPane.WARNING_MESSAGE);
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un pasaje de la tabla.");
             return;
         }
 
-        //Validamos campo por campo en orden de aparición en la interfaz
-        if (txtPasajero.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debes completar el ID del Pasajero.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            txtPasajero.requestFocusInWindow();
-            return;
-        }
-        if (txtLugar.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debes completar el ID del Lugar / Asiento.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            txtLugar.requestFocusInWindow();
-            return;
-        }
-        if (txtRuta.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debes completar el ID de la Ruta.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            txtRuta.requestFocusInWindow();
-            return;
-        }
-        if (txtPrecio.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debes completar el precio.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            txtPrecio.requestFocusInWindow();
+        int idPasaje = (int) tablaPasajes.getValueAt(fila, 0);
+
+        Pasaje pasajeModificado = obtenerYValidarDatos(idPasaje);
+
+        if (pasajeModificado == null) {
             return;
         }
 
-        try {
-            //Obtenemos el ID del pasaje de la columna 0
-            int idPasaje = (int) tablaPasajes.getValueAt(filaSeleccionada, 0);
-
-            // Leemos y parseamos los campos numéricos modificados
-            int idPasajero = Integer.parseInt(txtPasajero.getText().trim());
-            int idLugar = Integer.parseInt(txtLugar.getText().trim());
-            int idRuta = Integer.parseInt(txtRuta.getText().trim());
-            double precio = Double.parseDouble(txtPrecio.getText().trim());
-            int estado = checkEstado.isSelected() ? 1 : 0;
-
-            //RECUPERAMOS LA FECHA Y HORA ORIGINALES DE LA TABLA
-            java.time.LocalDate fechaOriginal = (java.time.LocalDate) tablaPasajes.getValueAt(filaSeleccionada, 4);
-            java.time.LocalTime horaOriginal = (java.time.LocalTime) tablaPasajes.getValueAt(filaSeleccionada, 5);
-            
-            Pasaje pasajeModificado = new Pasaje();
-            pasajeModificado.setID_pasaje(idPasaje);
-            pasajeModificado.setID_pasajero(idPasajero);
-            pasajeModificado.setID_lugar(idLugar);
-            pasajeModificado.setID_ruta(idRuta);
-            pasajeModificado.setPrecio(precio);
-            pasajeModificado.setEstado(estado);
-            pasajeModificado.setFechaVenta(fechaOriginal);
-            pasajeModificado.setHoraVenta(horaOriginal);
-
-            //Enviamos a la base de datos
-            PasajeData pasajeNuevo = new PasajeData();
-            pasajeNuevo.modificarPasaje(pasajeModificado);
-
-            //Limpiamos y recargamos
-            limpiarCampos();
+        if (pasajeData.modificarPasaje(pasajeModificado)) {
+            JOptionPane.showMessageDialog(this, "Pasaje modificado correctamente.");
             cargarTabla();
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Los campos numéricos (Pasajero, Lugar, Ruta, Precio) deben contener solo números.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, "No se pudo modificar el pasaje.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnModificarActionPerformed
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-        //Validamos que el campo de búsqueda no esté vacío
-        if (txtBuscar.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Ingrese un valor para buscar.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            txtBuscar.requestFocusInWindow();
+        String textoBusqueda = txtBuscar.getText().trim();
+        int criterio = cboxBusqueda.getSelectedIndex();
+
+        if (textoBusqueda.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debe ingresar un valor para buscar.", "Campo vacío", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         try {
-            //Obtenemos el modelo de la tabla para limpiarla
-            DefaultTableModel modelo = (DefaultTableModel) tablaPasajes.getModel();
-            modelo.setRowCount(0);
+            int valor = Integer.parseInt(textoBusqueda);
+            List<Pasaje> pasajes = new ArrayList<>();
 
-            PasajeData pasajeData = new PasajeData();
+            switch (criterio) {
+                case 0 -> {
+                    Pasaje pasaje = pasajeData.buscarPasaje(valor);
 
-            int criterio = cboxBusqueda.getSelectedIndex();
-            String textoBusqueda = txtBuscar.getText().trim();
-            int valorBusqueda = Integer.parseInt(textoBusqueda);
-
-            if (criterio == 0) {
-                Pasaje p = pasajeData.buscarPasaje(valorBusqueda);
-
-                if (p != null) {
-                    modelo.addRow(new Object[]{
-                        p.getID_pasaje(),
-                        p.getID_pasajero(),
-                        p.getID_lugar(),
-                        p.getID_ruta(),
-                        p.getFechaVenta(),
-                        p.getHoraVenta(),
-                        p.getPrecio(),
-                        p.getEstado() == 1 ? "Activo" : "Inactivo"
-                    });
-                } else {
-                    JOptionPane.showMessageDialog(this, "No se encontró ningún pasaje con ese ID.", "Sin Resultados", JOptionPane.INFORMATION_MESSAGE);
-                    cargarTabla();
-                }
-
-            } else if (criterio == 1) {
-                java.util.List<Pasaje> listaPasajero = pasajeData.listarPasajesPorPasajero(valorBusqueda);
-
-                if (listaPasajero != null && !listaPasajero.isEmpty()) {
-                    for (Pasaje p : listaPasajero) {
-                        modelo.addRow(new Object[]{
-                            p.getID_pasaje(),
-                            p.getID_pasajero(),
-                            p.getID_lugar(),
-                            p.getID_ruta(),
-                            p.getFechaVenta(),
-                            p.getHoraVenta(),
-                            p.getPrecio(),
-                            p.getEstado() == 1 ? "Activo" : "Inactivo"
-                        });
+                    if (pasaje != null) {
+                        pasajes.add(pasaje);
                     }
-                } else {
-                    JOptionPane.showMessageDialog(this, "No se encontraron pasajes para el ID de pasajero ingresado.", "Sin Resultados", JOptionPane.INFORMATION_MESSAGE);
-                    cargarTabla();
                 }
-
-            } else if (criterio == 2) {
-                java.util.List<Pasaje> listaRuta = pasajeData.listarPasajesPorRuta(valorBusqueda);
-
-                if (listaRuta != null && !listaRuta.isEmpty()) {
-                    for (Pasaje p : listaRuta) {
-                        modelo.addRow(new Object[]{
-                            p.getID_pasaje(),
-                            p.getID_pasajero(),
-                            p.getID_lugar(),
-                            p.getID_ruta(),
-                            p.getFechaVenta(),
-                            p.getHoraVenta(),
-                            p.getPrecio(),
-                            p.getEstado() == 1 ? "Activo" : "Inactivo"
-                        });
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(this, "No se encontraron pasajes para el ID de ruta ingresado.", "Sin Resultados", JOptionPane.INFORMATION_MESSAGE);
-                    cargarTabla();
+                case 1 ->
+                    pasajes = pasajeData.listarPasajesPorPasajero(valor);
+                case 2 ->
+                    pasajes = pasajeData.listarPasajesPorRuta(valor);
+                default -> {
+                    JOptionPane.showMessageDialog(this, "Seleccione un criterio de búsqueda válido.", "Error", JOptionPane.WARNING_MESSAGE);
+                    return;
                 }
             }
 
+            modeloTabla.setRowCount(0);
+
+            for (Pasaje p : pasajes) {
+                modeloTabla.addRow(new Object[]{
+                    p.getID_pasaje(),
+                    p.getID_pasajero(),
+                    p.getID_lugar(),
+                    p.getID_ruta(),
+                    p.getFechaVenta(),
+                    p.getHoraVenta(),
+                    p.getPrecio(),
+                    p.getEstado() == 1 ? "Activo" : "Inactivo"
+                });
+            }
+
+            if (pasajes.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No se encontraron pasajes con ese criterio.", "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
+            }
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "El valor de búsqueda debe ser un número entero.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
-            txtBuscar.requestFocusInWindow();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al realizar la búsqueda: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "El valor de búsqueda debe ser un número entero.", "Error de formato", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnBuscarActionPerformed
 
-    private void btnBajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBajaActionPerformed
+    private void btnDarBajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDarBajaActionPerformed
         int filaSeleccionada = tablaPasajes.getSelectedRow();
 
         if (filaSeleccionada == -1) {
@@ -598,34 +590,29 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
         int confirmacion = JOptionPane.showConfirmDialog(this, "¿Está seguro de que desea dar de baja este pasaje?", "Confirmar baja", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
         if (confirmacion == JOptionPane.YES_OPTION) {
-            try {
-                int idPasaje = (int) tablaPasajes.getValueAt(filaSeleccionada, 0);
+            int idPasaje = (int) tablaPasajes.getValueAt(filaSeleccionada, 0);
 
-                PasajeData pasajeData = new PasajeData();
-                pasajeData.darDeBaja(idPasaje);
-
-                JOptionPane.showMessageDialog(this, "Pasaje dado de baja con éxito.", "Operación Exitosa", JOptionPane.INFORMATION_MESSAGE);
-
+            if (pasajeData.darDeBaja(idPasaje)) {
+                JOptionPane.showMessageDialog(this, "Pasaje dado de baja correctamente.", "Operación Exitosa", JOptionPane.INFORMATION_MESSAGE);
                 limpiarCampos();
                 cargarTabla();
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error al dar de baja el pasaje: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "No se pudo dar de baja el pasaje.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
-    }//GEN-LAST:event_btnBajaActionPerformed
+    }//GEN-LAST:event_btnDarBajaActionPerformed
 
     private void btnRecargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRecargarActionPerformed
         limpiarCampos();
         cargarTabla();
     }//GEN-LAST:event_btnRecargarActionPerformed
 
-    private void btnListarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListarActionPerformed
+    private void btnListarTodosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListarTodosActionPerformed
         limpiarCampos();
         cargarTabla();
-    }//GEN-LAST:event_btnListarActionPerformed
+    }//GEN-LAST:event_btnListarTodosActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-        //Verificamos que se haya seleccionado una fila de la tabla.
         int filaSeleccionada = tablaPasajes.getSelectedRow();
 
         if (filaSeleccionada == -1) {
@@ -633,29 +620,22 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
             return;
         }
 
-        //Pedimos confirmación para evitar borrados accidentales
         int confirmacion = JOptionPane.showConfirmDialog(this, "¿Está seguro de que desea eliminar este pasaje?", "Confirmar eliminación", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
         if (confirmacion == JOptionPane.YES_OPTION) {
-            try {
-                //Obtenemos el ID del pasaje de la primera columna (0)
-                int idPasaje = (int) tablaPasajes.getValueAt(filaSeleccionada, 0);
+            int idPasaje = (int) tablaPasajes.getValueAt(filaSeleccionada, 0);
 
-                PasajeData pasajeData = new PasajeData();
-                pasajeData.eliminarPasaje(idPasaje);
-
-                JOptionPane.showMessageDialog(this, "Pasaje eliminado con éxito.", "Operación Exitosa", JOptionPane.INFORMATION_MESSAGE);
-
-                //Limpiamos los campos y recargamos la tabla
+            if (pasajeData.eliminarPasaje(idPasaje)) {
+                JOptionPane.showMessageDialog(this, "Pasaje eliminado correctamente.", "Operación Exitosa", JOptionPane.INFORMATION_MESSAGE);
                 limpiarCampos();
                 cargarTabla();
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error al intentar eliminar el pasaje: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "No se pudo eliminar el pasaje.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_btnEliminarActionPerformed
 
-    private void btnAltaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAltaActionPerformed
+    private void btnDarAltaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDarAltaActionPerformed
         int filaSeleccionada = tablaPasajes.getSelectedRow();
 
         if (filaSeleccionada == -1) {
@@ -663,56 +643,53 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
             return;
         }
 
-        try {
-            int idPasaje = (int) tablaPasajes.getValueAt(filaSeleccionada, 0);
+        int idPasaje = (int) tablaPasajes.getValueAt(filaSeleccionada, 0);
 
-            PasajeData pasajeData = new PasajeData();
-            pasajeData.darDeBaja(idPasaje);
-
-            JOptionPane.showMessageDialog(this, "Pasaje dado de alta con éxito.", "Operación Exitosa", JOptionPane.INFORMATION_MESSAGE);
-
+        if (pasajeData.darDeAlta(idPasaje)) {
+            JOptionPane.showMessageDialog(this, "Pasaje dado de alta correctamente.", "Operación Exitosa", JOptionPane.INFORMATION_MESSAGE);
             limpiarCampos();
             cargarTabla();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al dar de alta el pasaje: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, "No se pudo dar de alta el pasaje. Compruebe que el asiento esté disponible.", "Error", JOptionPane.ERROR_MESSAGE);
         }
-    }//GEN-LAST:event_btnAltaActionPerformed
+    }//GEN-LAST:event_btnDarAltaActionPerformed
 
     private void tablaPasajesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaPasajesMouseClicked
-        //Obtenemos la fila seleccionada por el usuario
-        int filaSeleccionada = tablaPasajes.getSelectedRow();
-
-        if (filaSeleccionada != -1) {
-            txtPasaje.setText(tablaPasajes.getValueAt(filaSeleccionada, 0).toString());
-            txtPasajero.setText(tablaPasajes.getValueAt(filaSeleccionada, 1).toString());
-            txtLugar.setText(tablaPasajes.getValueAt(filaSeleccionada, 2).toString());
-            txtRuta.setText(tablaPasajes.getValueAt(filaSeleccionada, 3).toString());
-            txtPrecio.setText(tablaPasajes.getValueAt(filaSeleccionada, 6).toString());
-            String estadoStr = tablaPasajes.getValueAt(filaSeleccionada, 7).toString();
-            checkEstado.setSelected(estadoStr.equalsIgnoreCase("Activo"));
-
-            btnGuardar.setEnabled(false);
-            btnModificar.setEnabled(true);
-            btnEliminar.setEnabled(true);
-            btnBaja.setEnabled(true);
-            btnAlta.setEnabled(true);
-        }
+        cargarDatosSeleccionados();
+        habilitarBotones(tablaPasajes.getSelectedRow() != -1);
     }//GEN-LAST:event_tablaPasajesMouseClicked
 
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        int filaSeleccionada = tablaPasajes.getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            return;
+        }
+
+        int opcion = JOptionPane.showConfirmDialog(this, "¿Desea descartar los cambios realizados?", "Cancelar", JOptionPane.YES_NO_OPTION);
+
+        if (opcion != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        cargarDatosSeleccionados();
+        habilitarBotones(true);
+    }//GEN-LAST:event_btnCancelarActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel PanelBotones;
     private javax.swing.JPanel PanelDatos;
     private javax.swing.JPanel PanelPrincipal;
     private javax.swing.JPanel PanelTabla;
-    private javax.swing.JButton btnAlta;
-    private javax.swing.JButton btnBaja;
     private javax.swing.JButton btnBuscar;
+    private javax.swing.JButton btnCancelar;
+    private javax.swing.JButton btnDarAlta;
+    private javax.swing.JButton btnDarBaja;
     private javax.swing.JButton btnEliminar;
     private javax.swing.JButton btnGuardar;
-    private javax.swing.JButton btnLimpiar;
-    private javax.swing.JButton btnListar;
+    private javax.swing.JButton btnListarTodos;
     private javax.swing.JButton btnModificar;
+    private javax.swing.JButton btnNuevo;
     private javax.swing.JButton btnRecargar;
     private javax.swing.JComboBox<String> cboxBusqueda;
     private javax.swing.JCheckBox checkEstado;
@@ -736,5 +713,4 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
     private javax.swing.JTextField txtPrecio;
     private javax.swing.JTextField txtRuta;
     // End of variables declaration//GEN-END:variables
-
 }

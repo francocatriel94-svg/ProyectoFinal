@@ -14,12 +14,15 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
 
     public GestionColectivos() {
         initComponents();
+
         modelo = (DefaultTableModel) TablaColectivos.getModel();
+
+        limpiarCampos();
         cargarTabla();
-        habilitarBotones(false);
     }
 
     private void cargarTabla() {
+        limpiarCampos();
         modelo.setRowCount(0);
         TablaColectivos.clearSelection();
 
@@ -45,9 +48,7 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
         dato_modelo.setText("");
         dato_capacidad.setText("");
         dato_chofer.setText("");
-
         checkEstado.setSelected(true);
-
         TablaColectivos.clearSelection();
 
         dato_matricula.requestFocus();
@@ -68,19 +69,19 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
         dato_modelo.setText(modelo.getValueAt(fila, 3).toString());
         dato_capacidad.setText(modelo.getValueAt(fila, 4).toString());
         dato_chofer.setText(modelo.getValueAt(fila, 5).toString());
-
-        checkEstado.setSelected(modelo.getValueAt(fila, 6).toString().equals("Activo"));
-
-        dato_capacidad.setEditable(true);
+        boolean activo = TablaColectivos.getValueAt(fila, 7).toString().equals("Activo");
+        checkEstado.setSelected(activo);
     }
 
-    private void habilitarBotones(boolean habilitar) {
-        btnGuardar.setEnabled(!habilitar);
-        btnModificar.setEnabled(habilitar);
-        btnCancelar.setEnabled(habilitar);
-        btnEliminar.setEnabled(habilitar && !checkEstado.isSelected());
-        btnDarAlta.setEnabled(habilitar && !checkEstado.isSelected());
-        btnDarBaja.setEnabled(habilitar && checkEstado.isSelected());
+    private void habilitarBotones(boolean seleccionado) {
+        boolean activo = seleccionado && checkEstado.isSelected();
+
+        btnGuardar.setEnabled(!seleccionado);
+        btnModificar.setEnabled(seleccionado);
+        btnCancelar.setEnabled(seleccionado);
+        btnEliminar.setEnabled(seleccionado && !activo);
+        btnDarAlta.setEnabled(seleccionado && !activo);
+        btnDarBaja.setEnabled(activo);
     }
 
     private Colectivo obtenerYValidarDatos(int idActual) {
@@ -144,7 +145,7 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
         lblBusqueda = new javax.swing.JLabel();
         dato_buscar = new javax.swing.JTextField();
         btnBuscar = new javax.swing.JButton();
-        btnMostrarTodo = new javax.swing.JButton();
+        btnListarTodos = new javax.swing.JButton();
         btnRecargarTabla = new javax.swing.JButton();
         btnEliminar = new javax.swing.JButton();
         PanelTabla = new javax.swing.JPanel();
@@ -154,7 +155,7 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
         setIconifiable(true);
         setTitle("Gestión de Colectivos");
 
-        PanelDatos.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos del colectivo ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14), new java.awt.Color(255, 255, 255))); // NOI18N
+        PanelDatos.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos Del Colectivo ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14), new java.awt.Color(0, 0, 0))); // NOI18N
         PanelDatos.setToolTipText("");
         PanelDatos.setName("asdaf"); // NOI18N
 
@@ -260,7 +261,7 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
                 .addContainerGap())
         );
 
-        PanelBotones.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Funciones", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.TOP));
+        PanelBotones.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Funciones", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14), new java.awt.Color(0, 0, 0))); // NOI18N
         PanelBotones.setForeground(new java.awt.Color(255, 255, 255));
 
         btnNuevo.setText("Nuevo");
@@ -288,9 +289,9 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
         btnBuscar.setText("Buscar");
         btnBuscar.addActionListener(this::btnBuscarActionPerformed);
 
-        btnMostrarTodo.setText("Mostrar todos");
-        btnMostrarTodo.setEnabled(false);
-        btnMostrarTodo.addActionListener(this::btnMostrarTodoActionPerformed);
+        btnListarTodos.setText("Listar todos");
+        btnListarTodos.setEnabled(false);
+        btnListarTodos.addActionListener(this::btnListarTodosActionPerformed);
 
         btnRecargarTabla.setText("Recargar Tabla");
         btnRecargarTabla.addActionListener(this::btnRecargarTablaActionPerformed);
@@ -322,7 +323,7 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
                     .addGroup(PanelBotonesLayout.createSequentialGroup()
                         .addComponent(btnBuscar)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnMostrarTodo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(btnListarTodos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(PanelBotonesLayout.createSequentialGroup()
                         .addComponent(btnDarAlta)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -356,7 +357,7 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
                             .addComponent(lblBusqueda)
                             .addComponent(dato_buscar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnBuscar)
-                            .addComponent(btnMostrarTodo))))
+                            .addComponent(btnListarTodos))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -446,7 +447,8 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
         if (colectivoData.guardarColectivo(colectivo)) {
             JOptionPane.showMessageDialog(this, "Colectivo guardado.");
             cargarTabla();
-            limpiarCampos();
+        } else {
+            JOptionPane.showMessageDialog(this, "No se pudo guardar el colectivo.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnGuardarActionPerformed
 
@@ -493,7 +495,6 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
         if (colectivoData.modificarColectivo(colectivo)) {
             JOptionPane.showMessageDialog(this, "Colectivo modificado.");
             cargarTabla();
-            limpiarCampos();
         }
     }//GEN-LAST:event_btnModificarActionPerformed
 
@@ -542,18 +543,18 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
         int filaSeleccionada = TablaColectivos.getSelectedRow();
 
-        if (filaSeleccionada != -1) {
-            int opcion = JOptionPane.showConfirmDialog(this, "¿Desea descartar los cambios realizados?", "Cancelar", JOptionPane.YES_NO_OPTION);
-
-            if (opcion != JOptionPane.YES_OPTION) {
-                return;
-            }
-
-            cargarDatosSeleccionados();
-            habilitarBotones(true);
-        } else {
-            limpiarCampos();
+        if (filaSeleccionada == -1) {
+            return;
         }
+
+        int opcion = JOptionPane.showConfirmDialog(this, "¿Desea descartar los cambios realizados?", "Cancelar", JOptionPane.YES_NO_OPTION);
+
+        if (opcion != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        cargarDatosSeleccionados();
+        habilitarBotones(true);
     }//GEN-LAST:event_btnCancelarActionPerformed
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
@@ -565,7 +566,7 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
         }
 
         modelo.setRowCount(0);
-        btnMostrarTodo.setEnabled(true);
+        btnListarTodos.setEnabled(true);
 
         List<Colectivo> listaFiltrada = colectivoData.ListarColectivosPorMatricula(matricula);
 
@@ -589,17 +590,17 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_btnBuscarActionPerformed
 
-    private void btnMostrarTodoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMostrarTodoActionPerformed
+    private void btnListarTodosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListarTodosActionPerformed
         cargarTabla();
         dato_buscar.setText("");
-        btnMostrarTodo.setEnabled(false);
+        btnListarTodos.setEnabled(false);
         limpiarCampos();
-    }//GEN-LAST:event_btnMostrarTodoActionPerformed
+    }//GEN-LAST:event_btnListarTodosActionPerformed
 
     private void btnRecargarTablaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRecargarTablaActionPerformed
         cargarTabla();
         dato_buscar.setText("");
-        btnMostrarTodo.setEnabled(false);
+        btnListarTodos.setEnabled(false);
         limpiarCampos();
     }//GEN-LAST:event_btnRecargarTablaActionPerformed
 
@@ -627,7 +628,6 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_btnEliminarActionPerformed
 
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel PanelBotones;
     private javax.swing.JPanel PanelDatos;
@@ -639,8 +639,8 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
     private javax.swing.JButton btnDarBaja;
     private javax.swing.JButton btnEliminar;
     private javax.swing.JButton btnGuardar;
+    private javax.swing.JButton btnListarTodos;
     private javax.swing.JButton btnModificar;
-    private javax.swing.JButton btnMostrarTodo;
     private javax.swing.JButton btnNuevo;
     private javax.swing.JButton btnRecargarTabla;
     private javax.swing.JCheckBox checkEstado;

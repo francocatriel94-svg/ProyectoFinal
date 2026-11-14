@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JInternalFrame.java to edit this template
- */
 package Vista;
 
 import Modelo.Lugar;
@@ -14,20 +10,71 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
-/**
- *
- * @author santi
- */
 public class GestionLugares extends javax.swing.JInternalFrame {
+
     private boolean seleccionandoDesdeTabla = false;
 
-    /**
-     * Creates new form GestionLugares
-     */
     public GestionLugares() {
         initComponents();
-        
+
         cargarComboViajes();
+    }
+
+    private void cargarComboViajes() {
+        dato_viaje.removeAllItems();
+
+        RutaViajeData rutaData = new RutaViajeData();
+        List<RutaViaje> listaViajes = rutaData.listarRutas();
+
+        for (RutaViaje viaje : listaViajes) {
+            dato_viaje.addItem(viaje);
+        }
+    }
+
+    private void cargarTablaAsientos(int idRuta) {
+        DefaultTableModel modelo = (DefaultTableModel) jTableLugares.getModel();
+
+        //  Limpiamos cualquier dato viejo que tenga la tabla
+        modelo.setRowCount(0);
+
+        LugarData asientoData = new LugarData();
+        List<Lugar> listaAsientos = asientoData.listarLugaresPorRuta(idRuta);
+
+        //  Recorremos la lista y agregamos cada fila a la tabla
+        for (Lugar a : listaAsientos) {
+            String estadoTexto = (a.getEstado() == 1) ? "Libre" : "Ocupado";
+
+            modelo.addRow(new Object[]{
+                a.getID_lugar(),
+                a.getNumeroAsiento(),
+                a.getID_ruta(),
+                estadoTexto
+            });
+        }
+    }
+
+    private void cargarTablaTodos() {
+        DefaultTableModel modelo = (DefaultTableModel) jTableLugares.getModel();
+        modelo.setRowCount(0); // Limpiamos la tabla
+
+        LugarData lugarData = new LugarData();
+        List<Lugar> listaAsientos = lugarData.listarLugares();
+
+        for (Lugar a : listaAsientos) {
+            String estadoTexto = (a.getEstado() == 1) ? "Libre" : "Ocupado";
+
+            modelo.addRow(new Object[]{
+                a.getID_lugar(),
+                a.getNumeroAsiento(),
+                a.getID_ruta(),
+                estadoTexto
+            });
+        }
+    }
+
+    private void limpiarCampos() {
+        txtnumeroasiento.setText("");
+        jCheckBoxEstado.setSelected(false);
     }
 
     /**
@@ -39,16 +86,17 @@ public class GestionLugares extends javax.swing.JInternalFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanelPrincipal = new javax.swing.JPanel();
-        jPanelDatos = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        txtidlugar = new javax.swing.JTextField();
+        PanelPrincipal = new javax.swing.JPanel();
+        PanelDatos = new javax.swing.JPanel();
+        lblLugar = new javax.swing.JLabel();
+        lblRutaViaje = new javax.swing.JLabel();
+        dato_lugar = new javax.swing.JTextField();
         jCheckBoxEstado = new javax.swing.JCheckBox();
         dato_viaje = new javax.swing.JComboBox();
         txtnumeroasiento = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
-        jPanelBotones = new javax.swing.JPanel();
+        lblRutaViaje1 = new javax.swing.JLabel();
+        PanelBotones = new javax.swing.JPanel();
         boton_limpar = new javax.swing.JButton();
         boton_guardar = new javax.swing.JButton();
         boton_eliminar = new javax.swing.JButton();
@@ -56,80 +104,93 @@ public class GestionLugares extends javax.swing.JInternalFrame {
         boton_Desocupar = new javax.swing.JButton();
         boton_mostrartodo = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
         txtnum = new javax.swing.JTextField();
         boton_buscar = new javax.swing.JButton();
         boton_mostrarlibres = new javax.swing.JButton();
-        jPanelTabla = new javax.swing.JPanel();
+        PanelTabla = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTableLugares = new javax.swing.JTable();
 
-        jPanelPrincipal.setBorder(javax.swing.BorderFactory.createCompoundBorder());
+        PanelPrincipal.setBorder(javax.swing.BorderFactory.createCompoundBorder());
 
-        jPanelDatos.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        PanelDatos.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Gestion De Lugares", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14), new java.awt.Color(0, 0, 0))); // NOI18N
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel1.setText("ID Lugar :");
+        lblLugar.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblLugar.setText("ID Lugar :");
 
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel3.setText("Viaje:");
+        lblRutaViaje.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblRutaViaje.setText("Viaje:");
 
-        txtidlugar.setEditable(false);
-        txtidlugar.setText("el ID se autogenera");
-        txtidlugar.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        dato_lugar.setEditable(false);
+        dato_lugar.setText("el ID se autogenera");
+        dato_lugar.setHorizontalAlignment(javax.swing.JTextField.CENTER);
 
-        txtidlugar.setFocusable(false);
+        dato_lugar.setFocusable(false);
 
-        jCheckBoxEstado.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jCheckBoxEstado.setText("  Estado");
+        jCheckBoxEstado.setSelected(true);
+        jCheckBoxEstado.setText("Activo");
+        jCheckBoxEstado.setEnabled(false);
         jCheckBoxEstado.addActionListener(this::jCheckBoxEstadoActionPerformed);
 
         dato_viaje.addActionListener(this::dato_viajeActionPerformed);
 
-        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("Numero Asiento :");
 
-        javax.swing.GroupLayout jPanelDatosLayout = new javax.swing.GroupLayout(jPanelDatos);
-        jPanelDatos.setLayout(jPanelDatosLayout);
-        jPanelDatosLayout.setHorizontalGroup(
-            jPanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelDatosLayout.createSequentialGroup()
-                .addGap(72, 72, 72)
-                .addComponent(jLabel1)
+        lblRutaViaje1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblRutaViaje1.setText("Estado:");
+
+        javax.swing.GroupLayout PanelDatosLayout = new javax.swing.GroupLayout(PanelDatos);
+        PanelDatos.setLayout(PanelDatosLayout);
+        PanelDatosLayout.setHorizontalGroup(
+            PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelDatosLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(PanelDatosLayout.createSequentialGroup()
+                        .addComponent(lblRutaViaje)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(dato_viaje, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(PanelDatosLayout.createSequentialGroup()
+                        .addComponent(lblLugar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(dato_lugar, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(18, 18, 18)
-                .addComponent(txtidlugar, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 75, Short.MAX_VALUE)
-                .addComponent(jLabel2)
-                .addGap(18, 18, 18)
-                .addComponent(txtnumeroasiento, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(207, 207, 207))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelDatosLayout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(dato_viaje, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(18, 18, 18)
-                .addComponent(jCheckBoxEstado, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-        jPanelDatosLayout.setVerticalGroup(
-            jPanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelDatosLayout.createSequentialGroup()
-                .addGap(17, 17, 17)
-                .addGroup(jPanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtidlugar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtnumeroasiento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 47, Short.MAX_VALUE)
-                .addGroup(jPanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(dato_viaje, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3)
-                    .addComponent(jCheckBoxEstado, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(11, 11, 11))
+                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PanelDatosLayout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtnumeroasiento, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(PanelDatosLayout.createSequentialGroup()
+                        .addComponent(lblRutaViaje1)
+                        .addGap(18, 18, 18)
+                        .addComponent(jCheckBoxEstado, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(75, Short.MAX_VALUE))
         );
 
-        jPanelBotones.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        PanelDatosLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabel2, lblLugar, lblRutaViaje, lblRutaViaje1});
+
+        PanelDatosLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {dato_lugar, dato_viaje, jCheckBoxEstado, txtnumeroasiento});
+
+        PanelDatosLayout.setVerticalGroup(
+            PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelDatosLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblLugar, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtnumeroasiento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(dato_lugar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
+                .addGap(18, 18, 18)
+                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(dato_viaje, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblRutaViaje1)
+                    .addComponent(jCheckBoxEstado, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblRutaViaje))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        PanelBotones.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Funciones", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14), new java.awt.Color(0, 0, 0))); // NOI18N
 
         boton_limpar.setText("Limpiar campos");
         boton_limpar.addActionListener(this::boton_limparActionPerformed);
@@ -140,91 +201,82 @@ public class GestionLugares extends javax.swing.JInternalFrame {
         boton_eliminar.setText("Eliminar");
         boton_eliminar.addActionListener(this::boton_eliminarActionPerformed);
 
-        boton_ocupar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        boton_ocupar.setForeground(new java.awt.Color(0, 204, 51));
+        boton_ocupar.setForeground(new java.awt.Color(0, 102, 0));
         boton_ocupar.setText("Ocupar ");
         boton_ocupar.addActionListener(this::boton_ocuparActionPerformed);
 
-        boton_Desocupar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        boton_Desocupar.setForeground(new java.awt.Color(255, 102, 102));
+        boton_Desocupar.setForeground(new java.awt.Color(153, 0, 0));
         boton_Desocupar.setText("Desocupar");
         boton_Desocupar.addActionListener(this::boton_DesocuparActionPerformed);
 
         boton_mostrartodo.setText("Mostrar Todo");
         boton_mostrartodo.addActionListener(this::boton_mostrartodoActionPerformed);
 
-        jLabel4.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel4.setText("Buscar por numero de asiento:");
+        jLabel4.setText("Buscar Por N° Asiento:");
 
-        jLabel5.setText("*debe tener seleccionado un viaje*");
-
-        boton_buscar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         boton_buscar.setText("Buscar");
         boton_buscar.addActionListener(this::boton_buscarActionPerformed);
 
         boton_mostrarlibres.setText("Mostrar Libres");
         boton_mostrarlibres.addActionListener(this::boton_mostrarlibresActionPerformed);
 
-        javax.swing.GroupLayout jPanelBotonesLayout = new javax.swing.GroupLayout(jPanelBotones);
-        jPanelBotones.setLayout(jPanelBotonesLayout);
-        jPanelBotonesLayout.setHorizontalGroup(
-            jPanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelBotonesLayout.createSequentialGroup()
-                .addGroup(jPanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel5)
-                    .addGroup(jPanelBotonesLayout.createSequentialGroup()
-                        .addGroup(jPanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addGroup(jPanelBotonesLayout.createSequentialGroup()
-                                .addGap(12, 12, 12)
-                                .addComponent(boton_limpar)
-                                .addGap(18, 18, 18)
-                                .addComponent(boton_guardar)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(boton_eliminar))
-                            .addGroup(jPanelBotonesLayout.createSequentialGroup()
-                                .addComponent(jLabel4)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(txtnum, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(boton_buscar)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanelBotonesLayout.createSequentialGroup()
-                        .addComponent(boton_mostrartodo, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(46, 46, 46)
-                        .addComponent(boton_mostrarlibres))
-                    .addGroup(jPanelBotonesLayout.createSequentialGroup()
+        javax.swing.GroupLayout PanelBotonesLayout = new javax.swing.GroupLayout(PanelBotones);
+        PanelBotones.setLayout(PanelBotonesLayout);
+        PanelBotonesLayout.setHorizontalGroup(
+            PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelBotonesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PanelBotonesLayout.createSequentialGroup()
+                        .addComponent(boton_limpar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(boton_guardar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(boton_eliminar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(boton_ocupar)
-                        .addGap(64, 64, 64)
-                        .addComponent(boton_Desocupar)))
-                .addGap(64, 64, 64))
-        );
-        jPanelBotonesLayout.setVerticalGroup(
-            jPanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelBotonesLayout.createSequentialGroup()
-                .addGap(19, 19, 19)
-                .addGroup(jPanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(boton_ocupar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(boton_Desocupar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(boton_limpar, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(boton_guardar)
-                    .addComponent(boton_eliminar))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
-                .addGroup(jPanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(boton_mostrartodo, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(boton_mostrarlibres, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelBotonesLayout.createSequentialGroup()
-                        .addComponent(jLabel5)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtnum, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(boton_buscar))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(boton_Desocupar))
+                    .addGroup(PanelBotonesLayout.createSequentialGroup()
+                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtnum)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(boton_buscar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(boton_mostrartodo)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(boton_mostrarlibres)))
                 .addContainerGap())
         );
 
-        jTableLugares.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        PanelBotonesLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {boton_Desocupar, boton_buscar, boton_eliminar, boton_limpar, boton_mostrarlibres, boton_mostrartodo, boton_ocupar});
+
+        PanelBotonesLayout.setVerticalGroup(
+            PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelBotonesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(boton_limpar)
+                        .addComponent(boton_guardar))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(boton_ocupar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(boton_Desocupar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(boton_eliminar)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel4)
+                    .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(txtnum, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(boton_buscar)
+                        .addComponent(boton_mostrartodo)
+                        .addComponent(boton_mostrarlibres)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        PanelBotonesLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {boton_Desocupar, boton_buscar, boton_eliminar, boton_guardar, boton_limpar, boton_mostrarlibres, boton_mostrartodo, boton_ocupar});
+
         jTableLugares.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -243,201 +295,174 @@ public class GestionLugares extends javax.swing.JInternalFrame {
         });
         jScrollPane1.setViewportView(jTableLugares);
 
-        javax.swing.GroupLayout jPanelTablaLayout = new javax.swing.GroupLayout(jPanelTabla);
-        jPanelTabla.setLayout(jPanelTablaLayout);
-        jPanelTablaLayout.setHorizontalGroup(
-            jPanelTablaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelTablaLayout.createSequentialGroup()
+        javax.swing.GroupLayout PanelTablaLayout = new javax.swing.GroupLayout(PanelTabla);
+        PanelTabla.setLayout(PanelTablaLayout);
+        PanelTablaLayout.setHorizontalGroup(
+            PanelTablaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelTablaLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane1)
                 .addContainerGap())
         );
-        jPanelTablaLayout.setVerticalGroup(
-            jPanelTablaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelTablaLayout.createSequentialGroup()
+        PanelTablaLayout.setVerticalGroup(
+            PanelTablaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelTablaLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 364, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        javax.swing.GroupLayout jPanelPrincipalLayout = new javax.swing.GroupLayout(jPanelPrincipal);
-        jPanelPrincipal.setLayout(jPanelPrincipalLayout);
-        jPanelPrincipalLayout.setHorizontalGroup(
-            jPanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelPrincipalLayout.createSequentialGroup()
-                .addGroup(jPanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanelPrincipalLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(jPanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jPanelBotones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(jPanelPrincipalLayout.createSequentialGroup()
-                                .addGap(6, 6, 6)
-                                .addComponent(jPanelTabla, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                    .addGroup(jPanelPrincipalLayout.createSequentialGroup()
-                        .addGap(15, 15, 15)
-                        .addComponent(jPanelDatos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+        javax.swing.GroupLayout PanelPrincipalLayout = new javax.swing.GroupLayout(PanelPrincipal);
+        PanelPrincipal.setLayout(PanelPrincipalLayout);
+        PanelPrincipalLayout.setHorizontalGroup(
+            PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelPrincipalLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(PanelBotones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(PanelDatos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(PanelTabla, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
-        jPanelPrincipalLayout.setVerticalGroup(
-            jPanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelPrincipalLayout.createSequentialGroup()
-                .addGap(22, 22, 22)
-                .addComponent(jPanelDatos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        PanelPrincipalLayout.setVerticalGroup(
+            PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelPrincipalLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(PanelDatos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanelBotones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(PanelBotones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanelTabla, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(PanelTabla, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanelPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(PanelPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanelPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(PanelPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-    
-    private void limpiarCampos() {
-        txtnumeroasiento.setText("");
-        jCheckBoxEstado.setSelected(false);
-    }
-    
-    private void jCheckBoxEstadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxEstadoActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jCheckBoxEstadoActionPerformed
-
-    private void dato_viajeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dato_viajeActionPerformed
-      if (seleccionandoDesdeTabla) {
-        return;
-    }
-    
-    RutaViaje viajeSeleccionado = (RutaViaje) dato_viaje.getSelectedItem();
-    if (viajeSeleccionado != null) {
-        cargarTablaAsientos(viajeSeleccionado.getID_ruta());
-    }
-    }//GEN-LAST:event_dato_viajeActionPerformed
 
     private void boton_limparActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_limparActionPerformed
-      limpiarCampos();
+        limpiarCampos();
     }//GEN-LAST:event_boton_limparActionPerformed
 
     private void boton_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_guardarActionPerformed
 
         if (txtnumeroasiento.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Debes completar el numero de asiento.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-           txtnumeroasiento.requestFocusInWindow();
+            txtnumeroasiento.requestFocusInWindow();
             return;
         }
-     
+
         try {
-            
+
             int numeroasiento = Integer.parseInt(txtnumeroasiento.getText().trim());
-                
-            RutaViaje viajeseleccionado= (RutaViaje) dato_viaje.getSelectedItem();
-            
-            
+
+            RutaViaje viajeseleccionado = (RutaViaje) dato_viaje.getSelectedItem();
+
             int estado = jCheckBoxEstado.isSelected() ? 1 : 0;
-            
-            
+
             Lugar nuevoLugar = new Lugar();
             nuevoLugar.setID_ruta(viajeseleccionado.getID_ruta());
             nuevoLugar.setNumeroAsiento(numeroasiento);
             nuevoLugar.setEstado(estado);
-            
+
             LugarData lugarData = new LugarData();
             lugarData.guardarLugar(nuevoLugar);
 
             //Limpiamos los campos y recargamos la tabla
             limpiarCampos();
-    
-        if (viajeseleccionado != null) {
-            cargarTablaAsientos(viajeseleccionado.getID_ruta());
-        }
+
+            if (viajeseleccionado != null) {
+                cargarTablaAsientos(viajeseleccionado.getID_ruta());
+            }
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Los campos de Lugar, Ruta y numero de asiento deben contener valores numéricos válidos.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
-        }   
+        }
     }//GEN-LAST:event_boton_guardarActionPerformed
 
     private void jTableLugaresMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableLugaresMouseClicked
         // TODO add your handling code here:
         int filaSeleccionada = jTableLugares.getSelectedRow();
-        if(filaSeleccionada != -1){
-            txtidlugar.setText(jTableLugares.getValueAt(filaSeleccionada, 0).toString());
+        if (filaSeleccionada != -1) {
+            dato_lugar.setText(jTableLugares.getValueAt(filaSeleccionada, 0).toString());
             txtnumeroasiento.setText(jTableLugares.getValueAt(filaSeleccionada, 1).toString());
-        int idViajeBuscado = Integer.parseInt(jTableLugares.getValueAt(filaSeleccionada, 2).toString());    
+            int idViajeBuscado = Integer.parseInt(jTableLugares.getValueAt(filaSeleccionada, 2).toString());
             String estado = jTableLugares.getValueAt(filaSeleccionada, 3).toString();
             jCheckBoxEstado.setSelected(estado.equalsIgnoreCase("Activo"));
-           
-        seleccionandoDesdeTabla = true;
-        // Recorremos el JComboBox para encontrar el objeto RutaViaje que coincida con ese ID
-        for (int i = 0; i < dato_viaje.getItemCount(); i++) {
-            RutaViaje viajeCombo = (RutaViaje) dato_viaje.getItemAt(i);
-            
-            if (viajeCombo.getID_ruta() == idViajeBuscado) {
-                
-                dato_viaje.setSelectedItem(viajeCombo);
-                break;
+
+            seleccionandoDesdeTabla = true;
+            // Recorremos el JComboBox para encontrar el objeto RutaViaje que coincida con ese ID
+            for (int i = 0; i < dato_viaje.getItemCount(); i++) {
+                RutaViaje viajeCombo = (RutaViaje) dato_viaje.getItemAt(i);
+
+                if (viajeCombo.getID_ruta() == idViajeBuscado) {
+
+                    dato_viaje.setSelectedItem(viajeCombo);
+                    break;
+                }
             }
-        }
-        seleccionandoDesdeTabla = false;
+            seleccionandoDesdeTabla = false;
             boton_guardar.setEnabled(false);
             boton_eliminar.setEnabled(true);
             boton_ocupar.setEnabled(true);
             boton_Desocupar.setEnabled(true);
         }
-          
-        
+
+
     }//GEN-LAST:event_jTableLugaresMouseClicked
 
     private void boton_eliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_eliminarActionPerformed
-           int filaSeleccionada = jTableLugares.getSelectedRow();
+        int filaSeleccionada = jTableLugares.getSelectedRow();
         if (filaSeleccionada == -1) {
             JOptionPane.showMessageDialog(this, "Debe seleccionar un pasaje de la tabla para actualizar sus datos.", "Ningún pasaje seleccionado", JOptionPane.WARNING_MESSAGE);
             return;
         }
-      int confirmacion = JOptionPane.showConfirmDialog(this, "¿Está seguro de que desea eliminar este lugar?", "Confirmar eliminación", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-      
-      if (confirmacion == JOptionPane.YES_OPTION) {
+        int confirmacion = JOptionPane.showConfirmDialog(this, "¿Está seguro de que desea eliminar este lugar?", "Confirmar eliminación", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+        if (confirmacion == JOptionPane.YES_OPTION) {
             try {
-               
+
                 int idLugar = (int) jTableLugares.getValueAt(filaSeleccionada, 0);
-                RutaViaje viajeseleccionado= (RutaViaje) dato_viaje.getSelectedItem();
-                
+                RutaViaje viajeseleccionado = (RutaViaje) dato_viaje.getSelectedItem();
+
                 LugarData lugarData = new LugarData();
                 lugarData.eliminarLugar(idLugar);
 
                 JOptionPane.showMessageDialog(this, "Lugar eliminado con éxito.", "Operación Exitosa", JOptionPane.INFORMATION_MESSAGE);
 
-               
-               limpiarCampos();
-    
-        if (viajeseleccionado != null) {
-            cargarTablaAsientos(viajeseleccionado.getID_ruta());
+                limpiarCampos();
+
+                if (viajeseleccionado != null) {
+                    cargarTablaAsientos(viajeseleccionado.getID_ruta());
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Los campos de id_lugar, numero de asiento y viaje deben contener valores numéricos válidos.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+            }
         }
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Los campos de id_lugar, numero de asiento y viaje deben contener valores numéricos válidos.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
-        }   
-      }    
-        
+
     }//GEN-LAST:event_boton_eliminarActionPerformed
 
     private void boton_ocuparActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_ocuparActionPerformed
-          int filaSeleccionada = jTableLugares.getSelectedRow();
+        int filaSeleccionada = jTableLugares.getSelectedRow();
         if (filaSeleccionada == -1) {
             JOptionPane.showMessageDialog(this, "Debe seleccionar un lugar de la tabla para actualizar sus datos.", "Ningún pasaje seleccionado", JOptionPane.WARNING_MESSAGE);
             return;
         }
-         RutaViaje viajeseleccionado= (RutaViaje) dato_viaje.getSelectedItem();
+        RutaViaje viajeseleccionado = (RutaViaje) dato_viaje.getSelectedItem();
         int idLugar = Integer.parseInt(jTableLugares.getValueAt(filaSeleccionada, 0).toString());
-        LugarData lugarData= new LugarData();
+        LugarData lugarData = new LugarData();
         lugarData.ocuparLugar(idLugar);
-        
-       cargarTablaAsientos(viajeseleccionado.getID_ruta()); 
+
+        cargarTablaAsientos(viajeseleccionado.getID_ruta());
     }//GEN-LAST:event_boton_ocuparActionPerformed
 
     private void boton_DesocuparActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_DesocuparActionPerformed
@@ -446,134 +471,100 @@ public class GestionLugares extends javax.swing.JInternalFrame {
             JOptionPane.showMessageDialog(this, "Debe seleccionar un lugar de la tabla para actualizar sus datos.", "Ningún pasaje seleccionado", JOptionPane.WARNING_MESSAGE);
             return;
         }
-          RutaViaje viajeseleccionado= (RutaViaje) dato_viaje.getSelectedItem();
+        RutaViaje viajeseleccionado = (RutaViaje) dato_viaje.getSelectedItem();
         int idLugar = Integer.parseInt(jTableLugares.getValueAt(filaSeleccionada, 0).toString());
-        LugarData lugarData= new LugarData();
+        LugarData lugarData = new LugarData();
         lugarData.desocuparLugar(idLugar);
-        
-        cargarTablaAsientos(viajeseleccionado.getID_ruta());  
+
+        cargarTablaAsientos(viajeseleccionado.getID_ruta());
     }//GEN-LAST:event_boton_DesocuparActionPerformed
 
     private void boton_mostrartodoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_mostrartodoActionPerformed
-       cargarTablaTodos();
+        cargarTablaTodos();
     }//GEN-LAST:event_boton_mostrartodoActionPerformed
 
     private void boton_buscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_buscarActionPerformed
-       String textoAsiento = txtnum.getText().trim();
-    
-    if (textoAsiento.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Por favor, ingrese un número de asiento.", "Campo vacío", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-        RutaViaje viajeseleccionado= (RutaViaje) dato_viaje.getSelectedItem();
+        String textoAsiento = txtnum.getText().trim();
+
+        if (textoAsiento.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, ingrese un número de asiento.", "Campo vacío", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        RutaViaje viajeseleccionado = (RutaViaje) dato_viaje.getSelectedItem();
         if (viajeseleccionado == null) {
-        JOptionPane.showMessageDialog(this, "Debe seleccionar un viaje del combo para buscar.", "Aviso", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un viaje del combo para buscar.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         try {
-        int numeroasiento = Integer.parseInt(txtnum.getText().trim());
-       DefaultTableModel modelo = (DefaultTableModel) jTableLugares.getModel();
-        modelo.setRowCount(0); 
-        
-       LugarData lugarData = new LugarData();
-      Lugar lugar = lugarData.buscarLugarPorNumero(viajeseleccionado.getID_ruta(), numeroasiento);
-       if (lugar != null) {
-            String estadoTexto = (lugar.getEstado() == 1) ? "Libre" : "Ocupado";
+            int numeroasiento = Integer.parseInt(txtnum.getText().trim());
+            DefaultTableModel modelo = (DefaultTableModel) jTableLugares.getModel();
+            modelo.setRowCount(0);
+
+            LugarData lugarData = new LugarData();
+            Lugar lugar = lugarData.buscarLugarPorNumero(viajeseleccionado.getID_ruta(), numeroasiento);
+            if (lugar != null) {
+                String estadoTexto = (lugar.getEstado() == 1) ? "Libre" : "Ocupado";
+
+                modelo.addRow(new Object[]{
+                    lugar.getID_lugar(),
+                    lugar.getNumeroAsiento(),
+                    lugar.getID_ruta(),
+                    estadoTexto
+                });
+            } else {
+                JOptionPane.showMessageDialog(this, "No se encontró el asiento N° " + numeroasiento + " para este viaje.", "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
+                // si no encuentra nada, podés volver a cargar los del viaje para que la tabla no quede vacía
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "El número de asiento debe ser un valor numérico válido.", "Error de formato", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_boton_buscarActionPerformed
+
+    private void boton_mostrarlibresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_mostrarlibresActionPerformed
+        RutaViaje viajeseleccionado = (RutaViaje) dato_viaje.getSelectedItem();
+        DefaultTableModel modelo = (DefaultTableModel) jTableLugares.getModel();
+        modelo.setRowCount(0);
+        if (viajeseleccionado == null) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un viaje.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        LugarData lugarData = new LugarData();
+        int IDruta = viajeseleccionado.getID_ruta();
+        List<Lugar> listaLibres = lugarData.listarLugaresLibresPorRuta(IDruta);
+
+        for (Lugar lugar : listaLibres) {
+            String estadoTexto = "Libre";
 
             modelo.addRow(new Object[]{
                 lugar.getID_lugar(),
                 lugar.getNumeroAsiento(),
                 lugar.getID_ruta(),
-                estadoTexto    
+                estadoTexto
             });
-        } else {
-            JOptionPane.showMessageDialog(this, "No se encontró el asiento N° " + numeroasiento + " para este viaje.", "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
-            // si no encuentra nada, podés volver a cargar los del viaje para que la tabla no quede vacía
         }
-       } catch (NumberFormatException e) {
-        JOptionPane.showMessageDialog(this, "El número de asiento debe ser un valor numérico válido.", "Error de formato", JOptionPane.ERROR_MESSAGE);
-    }
-    }//GEN-LAST:event_boton_buscarActionPerformed
-
-    private void boton_mostrarlibresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_mostrarlibresActionPerformed
-         RutaViaje viajeseleccionado= (RutaViaje) dato_viaje.getSelectedItem();
-         DefaultTableModel modelo = (DefaultTableModel) jTableLugares.getModel();
-         modelo.setRowCount(0); 
-        if (viajeseleccionado == null) {
-        JOptionPane.showMessageDialog(this, "Debe seleccionar un viaje.", "Aviso", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-        
-        
-         LugarData lugarData = new LugarData();
-        int IDruta= viajeseleccionado.getID_ruta();
-         List<Lugar> listaLibres = lugarData.listarLugaresLibresPorRuta(IDruta);
-    
-   
-    for (Lugar lugar : listaLibres) {
-        String estadoTexto = "Libre"; 
-        
-        modelo.addRow(new Object[]{
-            lugar.getID_lugar(),
-            lugar.getNumeroAsiento(),
-            lugar.getID_ruta(),
-            estadoTexto
-        });
-    }
     }//GEN-LAST:event_boton_mostrarlibresActionPerformed
-   
-    private void cargarComboViajes() {
-    dato_viaje.removeAllItems(); 
-    
-    RutaViajeData rutaData = new RutaViajeData();
-    List<RutaViaje> listaViajes = rutaData.listarRutas(); 
-    
-    for (RutaViaje viaje : listaViajes) {
-        dato_viaje.addItem(viaje); 
-    }
-}
-    
-    private void cargarTablaAsientos(int idRuta) {
-    DefaultTableModel modelo = (DefaultTableModel) jTableLugares.getModel();
-    
-    //  Limpiamos cualquier dato viejo que tenga la tabla
-    modelo.setRowCount(0); 
-    
-    LugarData asientoData = new LugarData();
-    List<Lugar> listaAsientos = asientoData.listarLugaresPorRuta(idRuta); 
-    
-    //  Recorremos la lista y agregamos cada fila a la tabla
-    for (Lugar a : listaAsientos) {
-        String estadoTexto = (a.getEstado() == 1) ? "Libre" : "Ocupado";
-        
-        modelo.addRow(new Object[]{
-            a.getID_lugar(),
-            a.getNumeroAsiento(),
-            a.getID_ruta(),
-            estadoTexto 
-        });
-    }
-}
-    private void cargarTablaTodos() {
-    DefaultTableModel modelo = (DefaultTableModel) jTableLugares.getModel();
-    modelo.setRowCount(0); // Limpiamos la tabla
-    
-    LugarData lugarData = new LugarData();
-    List<Lugar> listaAsientos = lugarData.listarLugares(); 
-    
-    for (Lugar a : listaAsientos) {
-        String estadoTexto = (a.getEstado() == 1) ? "Libre" : "Ocupado";
-        
-        modelo.addRow(new Object[]{
-            a.getID_lugar(),
-            a.getNumeroAsiento(), 
-            a.getID_ruta(),
-            estadoTexto    
-        });
-    }
-}
+
+    private void jCheckBoxEstadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxEstadoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jCheckBoxEstadoActionPerformed
+
+    private void dato_viajeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dato_viajeActionPerformed
+        if (seleccionandoDesdeTabla) {
+            return;
+        }
+
+        RutaViaje viajeSeleccionado = (RutaViaje) dato_viaje.getSelectedItem();
+        if (viajeSeleccionado != null) {
+            cargarTablaAsientos(viajeSeleccionado.getID_ruta());
+        }
+    }//GEN-LAST:event_dato_viajeActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel PanelBotones;
+    private javax.swing.JPanel PanelDatos;
+    private javax.swing.JPanel PanelPrincipal;
+    private javax.swing.JPanel PanelTabla;
     private javax.swing.JButton boton_Desocupar;
     private javax.swing.JButton boton_buscar;
     private javax.swing.JButton boton_eliminar;
@@ -582,20 +573,16 @@ public class GestionLugares extends javax.swing.JInternalFrame {
     private javax.swing.JButton boton_mostrarlibres;
     private javax.swing.JButton boton_mostrartodo;
     private javax.swing.JButton boton_ocupar;
+    private javax.swing.JTextField dato_lugar;
     private javax.swing.JComboBox dato_viaje;
     private javax.swing.JCheckBox jCheckBoxEstado;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JPanel jPanelBotones;
-    private javax.swing.JPanel jPanelDatos;
-    private javax.swing.JPanel jPanelPrincipal;
-    private javax.swing.JPanel jPanelTabla;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTableLugares;
-    private javax.swing.JTextField txtidlugar;
+    private javax.swing.JLabel lblLugar;
+    private javax.swing.JLabel lblRutaViaje;
+    private javax.swing.JLabel lblRutaViaje1;
     private javax.swing.JTextField txtnum;
     private javax.swing.JTextField txtnumeroasiento;
     // End of variables declaration//GEN-END:variables

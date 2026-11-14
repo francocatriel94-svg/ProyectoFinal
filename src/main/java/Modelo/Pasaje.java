@@ -1,5 +1,6 @@
 package Modelo;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -10,14 +11,14 @@ public class Pasaje {
     private int ID_ruta;
     private LocalDate fechaVenta;
     private LocalTime horaVenta;
-    private double precio;
+    private BigDecimal precio;
     private int estado;
 
     //Constructor Vacio.
     public Pasaje() {}
 
     //Constructor Con ID_pasaje.
-    public Pasaje(int ID_pasaje, int ID_pasajero, int ID_lugar, int ID_ruta, LocalDate fechaVenta, LocalTime horaVenta, double precio, int estado) {
+    public Pasaje(int ID_pasaje, int ID_pasajero, int ID_lugar, int ID_ruta, LocalDate fechaVenta, LocalTime horaVenta, BigDecimal precio, int estado) {
         this.ID_pasaje = ID_pasaje;
         this.ID_pasajero = ID_pasajero;
         this.ID_lugar = ID_lugar;
@@ -29,7 +30,7 @@ public class Pasaje {
     }
     
     //Constructor Sin ID_pasaje.
-    public Pasaje(int ID_pasajero, int ID_lugar, int ID_ruta, LocalDate fechaVenta, LocalTime horaVenta, double precio, int estado) {
+    public Pasaje(int ID_pasajero, int ID_lugar, int ID_ruta, LocalDate fechaVenta, LocalTime horaVenta, BigDecimal precio, int estado) {
         this.ID_pasajero = ID_pasajero;
         this.ID_lugar = ID_lugar;
         this.ID_ruta = ID_ruta;
@@ -87,11 +88,11 @@ public class Pasaje {
         this.horaVenta = horaVenta;
     }
 
-    public double getPrecio() {
+    public BigDecimal getPrecio() {
         return precio;
     }
 
-    public void setPrecio(double precio) {
+    public void setPrecio(BigDecimal precio) {
         this.precio = precio;
     }
 
@@ -111,6 +112,7 @@ public class Pasaje {
                 + "\n lugar: " + ID_lugar 
                 + "\n rutaViaje: " + ID_ruta 
                 + "\n fechaVenta: " + fechaVenta 
+                + "\n horaVenta: " + horaVenta
                 + "\n precio: " + precio 
                 + "\n estado: " + estado;
     }

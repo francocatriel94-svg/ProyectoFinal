@@ -52,8 +52,8 @@
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-            <TitledBorder title="Datos del colectivo ">
-              <Color PropertyName="color" blue="ff" green="ff" red="ff" type="rgb"/>
+            <TitledBorder title="Datos Del Colectivo ">
+              <Color PropertyName="color" blue="0" green="0" red="0" type="rgb"/>
             </TitledBorder>
           </Border>
         </Property>
@@ -222,7 +222,9 @@
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-            <TitledBorder justification="1" position="2" title="Funciones"/>
+            <TitledBorder title="Funciones">
+              <Color PropertyName="color" blue="0" green="0" red="0" type="rgb"/>
+            </TitledBorder>
           </Border>
         </Property>
         <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -256,7 +258,7 @@
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="btnBuscar" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="btnMostrarTodo" max="32767" attributes="0"/>
+                          <Component id="btnListarTodos" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="btnDarAlta" min="-2" max="-2" attributes="0"/>
@@ -293,7 +295,7 @@
                               <Component id="lblBusqueda" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="dato_buscar" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnBuscar" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="btnMostrarTodo" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="btnListarTodos" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
@@ -372,13 +374,13 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnBuscarActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="btnMostrarTodo">
+        <Component class="javax.swing.JButton" name="btnListarTodos">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Mostrar todos"/>
+            <Property name="text" type="java.lang.String" value="Listar todos"/>
             <Property name="enabled" type="boolean" value="false"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnMostrarTodoActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnListarTodosActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JButton" name="btnRecargarTabla">

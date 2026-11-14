@@ -68,22 +68,6 @@ public class ColectivoData {
         }
     }
 
-    //Cambiamos el estado de un colectivo.
-    private boolean cambiarEstado(int id, int estado) {
-        String sql = "UPDATE colectivo SET estado = ? WHERE ID_colectivo = ?";
-
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, estado);
-            ps.setInt(2, id);
-
-            return ps.executeUpdate() == 1;
-            
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al cambiar el estado del colectivo: " + ex.getMessage());
-            return false;
-        }
-    }
-
     //Baja lógica (estado = 0).
     public boolean darDeBaja(int id) {
         return cambiarEstado(id, 0);
@@ -178,6 +162,22 @@ public class ColectivoData {
     public List<Colectivo> listarColectivosActivos() {
         String sql = "SELECT * FROM colectivo WHERE estado = 1";
         return listar(sql);
+    }
+    
+    //Cambiamos el estado de un colectivo.
+    private boolean cambiarEstado(int id, int estado) {
+        String sql = "UPDATE colectivo SET estado = ? WHERE ID_colectivo = ?";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, estado);
+            ps.setInt(2, id);
+
+            return ps.executeUpdate() == 1;
+            
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al cambiar el estado del colectivo: " + ex.getMessage());
+            return false;
+        }
     }
     
     private List<Colectivo> listar(String sql) {
