@@ -58,6 +58,9 @@
             </TitledBorder>
           </Border>
         </Property>
+        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="0" green="0" red="0" type="rgb"/>
+        </Property>
         <Property name="toolTipText" type="java.lang.String" value=""/>
         <Property name="name" type="java.lang.String" value="asdaf" noResource="true"/>
       </Properties>
@@ -66,7 +69,7 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
-                  <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="lblID" linkSize="7" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Component id="lblNombre" linkSize="7" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -75,33 +78,39 @@
                   </Group>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="checkEstado" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="272" max="-2" attributes="0"/>
+                      <Component id="checkEstado" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Group type="102" attributes="0">
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="dato_nombre" linkSize="8" alignment="0" min="-2" pref="300" max="-2" attributes="0"/>
+                              <Component id="dato_correo" linkSize="8" alignment="0" min="-2" pref="300" max="-2" attributes="0"/>
+                              <Component id="dato_id" linkSize="8" alignment="0" min="-2" pref="340" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Group type="102" alignment="0" attributes="0">
+                                  <EmptySpace min="-2" pref="99" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="lblTelefono" linkSize="7" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="dato_telefono" linkSize="8" max="32767" attributes="0"/>
+                                      </Group>
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="lblApellido" linkSize="7" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="dato_apellido" linkSize="8" max="32767" attributes="0"/>
+                                      </Group>
+                                  </Group>
+                              </Group>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <EmptySpace min="-2" pref="93" max="-2" attributes="0"/>
+                                  <Component id="lblDNI" linkSize="7" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                  <Component id="dato_dni" linkSize="8" max="32767" attributes="0"/>
+                              </Group>
+                          </Group>
                       </Group>
-                      <Component id="dato_nombre" linkSize="8" alignment="0" min="-2" pref="300" max="-2" attributes="0"/>
-                      <Component id="dato_correo" linkSize="8" alignment="0" min="-2" pref="300" max="-2" attributes="0"/>
-                      <Component id="dato_id" linkSize="8" alignment="0" min="-2" pref="340" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="lblTelefono" linkSize="7" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="dato_telefono" linkSize="8" max="32767" attributes="0"/>
-                      </Group>
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="lblDNI" linkSize="7" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="dato_dni" linkSize="8" max="32767" attributes="0"/>
-                      </Group>
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="lblApellido" linkSize="7" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="dato_apellido" linkSize="8" max="32767" attributes="0"/>
-                      </Group>
-                  </Group>
-                  <EmptySpace min="-2" pref="29" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -121,9 +130,9 @@
                               <Component id="dato_nombre" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="lblCorreo" min="-2" max="-2" attributes="0"/>
-                              <Component id="dato_correo" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="dato_correo" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblCorreo" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                       <Group type="102" attributes="0">
@@ -216,6 +225,7 @@
         </Component>
         <Component class="javax.swing.JCheckBox" name="checkEstado">
           <Properties>
+            <Property name="selected" type="boolean" value="true"/>
             <Property name="text" type="java.lang.String" value="Activo"/>
             <Property name="enabled" type="boolean" value="false"/>
           </Properties>
@@ -232,6 +242,9 @@
             <TitledBorder justification="1" position="2" title="Funciones"/>
           </Border>
         </Property>
+        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="0" green="0" red="0" type="rgb"/>
+        </Property>
       </Properties>
 
       <Layout>
@@ -240,45 +253,44 @@
               <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                      <Component id="btnNuevo" max="32767" attributes="0"/>
+                      <Component id="btnNuevo" linkSize="9" max="32767" attributes="0"/>
                       <Component id="lblBuscar" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="btnGuardar" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="btnModificar" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="btnDarAlta" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <Group type="102" alignment="0" attributes="0">
+                      <Group type="102" attributes="0">
                           <Component id="cboxBusqueda" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="dato_buscar" max="32767" attributes="0"/>
-                      </Group>
-                  </Group>
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="btnDarBaja" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="boton_listarTodos" max="32767" attributes="0"/>
-                      </Group>
-                      <Group type="102" attributes="0">
+                          <Component id="dato_buscar" min="-2" pref="158" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
                           <Component id="btnBuscar" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="btnBuscarInactivo" min="-2" max="-2" attributes="0"/>
                       </Group>
+                      <Group type="102" attributes="0">
+                          <Component id="btnGuardar" linkSize="9" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="btnModificar" linkSize="9" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="btnDarAlta" linkSize="9" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="btnDarBaja" linkSize="9" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="btnCancelar" max="32767" attributes="0"/>
+                      </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                      <Component id="boton_listarActivos" max="32767" attributes="0"/>
+                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                      <Component id="btnListarTodos" max="32767" attributes="0"/>
                       <Component id="btnBuscarActivo" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                      <Component id="boton_listarInactivos" max="32767" attributes="0"/>
+                      <Group type="102" attributes="0">
+                          <Component id="btnListarActivos" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="btnListarInactivos" min="-2" max="-2" attributes="0"/>
+                      </Group>
                       <Component id="btnRecargar" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
@@ -295,9 +307,10 @@
                       <Component id="btnModificar" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="btnDarAlta" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="btnDarBaja" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="boton_listarActivos" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="boton_listarInactivos" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="boton_listarTodos" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="btnListarActivos" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="btnListarTodos" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="btnCancelar" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="btnListarInactivos" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
@@ -410,12 +423,12 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnBuscarInactivoActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="boton_listarActivos">
+        <Component class="javax.swing.JButton" name="btnListarActivos">
           <Properties>
             <Property name="text" type="java.lang.String" value="Listar Activos"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boton_listarActivosActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnListarActivosActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JButton" name="btnBuscarActivo">
@@ -426,20 +439,28 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnBuscarActivoActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="boton_listarInactivos">
+        <Component class="javax.swing.JButton" name="btnListarInactivos">
           <Properties>
             <Property name="text" type="java.lang.String" value="Listar Inactivos"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boton_listarInactivosActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnListarInactivosActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="boton_listarTodos">
+        <Component class="javax.swing.JButton" name="btnListarTodos">
           <Properties>
             <Property name="text" type="java.lang.String" value="Listar Todos"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boton_listarTodosActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnListarTodosActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="btnCancelar">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Cancelar"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCancelarActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>

@@ -62,7 +62,6 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        lugarData1 = new Persistencia.LugarData();
         PanelPrincipal = new javax.swing.JPanel();
         PanelDatos = new javax.swing.JPanel();
         lblPasaje = new javax.swing.JLabel();
@@ -727,7 +726,6 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
     private javax.swing.JLabel lblPasajero;
     private javax.swing.JLabel lblPrecio;
     private javax.swing.JLabel lblRuta;
-    private Persistencia.LugarData lugarData1;
     private javax.swing.JTable tablaPasajes;
     private javax.swing.JTextField txtBuscar;
     private javax.swing.JTextField txtFechaVenta;

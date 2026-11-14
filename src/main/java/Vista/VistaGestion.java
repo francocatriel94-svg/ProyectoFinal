@@ -104,7 +104,7 @@ public class VistaGestion extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenu2ActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
-        GestionViajes f = new GestionViajes();
+        GestionRutaViajes f = new GestionRutaViajes();
         escritorio.add(f);
         f.setLocation(20, 20);
         f.setVisible(true);

@@ -3,8 +3,9 @@ package Validaciones;
 import Modelo.Colectivo;
 import Modelo.RutaViaje;
 import Persistencia.ColectivoData;
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 public class ValidacionRutaViaje {
 
@@ -16,10 +17,17 @@ public class ValidacionRutaViaje {
         // Comprobar campos obligatorios.
         if (ruta.getOrigen() == null || ruta.getOrigen().trim().isEmpty()
                 || ruta.getDestino() == null || ruta.getDestino().trim().isEmpty()
-                || ruta.getFechaViaje() == null
+                || ruta.getFechaSalida() == null
+                || ruta.getFechaLlegada() == null
                 || ruta.getHoraSalida() == null
-                || ruta.getHoraLlegada() == null) {
+                || ruta.getHoraLlegada() == null
+                || ruta.getPrecio() == null) {
             return "Todos los campos son obligatorios.";
+        }
+
+        // Comprobar que exista la capa de persistencia.
+        if (colectivoData == null) {
+            return "No se pudo verificar el colectivo seleccionado.";
         }
 
         // Origen y destino deben ser diferentes.
@@ -27,27 +35,29 @@ public class ValidacionRutaViaje {
             return "El origen y el destino no pueden ser iguales.";
         }
 
-        // La fecha no puede ser anterior a hoy.
+        // La fecha de salida no puede ser anterior a hoy.
         LocalDate hoy = LocalDate.now();
 
-        if (ruta.getFechaViaje().isBefore(hoy)) {
-            return "La fecha del viaje no puede ser anterior a hoy.";
+        if (ruta.getFechaSalida().isBefore(hoy)) {
+            return "La fecha de salida no puede ser anterior a hoy.";
         }
 
-        // Si el viaje es hoy, la salida debe ser posterior a la hora actual.
-        if (ruta.getFechaViaje().isEqual(hoy)
-                && !ruta.getHoraSalida().isAfter(LocalTime.now())) {
+        // Combinar fechas y horas para comparar los momentos completos.
+        LocalDateTime salida = LocalDateTime.of(ruta.getFechaSalida(),ruta.getHoraSalida());
+        LocalDateTime llegada = LocalDateTime.of(ruta.getFechaLlegada(),ruta.getHoraLlegada());
 
-            return "La hora de salida debe ser posterior a la hora actual.";
+        // La salida debe ser posterior al momento actual.
+        if (!salida.isAfter(LocalDateTime.now())) {
+            return "La fecha y hora de salida deben ser posteriores al momento actual.";
         }
 
         // La llegada debe ser posterior a la salida.
-        if (!ruta.getHoraLlegada().isAfter(ruta.getHoraSalida())) {
-            return "La hora de llegada debe ser posterior a la hora de salida.";
+        if (!llegada.isAfter(salida)) {
+            return "La fecha y hora de llegada deben ser posteriores a la salida.";
         }
 
         // El precio debe ser mayor que cero.
-        if (!Double.isFinite(ruta.getPrecio()) || ruta.getPrecio() <= 0) {
+        if (ruta.getPrecio().compareTo(BigDecimal.ZERO) <= 0) {
             return "El precio debe ser mayor que cero.";
         }
 
@@ -61,7 +71,7 @@ public class ValidacionRutaViaje {
         if (colectivo.getEstado() != 1) {
             return "El colectivo seleccionado está dado de baja.";
         }
-        
         return null;
     }
 }
+

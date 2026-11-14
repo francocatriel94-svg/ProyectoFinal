@@ -1,7 +1,5 @@
 package Persistencia;
 
-import Modelo.Lugar;
-import Modelo.Colectivo;
 import Modelo.RutaViaje;
 import java.sql.Connection;
 import java.sql.Date;
@@ -10,208 +8,243 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JOptionPane;
 
 public class RutaViajeData {
 
     private Connection con = null;
+    private static final Logger LOGGER = Logger.getLogger(RutaViajeData.class.getName());
 
     public RutaViajeData() {
         con = Conexion.getConexion();
     }
 
-    public void guardarRutaViaje(RutaViaje r) {
-        String sql = "INSERT INTO rutaviaje (origen, destino, fechaViaje, horaSalida, horaLlegada, ID_colectivo, precio, estado) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    // Guarda una ruta y genera todos sus asientos.
+    public boolean guardarRutaViaje(RutaViaje r) {
+        String sqlRuta = "INSERT INTO rutaViaje (origen, destino, fechaSalida, fechaLlegada, horaSalida, horaLlegada, ID_colectivo, precio, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sqlCapacidad = "SELECT capacidad FROM colectivo WHERE ID_colectivo = ?";
+        String sqlAsientos = "INSERT INTO lugar (ID_ruta, numeroAsiento, estado) VALUES (?, ?, ?)";
 
-        try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, r.getOrigen());
-            ps.setString(2, r.getDestino());
-            ps.setDate(3, Date.valueOf(r.getFechaViaje()));
-            ps.setTime(4, Time.valueOf(r.getHoraSalida()));
-            ps.setTime(5, Time.valueOf(r.getHoraLlegada()));
-            ps.setInt(6, r.getID_colectivo());
-            ps.setDouble(7, r.getPrecio());
-            ps.setInt(8, r.getEstado());
+        boolean autoCommitOriginal = true;
+        boolean transaccionIniciada = false;
 
-            ps.executeUpdate();
+        try {
+            if (con == null) {
+                return false;
+            }
 
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) {
-                    int idGenerado = rs.getInt(1);
-                    r.setID_ruta(idGenerado);
-                    ColectivoData colData = new ColectivoData();
-                    Colectivo colectivo = colData.buscarColectivo(r.getID_colectivo());
+            autoCommitOriginal = con.getAutoCommit();
+            con.setAutoCommit(false);
+            transaccionIniciada = true;
 
-                    if (colectivo != null) {
-                        LugarData asientoData = new LugarData();
-                        for (int i = 1; i <= colectivo.getCapacidad(); i++) {
-                            Lugar asiento = new Lugar();
-                            asiento.setID_ruta(idGenerado);
-                            asiento.setNumeroAsiento(i);
-                            asiento.setEstado(1); //1 = Libre.
-                            asientoData.guardarLugar(asiento);
-                        }
+            // Obtener la capacidad del colectivo.
+            int capacidad;
+
+            try (PreparedStatement ps = con.prepareStatement(sqlCapacidad)) {
+                ps.setInt(1, r.getID_colectivo());
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        throw new SQLException("No se encontró el colectivo.");
                     }
-                    JOptionPane.showMessageDialog(null, "Se guardo la ruta con exito y se generaron sus asientos ID:" + idGenerado);
+                    capacidad = rs.getInt("capacidad");
                 }
-                ps.close();
-            } catch (SQLException ex) {
-                Logger.getLogger(RutaViajeData.class.getName()).log(Level.SEVERE, "Error al guardar ruta de viaje", ex);
-                JOptionPane.showMessageDialog(null, "Error al insertar en la base de datos: " + ex.getMessage());
             }
+
+            if (capacidad <= 0) {
+                throw new SQLException("La capacidad del colectivo no es válida.");
+            }
+
+            // Insertar la ruta.
+            int idGenerado;
+
+            try (PreparedStatement ps = con.prepareStatement(sqlRuta, Statement.RETURN_GENERATED_KEYS)) {
+                ps.setString(1, r.getOrigen());
+                ps.setString(2, r.getDestino());
+                ps.setDate(3, Date.valueOf(r.getFechaSalida()));
+                ps.setDate(4, Date.valueOf(r.getFechaLlegada()));
+                ps.setTime(5, Time.valueOf(r.getHoraSalida()));
+                ps.setTime(6, Time.valueOf(r.getHoraLlegada()));
+                ps.setInt(7, r.getID_colectivo());
+                ps.setBigDecimal(8, r.getPrecio());
+                ps.setInt(9, r.getEstado());
+
+                if (ps.executeUpdate() != 1) {
+                    throw new SQLException("No se pudo guardar la ruta.");
+                }
+
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (!rs.next()) {
+                        throw new SQLException("No se pudo obtener el ID de la ruta.");
+                    }
+                    idGenerado = rs.getInt(1);
+                }
+            }
+
+            // Generar todos los asientos de la ruta.
+            try (PreparedStatement ps = con.prepareStatement(sqlAsientos)) {
+
+                for (int i = 1; i <= capacidad; i++) {
+                    ps.setInt(1, idGenerado);
+                    ps.setInt(2, i);
+                    ps.setInt(3, LugarData.LIBRE);
+
+                    if (ps.executeUpdate() != 1) {
+                        throw new SQLException("No se pudo generar el asiento " + i);
+                    }
+                }
+            }
+
+            // Confirmar la operación completa.
+            con.commit();
+
+            r.setID_ruta(idGenerado);
+            return true;
+
         } catch (SQLException ex) {
-            System.getLogger(RutaViajeData.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            if (transaccionIniciada) {
+                try {
+                    con.rollback();
+                } catch (SQLException e) {
+                    LOGGER.log(Level.SEVERE, "Error al revertir la transacción al guardar una ruta.", e);
+                }
+            }
+            return false;
+
+        } finally {
+            if (transaccionIniciada) {
+                try {
+                    con.setAutoCommit(autoCommitOriginal);
+                } catch (SQLException ex) {
+                    LOGGER.log(Level.SEVERE, "Error al restaurar el autocommit de la conexión.", ex);
+                }
+            }
         }
     }
 
-    public void bajaLogicaRuta(int id) {
-        String sql = "UPDATE rutaViaje SET estado=0 WHERE ID_ruta = ?";
-        try {
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setInt(1, id);
-            
-            int filas = ps.executeUpdate();
-            if (filas > 0) {
-                JOptionPane.showMessageDialog(null, "Ruta dada de baja lógicamente.");
-            }
-            ps.close();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al dar de baja a la ruta: " + ex.getMessage());
-        }
-    }
-
-    public void altaLogicaRuta(int id) {
-        String sql = "UPDATE rutaViaje SET estado=1 WHERE ID_ruta = ?";
-        try {
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setInt(1, id);
-            
-            int filas = ps.executeUpdate();
-            if (filas > 0) {
-                JOptionPane.showMessageDialog(null, "Ruta activada con éxito.");
-            }
-            ps.close();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al activar la ruta: " + ex.getMessage());
-        }
-    }
-
-    public RutaViaje buscarRuta(int id) {
-        String sql = "SELECT * FROM rutaViaje WHERE ID_ruta = ?";
-        RutaViaje ruta = null;
-
-        try {
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setInt(1, id);
-            
-            ResultSet rs = ps.executeQuery();
-            
-            if (rs.next()) {
-                ruta = new RutaViaje();
-                ruta.setID_ruta(id);
-                ruta.setOrigen(rs.getString("origen"));
-                ruta.setDestino(rs.getString("destino"));
-                ruta.setFechaViaje(rs.getDate("fechaViaje").toLocalDate());
-                ruta.setHoraSalida(rs.getObject("horaSalida", LocalTime.class));
-                ruta.setHoraLlegada(rs.getObject("horaLlegada", LocalTime.class));
-                int idColect = rs.getInt("ID_colectivo");
-                Colectivo col = new Colectivo();
-                col.setID_colectivo(idColect);
-                ruta.setID_colectivo(col.getID_colectivo());
-                ruta.setPrecio(rs.getDouble("precio"));
-                ruta.setEstado(rs.getInt("estado"));
-            }
-            ps.close();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al buscar ruta: " + ex.getMessage());
-        }
-        return ruta;
-    }
-
-    public List<RutaViaje> listarRutas() {
-        String sql = "SELECT * FROM rutaViaje";
-        List<RutaViaje> rutas = new ArrayList<>();
-
-        try {
-            PreparedStatement ps = con.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
-            
-            while (rs.next()) {
-                RutaViaje r = new RutaViaje();
-                r.setID_ruta(rs.getInt("ID_ruta"));
-                r.setOrigen(rs.getString("origen"));
-                r.setDestino(rs.getString("destino"));
-                r.setFechaViaje(rs.getDate("fechaViaje").toLocalDate());
-                r.setHoraSalida(rs.getObject("horaSalida", LocalTime.class));
-                r.setHoraLlegada(rs.getObject("horaLlegada", LocalTime.class));
-                int idColect = rs.getInt("ID_colectivo");
-                Colectivo col = new Colectivo();
-                col.setID_colectivo(idColect);
-                r.setID_colectivo(col.getID_colectivo());
-                r.setPrecio(rs.getDouble("precio"));
-                r.setEstado(rs.getInt("estado"));
-                rutas.add(r);
-            }
-            ps.close();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al listar las rutas: " + ex.getMessage());
-        }
-        return rutas;
-    }
-
-    public void modificarRutaViaje(RutaViaje ruta) {
-        String sql = "UPDATE rutaViaje SET origen = ?, destino = ?, fechaViaje = ?, horaSalida = ?, horaLlegada = ?, ID_colectivo = ?, precio = ?, estado = ? WHERE ID_ruta = ?";
+    // Modifica los datos de una ruta.
+    public boolean modificarRutaViaje(RutaViaje ruta) {
+        String sql = "UPDATE rutaViaje SET origen = ?, destino = ?, fechaSalida = ?, fechaLlegada = ?, horaSalida = ?, horaLlegada = ?, ID_colectivo = ?, precio = ?, estado = ? WHERE ID_ruta = ?";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, ruta.getOrigen());
             ps.setString(2, ruta.getDestino());
-            ps.setDate(3, Date.valueOf(ruta.getFechaViaje()));
-            ps.setTime(4, Time.valueOf(ruta.getHoraSalida()));
-            ps.setTime(5, Time.valueOf(ruta.getHoraLlegada()));
-            ps.setInt(6, ruta.getID_colectivo());
-            ps.setDouble(7, ruta.getPrecio());
-            ps.setInt(8, ruta.getEstado());
-            ps.setInt(9, ruta.getID_ruta());
+            ps.setDate(3, Date.valueOf(ruta.getFechaSalida()));
+            ps.setDate(4, Date.valueOf(ruta.getFechaLlegada()));
+            ps.setTime(5, Time.valueOf(ruta.getHoraSalida()));
+            ps.setTime(6, Time.valueOf(ruta.getHoraLlegada()));
+            ps.setInt(7, ruta.getID_colectivo());
+            ps.setBigDecimal(8, ruta.getPrecio());
+            ps.setInt(9, ruta.getEstado());
+            ps.setInt(10, ruta.getID_ruta());
 
-            if (ps.executeUpdate() == 1) {
-                JOptionPane.showMessageDialog(null, "Ruta de viaje modificada con éxito.");
-            }
+            return ps.executeUpdate() == 1;
+
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al modificar la ruta de viaje: " + ex.getMessage());
+            return false;
         }
     }
 
-    public List<RutaViaje> buscarRutasPorDestino(String destinoBuscado) {
-        List<RutaViaje> rutas = new ArrayList<>();
-        String sql = "SELECT * FROM rutaViaje WHERE destino LIKE ?";
+    // Da de baja lógica una ruta.
+    public boolean bajaLogicaRuta(int id) {
+        return cambiarEstadoRuta(id, 0);
+    }
+
+    // Da de alta lógica una ruta.
+    public boolean altaLogicaRuta(int id) {
+        return cambiarEstadoRuta(id, 1);
+    }
+
+    // Cambia el estado de una ruta.
+    private boolean cambiarEstadoRuta(int id, int estado) {
+        String sql = "UPDATE rutaViaje SET estado = ? WHERE ID_ruta = ? AND estado <> ?";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, estado);
+            ps.setInt(2, id);
+            ps.setInt(3, estado);
 
-            ps.setString(1, "%" + destinoBuscado + "%");
-            ResultSet rs = ps.executeQuery();
+            return ps.executeUpdate() == 1;
 
-            while (rs.next()) {
-                RutaViaje r = new RutaViaje();
-                r.setID_ruta(rs.getInt("ID_ruta"));
-                r.setOrigen(rs.getString("origen"));
-                r.setFechaViaje(rs.getDate("fechaViaje").toLocalDate());
-                r.setDestino(rs.getString("destino"));
-                r.setHoraSalida(rs.getTime("horaSalida").toLocalTime());
-                r.setHoraLlegada(rs.getTime("horaLlegada").toLocalTime());
-                r.setID_colectivo(rs.getInt("ID_colectivo"));
-                r.setPrecio(rs.getDouble("precio"));
-                r.setEstado(rs.getInt("estado"));
-
-                rutas.add(r);
-            }
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al buscar rutas por destino: " + ex.getMessage());
+            return false;
+        }
+    }
+
+    // Busca una ruta por su ID.
+    public RutaViaje buscarRuta(int id) {
+        String sql = "SELECT * FROM rutaViaje WHERE ID_ruta = ?";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return armarRuta(rs);
+                }
+            }
+
+        } catch (SQLException ex) {
+            return null;
+        }
+        return null;
+    }
+
+    // Busca rutas por destino.
+    public List<RutaViaje> buscarRutasPorDestino(String destinoBuscado) {
+        String sql = "SELECT * FROM rutaViaje WHERE destino LIKE ?";
+        List<RutaViaje> rutas = new ArrayList<>();
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, "%" + destinoBuscado + "%");
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    rutas.add(armarRuta(rs));
+                }
+            }
+
+        } catch (SQLException ex) {
+            return rutas;
         }
         return rutas;
+    }
+
+    // Lista todas las rutas.
+    public List<RutaViaje> listarRutas() {
+        String sql = "SELECT * FROM rutaViaje";
+        List<RutaViaje> rutas = new ArrayList<>();
+
+        try (PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                rutas.add(armarRuta(rs));
+            }
+
+        } catch (SQLException ex) {
+            return rutas;
+        }
+        return rutas;
+    }
+
+    // Convierte una fila del ResultSet en un objeto RutaViaje.
+    private RutaViaje armarRuta(ResultSet rs) throws SQLException {
+        RutaViaje ruta = new RutaViaje();
+
+        ruta.setID_ruta(rs.getInt("ID_ruta"));
+        ruta.setOrigen(rs.getString("origen"));
+        ruta.setDestino(rs.getString("destino"));
+        ruta.setFechaSalida(rs.getDate("fechaSalida").toLocalDate());
+        ruta.setFechaLlegada(rs.getDate("fechaLlegada").toLocalDate());
+        ruta.setHoraSalida(rs.getTime("horaSalida").toLocalTime());
+        ruta.setHoraLlegada(rs.getTime("horaLlegada").toLocalTime());
+        ruta.setID_colectivo(rs.getInt("ID_colectivo"));
+        ruta.setPrecio(rs.getBigDecimal("precio"));
+        ruta.setEstado(rs.getInt("estado"));
+
+        return ruta;
     }
 }

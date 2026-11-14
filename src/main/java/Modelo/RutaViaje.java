@@ -2,16 +2,18 @@ package Modelo;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.math.BigDecimal;
 
 public class RutaViaje {
     private int ID_ruta;
     private String origen;
     private String destino;
-    private LocalDate fechaViaje;
+    private LocalDate fechaSalida;
+    private LocalDate fechaLlegada;
     private LocalTime horaSalida;
     private LocalTime horaLlegada;
     private int ID_colectivo;
-    private double precio;
+    private BigDecimal precio;
     private int estado;
     
     //Constructor Vacio.
@@ -19,11 +21,12 @@ public class RutaViaje {
     }
     
     //Constructor Con ID_ruta.
-    public RutaViaje(int idRuta, String origen, String destino, LocalDate fechaViaje, LocalTime horaSalida, LocalTime horaLlegada, Colectivo colectivo, double precio, int estado) {
+    public RutaViaje(int idRuta, String origen, String destino, LocalDate fechaSalida, LocalDate fechaLlegada, LocalTime horaSalida, LocalTime horaLlegada,  Colectivo colectivo, BigDecimal precio, int estado) {
         this.ID_ruta = idRuta;
         this.origen = origen;
         this.destino = destino;
-        this.fechaViaje = fechaViaje;
+        this.fechaSalida = fechaSalida;
+        this.fechaLlegada = fechaLlegada;
         this.horaSalida = horaSalida;
         this.horaLlegada = horaLlegada;
         this.ID_colectivo = colectivo.getID_colectivo();
@@ -32,10 +35,11 @@ public class RutaViaje {
     }
     
     //Constructor Sin ID_ruta.
-    public RutaViaje(String origen, String destino, LocalDate fechaViaje, LocalTime horaSalida, LocalTime horaLlegada, Colectivo colectivo, double precio, int estado) {
+    public RutaViaje(String origen, String destino, LocalDate fechaSalida, LocalDate fechaLlegada, LocalTime horaSalida, LocalTime horaLlegada, Colectivo colectivo, BigDecimal precio, int estado) {
         this.origen = origen;
         this.destino = destino;
-        this.fechaViaje = fechaViaje;
+        this.fechaSalida = fechaSalida;
+        this.fechaLlegada = fechaLlegada;
         this.horaSalida = horaSalida;
         this.horaLlegada = horaLlegada;
         this.ID_colectivo = colectivo.getID_colectivo();
@@ -67,12 +71,20 @@ public class RutaViaje {
         this.destino = destino;
     }
 
-    public LocalDate getFechaViaje() {
-        return fechaViaje;
+    public LocalDate getFechaSalida() {
+        return fechaSalida;
     }
 
-    public void setFechaViaje(LocalDate fechaViaje) {
-        this.fechaViaje = fechaViaje;
+    public void setFechaSalida(LocalDate fechaSalida) {
+        this.fechaSalida = fechaSalida;
+    }
+
+    public LocalDate getFechaLlegada() {
+        return fechaLlegada;
+    }
+
+    public void setFechaLlegada(LocalDate fechaLlegada) {
+        this.fechaLlegada = fechaLlegada;
     }
     
     public LocalTime getHoraSalida() {
@@ -99,11 +111,11 @@ public class RutaViaje {
         this.ID_colectivo = ID_colectivo;
     }
 
-    public double getPrecio() {
+    public BigDecimal getPrecio() {
         return precio;
     }
 
-    public void setPrecio(double precio) {
+    public void setPrecio(BigDecimal precio) {
         this.precio = precio;
     }
 
@@ -121,7 +133,8 @@ public class RutaViaje {
                 "\n idRuta: " + ID_ruta 
                 + "\n origen: " + origen 
                 + "\n destino: " + destino 
-                + "\n Fecha Viaje: " + fechaViaje 
+                + "\n Fecha Salida: " + fechaSalida 
+                + "\n Fecha Llegada: " + fechaLlegada
                 + "\n horaSalida: " + horaSalida 
                 + "\n horaLlegada: " + horaLlegada 
                 + "\n colectivo: " + ID_colectivo 

@@ -50,6 +50,7 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
         btnModificar.setEnabled(false);
         btnDarAlta.setEnabled(false);
         btnDarBaja.setEnabled(false);
+        btnCancelar.setEnabled(false);
 
         TablaPasajeros.clearSelection();
     }
@@ -155,10 +156,11 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
         cboxBusqueda = new javax.swing.JComboBox<>();
         btnBuscar = new javax.swing.JButton();
         btnBuscarInactivo = new javax.swing.JButton();
-        boton_listarActivos = new javax.swing.JButton();
+        btnListarActivos = new javax.swing.JButton();
         btnBuscarActivo = new javax.swing.JButton();
-        boton_listarInactivos = new javax.swing.JButton();
-        boton_listarTodos = new javax.swing.JButton();
+        btnListarInactivos = new javax.swing.JButton();
+        btnListarTodos = new javax.swing.JButton();
+        btnCancelar = new javax.swing.JButton();
         PanelTabla = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         TablaPasajeros = new javax.swing.JTable();
@@ -167,6 +169,7 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
         setTitle("Gestión de Pasajeros");
 
         PanelDatos.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos del pasajero ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14), new java.awt.Color(255, 255, 255))); // NOI18N
+        PanelDatos.setForeground(new java.awt.Color(0, 0, 0));
         PanelDatos.setToolTipText("");
         PanelDatos.setName("asdaf"); // NOI18N
 
@@ -196,6 +199,7 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
         lblTelefono.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblTelefono.setText("Teléfono:");
 
+        checkEstado.setSelected(true);
         checkEstado.setText("Activo");
         checkEstado.setEnabled(false);
         checkEstado.addActionListener(this::checkEstadoActionPerformed);
@@ -205,7 +209,7 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
         PanelDatosLayout.setHorizontalGroup(
             PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelDatosLayout.createSequentialGroup()
-                .addGap(27, 27, 27)
+                .addContainerGap()
                 .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblID)
                     .addComponent(lblNombre)
@@ -213,27 +217,30 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
                     .addComponent(lblEstado))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(checkEstado)
                     .addGroup(PanelDatosLayout.createSequentialGroup()
-                        .addComponent(checkEstado)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 272, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(dato_nombre, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(dato_correo, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(dato_id, javax.swing.GroupLayout.PREFERRED_SIZE, 340, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(PanelDatosLayout.createSequentialGroup()
-                        .addComponent(lblTelefono)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dato_telefono))
-                    .addGroup(PanelDatosLayout.createSequentialGroup()
-                        .addComponent(lblDNI)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dato_dni))
-                    .addGroup(PanelDatosLayout.createSequentialGroup()
-                        .addComponent(lblApellido)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dato_apellido)))
-                .addGap(29, 29, 29))
+                        .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(dato_nombre, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(dato_correo, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(dato_id, javax.swing.GroupLayout.PREFERRED_SIZE, 340, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(PanelDatosLayout.createSequentialGroup()
+                                .addGap(99, 99, 99)
+                                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(PanelDatosLayout.createSequentialGroup()
+                                        .addComponent(lblTelefono)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(dato_telefono))
+                                    .addGroup(PanelDatosLayout.createSequentialGroup()
+                                        .addComponent(lblApellido)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(dato_apellido))))
+                            .addGroup(PanelDatosLayout.createSequentialGroup()
+                                .addGap(93, 93, 93)
+                                .addComponent(lblDNI)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(dato_dni)))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         PanelDatosLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {lblApellido, lblCorreo, lblDNI, lblEstado, lblID, lblNombre, lblTelefono});
@@ -254,9 +261,9 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
                             .addComponent(lblNombre)
                             .addComponent(dato_nombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblCorreo)
-                            .addComponent(dato_correo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(dato_correo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblCorreo)))
                     .addGroup(PanelDatosLayout.createSequentialGroup()
                         .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(dato_dni, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -277,6 +284,7 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
         );
 
         PanelBotones.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Funciones", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.TOP));
+        PanelBotones.setForeground(new java.awt.Color(0, 0, 0));
 
         btnNuevo.setText("Nuevo");
         btnNuevo.addActionListener(this::btnNuevoActionPerformed);
@@ -309,17 +317,20 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
         btnBuscarInactivo.setText("Buscar Inactivo");
         btnBuscarInactivo.addActionListener(this::btnBuscarInactivoActionPerformed);
 
-        boton_listarActivos.setText("Listar Activos");
-        boton_listarActivos.addActionListener(this::boton_listarActivosActionPerformed);
+        btnListarActivos.setText("Listar Activos");
+        btnListarActivos.addActionListener(this::btnListarActivosActionPerformed);
 
         btnBuscarActivo.setText("Buscar Activo");
         btnBuscarActivo.addActionListener(this::btnBuscarActivoActionPerformed);
 
-        boton_listarInactivos.setText("Listar Inactivos");
-        boton_listarInactivos.addActionListener(this::boton_listarInactivosActionPerformed);
+        btnListarInactivos.setText("Listar Inactivos");
+        btnListarInactivos.addActionListener(this::btnListarInactivosActionPerformed);
 
-        boton_listarTodos.setText("Listar Todos");
-        boton_listarTodos.addActionListener(this::boton_listarTodosActionPerformed);
+        btnListarTodos.setText("Listar Todos");
+        btnListarTodos.addActionListener(this::btnListarTodosActionPerformed);
+
+        btnCancelar.setText("Cancelar");
+        btnCancelar.addActionListener(this::btnCancelarActionPerformed);
 
         javax.swing.GroupLayout PanelBotonesLayout = new javax.swing.GroupLayout(PanelBotones);
         PanelBotones.setLayout(PanelBotonesLayout);
@@ -333,35 +344,39 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(PanelBotonesLayout.createSequentialGroup()
+                        .addComponent(cboxBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(dato_buscar, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(10, 10, 10)
+                        .addComponent(btnBuscar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnBuscarInactivo))
+                    .addGroup(PanelBotonesLayout.createSequentialGroup()
                         .addComponent(btnGuardar)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnModificar)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnDarAlta))
-                    .addGroup(PanelBotonesLayout.createSequentialGroup()
-                        .addComponent(cboxBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnDarAlta)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dato_buscar)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, PanelBotonesLayout.createSequentialGroup()
                         .addComponent(btnDarBaja)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(boton_listarTodos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(PanelBotonesLayout.createSequentialGroup()
-                        .addComponent(btnBuscar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnBuscarInactivo)))
+                        .addComponent(btnCancelar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(boton_listarActivos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(btnListarTodos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnBuscarActivo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(boton_listarInactivos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(PanelBotonesLayout.createSequentialGroup()
+                        .addComponent(btnListarActivos)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnListarInactivos))
                     .addComponent(btnRecargar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        PanelBotonesLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnDarAlta, btnDarBaja, btnGuardar, btnModificar, btnNuevo});
+
         PanelBotonesLayout.setVerticalGroup(
             PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelBotonesLayout.createSequentialGroup()
@@ -372,9 +387,10 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
                     .addComponent(btnModificar)
                     .addComponent(btnDarAlta)
                     .addComponent(btnDarBaja)
-                    .addComponent(boton_listarActivos)
-                    .addComponent(boton_listarInactivos)
-                    .addComponent(boton_listarTodos))
+                    .addComponent(btnListarActivos)
+                    .addComponent(btnListarTodos)
+                    .addComponent(btnCancelar)
+                    .addComponent(btnListarInactivos))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -553,19 +569,20 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
         btnModificar.setEnabled(true);
         btnDarBaja.setEnabled(activo);
         btnDarAlta.setEnabled(!activo);
+        btnCancelar.setEnabled(true);
     }//GEN-LAST:event_TablaPasajerosMouseClicked
 
     private void btnBuscarInactivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarInactivoActionPerformed
         buscarYMostrar(0);
     }//GEN-LAST:event_btnBuscarInactivoActionPerformed
 
-    private void boton_listarInactivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_listarInactivosActionPerformed
+    private void btnListarInactivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListarInactivosActionPerformed
         cargarTabla(PasajeroData.listarPasajerosInactivos());
-    }//GEN-LAST:event_boton_listarInactivosActionPerformed
+    }//GEN-LAST:event_btnListarInactivosActionPerformed
 
-    private void boton_listarActivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_listarActivosActionPerformed
+    private void btnListarActivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListarActivosActionPerformed
         cargarTabla(PasajeroData.listarPasajerosActivos());
-    }//GEN-LAST:event_boton_listarActivosActionPerformed
+    }//GEN-LAST:event_btnListarActivosActionPerformed
 
     private void btnDarAltaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDarAltaActionPerformed
         if (checkEstado.isSelected()) {
@@ -619,9 +636,13 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_checkEstadoActionPerformed
 
-    private void boton_listarTodosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_listarTodosActionPerformed
+    private void btnListarTodosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListarTodosActionPerformed
         cargarTabla(PasajeroData.listarTodosLosPasajeros());
-    }//GEN-LAST:event_boton_listarTodosActionPerformed
+    }//GEN-LAST:event_btnListarTodosActionPerformed
+
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        limpiarCampos();
+    }//GEN-LAST:event_btnCancelarActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -629,15 +650,16 @@ public class GestionPasajeros extends javax.swing.JInternalFrame {
     private javax.swing.JPanel PanelDatos;
     private javax.swing.JPanel PanelTabla;
     private javax.swing.JTable TablaPasajeros;
-    private javax.swing.JButton boton_listarActivos;
-    private javax.swing.JButton boton_listarInactivos;
-    private javax.swing.JButton boton_listarTodos;
     private javax.swing.JButton btnBuscar;
     private javax.swing.JButton btnBuscarActivo;
     private javax.swing.JButton btnBuscarInactivo;
+    private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnDarAlta;
     private javax.swing.JButton btnDarBaja;
     private javax.swing.JButton btnGuardar;
+    private javax.swing.JButton btnListarActivos;
+    private javax.swing.JButton btnListarInactivos;
+    private javax.swing.JButton btnListarTodos;
     private javax.swing.JButton btnModificar;
     private javax.swing.JButton btnNuevo;
     private javax.swing.JButton btnRecargar;

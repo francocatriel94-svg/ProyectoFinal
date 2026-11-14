@@ -1,8 +1,6 @@
 package Persistencia;
 
 import Modelo.Lugar;
-import Modelo.Colectivo;
-import Modelo.RutaViaje;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,14 +8,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JOptionPane;
 
 public class LugarData {
 
-    //Convención asumida del campo estado: 1 = libre, 0 = ocupado.
+    // Convención asumida del campo estado: 1 = libre, 0 = ocupado.
     public static final int LIBRE = 1;
     public static final int OCUPADO = 0;
-    
+
     private Connection con;
 
     public LugarData() {
@@ -25,7 +22,7 @@ public class LugarData {
     }
 
     public boolean guardarLugar(Lugar asiento) {
-        String sql = "INSERT INTO lugar " + "(ID_ruta, numeroAsiento, estado) " + "VALUES (?, ?, ?)";
+        String sql = "INSERT INTO lugar (ID_ruta, numeroAsiento, estado) VALUES (?, ?, ?)";
 
         try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, asiento.getID_ruta());
@@ -41,12 +38,29 @@ public class LugarData {
                 }
             }
         } catch (SQLException ex) {
-            System.out.println("Error al guardar el asiento: " + ex.getMessage());
+            return false;
         }
         return false;
     }
+    
+    // Modificamos los valores de un lugar.
+    public boolean modificarLugar(Lugar asiento) {
+        String sql = "UPDATE lugar SET ID_ruta = ?, numeroAsiento = ?, estado = ? WHERE ID_lugar = ?";
 
-    //Busca un lugar por su id.
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, asiento.getID_ruta());
+            ps.setInt(2, asiento.getNumeroAsiento());
+            ps.setInt(3, asiento.getEstado());
+            ps.setInt(4, asiento.getID_lugar());
+
+            return ps.executeUpdate() == 1;
+
+        } catch (SQLException ex) {
+            return false;
+        }
+    }
+    
+    // Busca un lugar por su id.
     public Lugar buscarLugar(int id) {
         String sql = "SELECT * FROM lugar WHERE ID_lugar = ?";
         Lugar asiento = null;
@@ -60,12 +74,22 @@ public class LugarData {
                 }
             }
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al buscar el asiento: " + ex.getMessage());
+            return null;
         }
         return asiento;
     }
 
-    //Busca un asiento por su colectivo y id(útil para evitar duplicados).
+    // Marcar como ocupado (al vender un pasaje).
+    public boolean ocuparLugar(int id) {
+        return cambiarEstado(id, OCUPADO);
+    }
+
+    // Marcar como libre (al anular un pasaje).
+    public boolean desocuparLugar(int id) {
+        return cambiarEstado(id, LIBRE);
+    }
+    
+    // Busca un asiento por su ruta y id(para evitar duplicados).
     public Lugar buscarLugarPorNumero(int idRuta, int numeroAsiento) {
         String sql = "SELECT * FROM lugar WHERE ID_ruta = ? AND numeroAsiento = ?";
         Lugar asiento = null;
@@ -80,27 +104,28 @@ public class LugarData {
                 }
             }
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al buscar el asiento: " + ex.getMessage());
+            return null;
         }
         return asiento;
     }
 
-    //Lista todos los lugares.
+    // Lista todos los lugares.
     public List<Lugar> listarLugares() {
         String sql = "SELECT * FROM lugar";
         List<Lugar> asientos = new ArrayList<>();
 
         try (PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
             while (rs.next()) {
                 asientos.add(armarLugar(rs));
             }
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al listar los asientos: " + ex.getMessage());
+            return asientos;
         }
         return asientos;
     }
 
-    //Lista los lugares de un colectivo por su ruta.
+    // Lista los lugares de una ruta por su numero de asiento.
     public List<Lugar> listarLugaresPorRuta(int idRuta) {
         String sql = "SELECT * FROM lugar WHERE ID_ruta = ? ORDER BY numeroAsiento";
         List<Lugar> asientos = new ArrayList<>();
@@ -114,12 +139,12 @@ public class LugarData {
                 }
             }
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al listar los asientos del colectivo: " + ex.getMessage());
+            return asientos;
         }
         return asientos;
     }
 
-    //Lista los lugares lugares libres de un colectivo por su ruta.
+    // Lista los lugares libres de un ruta por su estado.
     public List<Lugar> listarLugaresLibresPorRuta(int idRuta) {
         String sql = "SELECT * FROM lugar WHERE ID_ruta = ? AND estado = ? ORDER BY numeroAsiento";
         List<Lugar> asientos = new ArrayList<>();
@@ -134,77 +159,50 @@ public class LugarData {
                 }
             }
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al listar los asientos libres: " + ex.getMessage());
+            return asientos;
         }
         return asientos;
     }
 
-    //Modificamos los valores de los atributos de un lugar.
-    public void modificarLugar(Lugar asiento) {
-        String sql = "UPDATE lugar SET ID_ruta = ?, numeroAsiento = ?, estado = ? WHERE ID_lugar = ?";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, asiento.getID_ruta());
-            ps.setInt(2, asiento.getNumeroAsiento());
-            ps.setInt(3, asiento.getEstado());
-            ps.setInt(4, asiento.getID_lugar());
-            if (ps.executeUpdate() == 1) {
-                JOptionPane.showMessageDialog(null, "Asiento modificado.");
-            }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al modificar el asiento: " + ex.getMessage());
-        }
-    }
-
-    //Marcar como ocupado (al vender un pasaje).
-    public void ocuparLugar(int id) {
-        cambiarEstado(id, OCUPADO, "Asiento ocupado.");
-    }
-
-    //Marcar como libre (al anular un pasaje).
-    public void desocuparLugar(int id) {
-        cambiarEstado(id, LIBRE, "Asiento liberado.");
-    }
-
-    //Cambia el estado de un lugar.
-    private void cambiarEstado(int id, int estado, String mensaje) {
-        String sql = "UPDATE lugar SET estado = ? WHERE ID_lugar = ?";
-
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, estado);
-            ps.setInt(2, id);
-
-            if (ps.executeUpdate() == 1) {
-                JOptionPane.showMessageDialog(null, mensaje);
-            }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al cambiar el estado del asiento: " + ex.getMessage());
-        }
-    }
-
-    //Borra un lugar.
-    public void eliminarLugar(int id) {
+    // Borra un lugar.
+    public boolean eliminarLugar(int id) {
         String sql = "DELETE FROM lugar WHERE ID_lugar = ?";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
 
-            if (ps.executeUpdate() == 1) {
-                JOptionPane.showMessageDialog(null, "Asiento eliminado.");
-            }
+            return ps.executeUpdate() == 1;
+
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error al eliminar el asiento: " + ex.getMessage());
+            return false;
         }
     }
+    
+    // Cambia el estado de un lugar.
+    private boolean cambiarEstado(int id, int estado) {
+        String sql = "UPDATE lugar SET estado = ? WHERE ID_lugar = ? AND estado <> ?";
 
-    //Convierte una fila del ResultSet en un Lugar (trae el Colectivo con su Data).
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, estado);
+            ps.setInt(2, id);
+            ps.setInt(3, estado);
+
+            return ps.executeUpdate() == 1;
+
+        } catch (SQLException ex) {
+            return false;
+        }
+    }
+    
+    // Convierte una fila del ResultSet en un Lugar.
     private Lugar armarLugar(ResultSet rs) throws SQLException {
-        RutaViajeData rData = new RutaViajeData();
         Lugar asiento = new Lugar();
+
         asiento.setID_lugar(rs.getInt("ID_lugar"));
-        RutaViaje ruta = rData.buscarRuta(rs.getInt("ID_ruta"));
-        asiento.setID_ruta(ruta != null ? ruta.getID_ruta() : 0);
+        asiento.setID_ruta(rs.getInt("ID_ruta"));
         asiento.setNumeroAsiento(rs.getInt("numeroAsiento"));
         asiento.setEstado(rs.getInt("estado"));
+
         return asiento;
     }
 }

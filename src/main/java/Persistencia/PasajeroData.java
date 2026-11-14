@@ -77,21 +77,6 @@ public class PasajeroData {
         }
     }
 
-    // Cambia el estado de un pasajero.
-    private boolean cambiarEstado(int id, int estado) {
-        String sql = "UPDATE pasajero SET estado = ? WHERE ID_pasajero = ?";
-
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, estado);
-            ps.setInt(2, id);
-
-            return ps.executeUpdate() == 1;
-
-        } catch (SQLException ex) {
-            return false;
-        }
-    }
-
     // Da de baja a un pasajero.  
     public boolean bajaLogicaPasajero(int id) {
         return cambiarEstado(id, 0);
@@ -191,7 +176,22 @@ public class PasajeroData {
         String sql = "SELECT * FROM pasajero WHERE estado = 0";
         return listarPorEstado(sql);
     }
+    
+    // Cambia el estado de un pasajero.
+    private boolean cambiarEstado(int id, int estado) {
+        String sql = "UPDATE pasajero SET estado = ? WHERE ID_pasajero = ?";
 
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, estado);
+            ps.setInt(2, id);
+
+            return ps.executeUpdate() == 1;
+
+        } catch (SQLException ex) {
+            return false;
+        }
+    }
+    
     // Método auxiliar para listar según el estado.
     private List<Pasajero> listarPorEstado(String sql) {
         List<Pasajero> pasajeros = new ArrayList<>();
