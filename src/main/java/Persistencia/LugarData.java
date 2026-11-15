@@ -8,12 +8,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class LugarData {
 
     // Convención asumida del campo estado: 1 = libre, 0 = ocupado.
     public static final int LIBRE = 1;
     public static final int OCUPADO = 0;
+    private static final Logger LOGGER = Logger.getLogger(LugarData.class.getName());
 
     private Connection con;
 
@@ -69,7 +72,7 @@ public class LugarData {
     public boolean desocuparLugar(int id) {
         return cambiarEstado(id, LIBRE);
     }
-    
+
     // Borra un lugar.
     public boolean eliminarLugar(int id) {
         String sql = "DELETE FROM lugar WHERE ID_lugar = ?";
@@ -83,7 +86,7 @@ public class LugarData {
             return false;
         }
     }
-    
+
     // Comprueba si un asiento está disponible para un pasaje.
     public boolean estaDisponibleParaPasaje(int idLugar, int idRuta, int idPasajeActual) {
         String sql = "SELECT l.estado, EXISTS (SELECT 1 FROM pasaje p WHERE p.ID_lugar = l.ID_lugar AND p.ID_ruta = l.ID_ruta AND p.estado = 1 AND p.ID_pasaje <> ?) AS ocupadoPorOtro, EXISTS (SELECT 1 FROM pasaje p "
@@ -123,7 +126,7 @@ public class LugarData {
             return false;
         }
     }
-    
+
     // Busca un lugar por su id.
     public Lugar buscarLugar(int id) {
         String sql = "SELECT * FROM lugar WHERE ID_lugar = ?";
@@ -162,7 +165,7 @@ public class LugarData {
         }
         return asiento;
     }
-    
+
     // Lista todos los lugares.
     public List<Lugar> listarLugares() {
         String sql = "SELECT * FROM lugar";
@@ -179,7 +182,7 @@ public class LugarData {
         return asientos;
     }
 
-    // Lista los lugares de una ruta por su numero de asiento.
+    // Lista todos los lugares de una ruta.
     public List<Lugar> listarLugaresPorRuta(int idRuta) {
         String sql = "SELECT * FROM lugar WHERE ID_ruta = ? ORDER BY numeroAsiento";
         List<Lugar> asientos = new ArrayList<>();
@@ -193,8 +196,9 @@ public class LugarData {
                 }
             }
         } catch (SQLException ex) {
-            return asientos;
+            LOGGER.log(Level.SEVERE, "Error al listar los asientos por ruta.", ex);
         }
+
         return asientos;
     }
 
@@ -215,6 +219,30 @@ public class LugarData {
         } catch (SQLException ex) {
             return asientos;
         }
+        return asientos;
+    }
+
+    public List<Lugar> listarLugaresPorRutaYEstado(int idRuta, int estado) {
+        if (estado != LIBRE && estado != OCUPADO) {
+            return new ArrayList<>();
+        }
+
+        String sql = "SELECT * FROM lugar WHERE ID_ruta = ? AND estado = ? ORDER BY numeroAsiento";
+        List<Lugar> asientos = new ArrayList<>();
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idRuta);
+            ps.setInt(2, estado);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    asientos.add(armarLugar(rs));
+                }
+            }
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al listar los asientos por ruta y estado.", ex);
+        }
+
         return asientos;
     }
 

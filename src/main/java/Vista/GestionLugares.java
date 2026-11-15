@@ -1,80 +1,231 @@
 package Vista;
 
 import Modelo.Lugar;
-import Modelo.Pasaje;
 import Modelo.RutaViaje;
 import Persistencia.LugarData;
-import Persistencia.PasajeData;
 import Persistencia.RutaViajeData;
+import Persistencia.PasajeData;
+import Validaciones.ValidacionLugar;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 public class GestionLugares extends javax.swing.JInternalFrame {
 
+    private RutaViajeData rutaData = new RutaViajeData();
+    private LugarData lugarData = new LugarData();
+    private PasajeData pasajeData = new PasajeData();
+    private DefaultTableModel modelo;
     private boolean seleccionandoDesdeTabla = false;
+    private boolean cargandoCombo = false;
 
     public GestionLugares() {
         initComponents();
 
+        modelo = (DefaultTableModel) TablaLugares.getModel();
+
         cargarComboViajes();
+        limpiarCampos();
+        cargarTabla();
     }
 
     private void cargarComboViajes() {
-        dato_viaje.removeAllItems();
+        cargandoCombo = true;
 
-        RutaViajeData rutaData = new RutaViajeData();
-        List<RutaViaje> listaViajes = rutaData.listarRutas();
+        try {
+            cboxDato_viaje.removeAllItems();
 
-        for (RutaViaje viaje : listaViajes) {
-            dato_viaje.addItem(viaje);
+            List<RutaViaje> listaViajes = rutaData.listarRutas();
+
+            for (RutaViaje viaje : listaViajes) {
+                cboxDato_viaje.addItem(viaje);
+            }
+        } finally {
+            cargandoCombo = false;
         }
     }
 
-    private void cargarTablaAsientos(int idRuta) {
-        DefaultTableModel modelo = (DefaultTableModel) jTableLugares.getModel();
-
-        //  Limpiamos cualquier dato viejo que tenga la tabla
+    private void cargarTablaLugares(int idRuta) {
         modelo.setRowCount(0);
 
-        LugarData asientoData = new LugarData();
-        List<Lugar> listaAsientos = asientoData.listarLugaresPorRuta(idRuta);
+        List<Lugar> lugares = lugarData.listarLugaresPorRuta(idRuta);
 
-        //  Recorremos la lista y agregamos cada fila a la tabla
-        for (Lugar a : listaAsientos) {
-            String estadoTexto = (a.getEstado() == 1) ? "Libre" : "Ocupado";
-
+        for (Lugar lugar : lugares) {
             modelo.addRow(new Object[]{
-                a.getID_lugar(),
-                a.getNumeroAsiento(),
-                a.getID_ruta(),
-                estadoTexto
+                lugar.getID_lugar(),
+                lugar.getID_ruta(),
+                lugar.getNumeroAsiento(),
+                lugar.getEstado() == LugarData.OCUPADO ? "Ocupado" : "Libre"
             });
         }
     }
 
-    private void cargarTablaTodos() {
-        DefaultTableModel modelo = (DefaultTableModel) jTableLugares.getModel();
-        modelo.setRowCount(0); // Limpiamos la tabla
+    private void cargarTabla() {
+        modelo.setRowCount(0);
 
-        LugarData lugarData = new LugarData();
-        List<Lugar> listaAsientos = lugarData.listarLugares();
+        List<Lugar> lugares = lugarData.listarLugares();
 
-        for (Lugar a : listaAsientos) {
-            String estadoTexto = (a.getEstado() == 1) ? "Libre" : "Ocupado";
-
+        for (Lugar lugar : lugares) {
             modelo.addRow(new Object[]{
-                a.getID_lugar(),
-                a.getNumeroAsiento(),
-                a.getID_ruta(),
-                estadoTexto
+                lugar.getID_lugar(),
+                lugar.getID_ruta(),
+                lugar.getNumeroAsiento(),
+                lugar.getEstado() == LugarData.OCUPADO ? "Ocupado" : "Libre"
             });
         }
     }
 
     private void limpiarCampos() {
-        txtnumeroasiento.setText("");
-        jCheckBoxEstado.setSelected(false);
+        dato_lugar.setText("el ID se autogenera");
+        dato_numeroAsiento.setText("");
+        checkEstado.setSelected(false);
+        TablaLugares.clearSelection();
+        habilitarBotones(false);
+    }
+
+    private void cargarDatosSeleccionados() {
+        int fila = TablaLugares.getSelectedRow();
+
+        if (fila == -1) {
+            return;
+        }
+
+        dato_lugar.setText(TablaLugares.getValueAt(fila, 0).toString());
+        dato_numeroAsiento.setText(TablaLugares.getValueAt(fila, 2).toString());
+        checkEstado.setSelected(TablaLugares.getValueAt(fila, 3).toString().equals("Ocupado"));
+
+        int idRuta = Integer.parseInt(TablaLugares.getValueAt(fila, 1).toString());
+
+        seleccionandoDesdeTabla = true;
+
+        try {
+            for (int i = 0; i < cboxDato_viaje.getItemCount(); i++) {
+                RutaViaje viaje = (RutaViaje) cboxDato_viaje.getItemAt(i);
+
+                if (viaje.getID_ruta() == idRuta) {
+                    cboxDato_viaje.setSelectedItem(viaje);
+                    break;
+                }
+            }
+        } finally {
+            seleccionandoDesdeTabla = false;
+        }
+    }
+
+    private void habilitarBotones(boolean seleccionado) {
+        boolean ocupado = seleccionado && checkEstado.isSelected();
+
+        btnAgregarLugar.setEnabled(!seleccionado);
+        btnModificar.setEnabled(seleccionado);
+        btnOcupar.setEnabled(seleccionado && !ocupado);
+        btnDesocupar.setEnabled(ocupado);
+        btnCancelar.setEnabled(seleccionado);
+    }
+
+    private Lugar obtenerYValidarDatos(int idActual) {
+        if (dato_numeroAsiento.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debes completar el número de asiento.", "Campo vacío", JOptionPane.WARNING_MESSAGE);
+            dato_numeroAsiento.requestFocusInWindow();
+            return null;
+        }
+
+        RutaViaje viajeSeleccionado = (RutaViaje) cboxDato_viaje.getSelectedItem();
+
+        if (viajeSeleccionado == null) {
+            JOptionPane.showMessageDialog(this, "Debes seleccionar una ruta.", "Ruta no seleccionada", JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+
+        try {
+            int numeroAsiento = Integer.parseInt(dato_numeroAsiento.getText().trim());
+            int estado = checkEstado.isSelected() ? LugarData.OCUPADO : LugarData.LIBRE;
+
+            Lugar lugar = (idActual == 0)
+                    ? new Lugar(viajeSeleccionado, numeroAsiento, estado)
+                    : new Lugar(idActual, viajeSeleccionado, numeroAsiento, estado);
+
+            String error = ValidacionLugar.validarLugar(lugar, idActual, rutaData, lugarData);
+
+            if (error != null) {
+                JOptionPane.showMessageDialog(this, error, "Error de validación", JOptionPane.WARNING_MESSAGE);
+                return null;
+            }
+            return lugar;
+
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "El número de asiento debe ser un valor numérico válido.", "Error de formato", JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+    }
+
+    private void cambiarEstado(boolean ocupar) {
+        int fila = TablaLugares.getSelectedRow();
+
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un asiento.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int idLugar = Integer.parseInt(TablaLugares.getValueAt(fila, 0).toString());
+
+        if (!ocupar && pasajeData.tienePasajeActivo(idLugar)) {
+            JOptionPane.showMessageDialog(this, "No se puede desocupar el asiento porque tiene un pasaje activo.", "Asiento ocupado", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String mensaje = ocupar ? "¿Desea ocupar este asiento?" : "¿Desea desocupar este asiento?";
+        int opcion = JOptionPane.showConfirmDialog(this, mensaje, "Confirmar operación", JOptionPane.YES_NO_OPTION);
+
+        if (opcion != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        boolean resultado = ocupar ? lugarData.ocuparLugar(idLugar) : lugarData.desocuparLugar(idLugar);
+
+        if (resultado) {
+            JOptionPane.showMessageDialog(this, ocupar ? "Asiento ocupado correctamente." : "Asiento desocupado correctamente.");
+            limpiarCampos();
+            cargarTablaSegunFiltro();
+        } else {
+            JOptionPane.showMessageDialog(this, "No se pudo cambiar el estado del asiento.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void cargarTablaSegunFiltro() {
+        String filtro = (String) cboxListar.getSelectedItem();
+
+        if ("Listar Todos".equals(filtro)) {
+            cargarTabla();
+            return;
+        }
+
+        RutaViaje viajeSeleccionado = (RutaViaje) cboxDato_viaje.getSelectedItem();
+
+        if (viajeSeleccionado == null) {
+            modelo.setRowCount(0);
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un viaje para aplicar este filtro.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if ("Listar Por Ruta/Viaje".equals(filtro)) {
+            cargarTablaLugares(viajeSeleccionado.getID_ruta());
+            return;
+        }
+
+        int estado = "Listar Ocupados".equals(filtro) ? LugarData.OCUPADO : LugarData.LIBRE;
+
+        modelo.setRowCount(0);
+
+        List<Lugar> lista = lugarData.listarLugaresPorRutaYEstado(viajeSeleccionado.getID_ruta(), estado);
+
+        for (Lugar lugar : lista) {
+            modelo.addRow(new Object[]{
+                lugar.getID_lugar(),
+                lugar.getID_ruta(),
+                lugar.getNumeroAsiento(),
+                lugar.getEstado() == LugarData.OCUPADO ? "Ocupado" : "Libre"
+            });
+        }
     }
 
     /**
@@ -91,25 +242,26 @@ public class GestionLugares extends javax.swing.JInternalFrame {
         lblLugar = new javax.swing.JLabel();
         lblRutaViaje = new javax.swing.JLabel();
         dato_lugar = new javax.swing.JTextField();
-        jCheckBoxEstado = new javax.swing.JCheckBox();
-        dato_viaje = new javax.swing.JComboBox();
-        txtnumeroasiento = new javax.swing.JTextField();
-        jLabel2 = new javax.swing.JLabel();
-        lblRutaViaje1 = new javax.swing.JLabel();
+        checkEstado = new javax.swing.JCheckBox();
+        cboxDato_viaje = new javax.swing.JComboBox();
+        dato_numeroAsiento = new javax.swing.JTextField();
+        lblNumeroAsiento = new javax.swing.JLabel();
+        lblEstado = new javax.swing.JLabel();
         PanelBotones = new javax.swing.JPanel();
-        boton_limpar = new javax.swing.JButton();
-        boton_guardar = new javax.swing.JButton();
-        boton_eliminar = new javax.swing.JButton();
-        boton_ocupar = new javax.swing.JButton();
-        boton_Desocupar = new javax.swing.JButton();
-        boton_mostrartodo = new javax.swing.JButton();
-        jLabel4 = new javax.swing.JLabel();
-        txtnum = new javax.swing.JTextField();
-        boton_buscar = new javax.swing.JButton();
-        boton_mostrarlibres = new javax.swing.JButton();
+        btnLimpiarCampos = new javax.swing.JButton();
+        btnAgregarLugar = new javax.swing.JButton();
+        btnOcupar = new javax.swing.JButton();
+        btnDesocupar = new javax.swing.JButton();
+        lblBuscar = new javax.swing.JLabel();
+        dato_buscar = new javax.swing.JTextField();
+        btnBuscar = new javax.swing.JButton();
+        btnCancelar = new javax.swing.JButton();
+        btnModificar = new javax.swing.JButton();
+        cboxListar = new javax.swing.JComboBox<>();
+        lblListar = new javax.swing.JLabel();
         PanelTabla = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTableLugares = new javax.swing.JTable();
+        TablaLugares = new javax.swing.JTable();
 
         PanelPrincipal.setBorder(javax.swing.BorderFactory.createCompoundBorder());
 
@@ -119,7 +271,7 @@ public class GestionLugares extends javax.swing.JInternalFrame {
         lblLugar.setText("ID Lugar :");
 
         lblRutaViaje.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblRutaViaje.setText("Viaje:");
+        lblRutaViaje.setText("Ruta/Viaje:");
 
         dato_lugar.setEditable(false);
         dato_lugar.setText("el ID se autogenera");
@@ -127,18 +279,18 @@ public class GestionLugares extends javax.swing.JInternalFrame {
 
         dato_lugar.setFocusable(false);
 
-        jCheckBoxEstado.setSelected(true);
-        jCheckBoxEstado.setText("Activo");
-        jCheckBoxEstado.setEnabled(false);
-        jCheckBoxEstado.addActionListener(this::jCheckBoxEstadoActionPerformed);
+        checkEstado.setSelected(true);
+        checkEstado.setText("Ocupado");
+        checkEstado.setEnabled(false);
+        checkEstado.addActionListener(this::checkEstadoActionPerformed);
 
-        dato_viaje.addActionListener(this::dato_viajeActionPerformed);
+        cboxDato_viaje.addActionListener(this::cboxDato_viajeActionPerformed);
 
-        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel2.setText("Numero Asiento :");
+        lblNumeroAsiento.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblNumeroAsiento.setText("Numero Asiento :");
 
-        lblRutaViaje1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblRutaViaje1.setText("Estado:");
+        lblEstado.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblEstado.setText("Estado:");
 
         javax.swing.GroupLayout PanelDatosLayout = new javax.swing.GroupLayout(PanelDatos);
         PanelDatos.setLayout(PanelDatosLayout);
@@ -150,27 +302,27 @@ public class GestionLugares extends javax.swing.JInternalFrame {
                     .addGroup(PanelDatosLayout.createSequentialGroup()
                         .addComponent(lblRutaViaje)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dato_viaje, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(cboxDato_viaje, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(PanelDatosLayout.createSequentialGroup()
                         .addComponent(lblLugar)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(dato_lugar, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 82, Short.MAX_VALUE)
                 .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PanelDatosLayout.createSequentialGroup()
-                        .addComponent(jLabel2)
+                        .addComponent(lblNumeroAsiento)
                         .addGap(18, 18, 18)
-                        .addComponent(txtnumeroasiento, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(dato_numeroAsiento, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(PanelDatosLayout.createSequentialGroup()
-                        .addComponent(lblRutaViaje1)
+                        .addComponent(lblEstado)
                         .addGap(18, 18, 18)
-                        .addComponent(jCheckBoxEstado, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(75, Short.MAX_VALUE))
+                        .addComponent(checkEstado, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(56, 56, 56))
         );
 
-        PanelDatosLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabel2, lblLugar, lblRutaViaje, lblRutaViaje1});
+        PanelDatosLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {lblEstado, lblLugar, lblNumeroAsiento, lblRutaViaje});
 
-        PanelDatosLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {dato_lugar, dato_viaje, jCheckBoxEstado, txtnumeroasiento});
+        PanelDatosLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {cboxDato_viaje, checkEstado, dato_lugar, dato_numeroAsiento});
 
         PanelDatosLayout.setVerticalGroup(
             PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -178,47 +330,50 @@ public class GestionLugares extends javax.swing.JInternalFrame {
                 .addContainerGap()
                 .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblLugar, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtnumeroasiento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(dato_numeroAsiento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(dato_lugar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
+                    .addComponent(lblNumeroAsiento))
                 .addGap(18, 18, 18)
                 .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(dato_viaje, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblRutaViaje1)
-                    .addComponent(jCheckBoxEstado, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cboxDato_viaje, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblEstado)
+                    .addComponent(checkEstado, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblRutaViaje))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         PanelBotones.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Funciones", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14), new java.awt.Color(0, 0, 0))); // NOI18N
 
-        boton_limpar.setText("Limpiar campos");
-        boton_limpar.addActionListener(this::boton_limparActionPerformed);
+        btnLimpiarCampos.setText("Limpiar campos");
+        btnLimpiarCampos.addActionListener(this::btnLimpiarCamposActionPerformed);
 
-        boton_guardar.setText("Guardar");
-        boton_guardar.addActionListener(this::boton_guardarActionPerformed);
+        btnAgregarLugar.setText("Agregar Lugar");
+        btnAgregarLugar.addActionListener(this::btnAgregarLugarActionPerformed);
 
-        boton_eliminar.setText("Eliminar");
-        boton_eliminar.addActionListener(this::boton_eliminarActionPerformed);
+        btnOcupar.setForeground(new java.awt.Color(0, 102, 0));
+        btnOcupar.setText("Ocupar ");
+        btnOcupar.addActionListener(this::btnOcuparActionPerformed);
 
-        boton_ocupar.setForeground(new java.awt.Color(0, 102, 0));
-        boton_ocupar.setText("Ocupar ");
-        boton_ocupar.addActionListener(this::boton_ocuparActionPerformed);
+        btnDesocupar.setForeground(new java.awt.Color(153, 0, 0));
+        btnDesocupar.setText("Desocupar");
+        btnDesocupar.addActionListener(this::btnDesocuparActionPerformed);
 
-        boton_Desocupar.setForeground(new java.awt.Color(153, 0, 0));
-        boton_Desocupar.setText("Desocupar");
-        boton_Desocupar.addActionListener(this::boton_DesocuparActionPerformed);
+        lblBuscar.setText("Buscar Por N° Asiento:");
 
-        boton_mostrartodo.setText("Mostrar Todo");
-        boton_mostrartodo.addActionListener(this::boton_mostrartodoActionPerformed);
+        btnBuscar.setText("Buscar");
+        btnBuscar.addActionListener(this::btnBuscarActionPerformed);
 
-        jLabel4.setText("Buscar Por N° Asiento:");
+        btnCancelar.setText("Cancelar");
+        btnCancelar.addActionListener(this::btnCancelarActionPerformed);
 
-        boton_buscar.setText("Buscar");
-        boton_buscar.addActionListener(this::boton_buscarActionPerformed);
+        btnModificar.setText("Modificar");
+        btnModificar.addActionListener(this::btnModificarActionPerformed);
 
-        boton_mostrarlibres.setText("Mostrar Libres");
-        boton_mostrarlibres.addActionListener(this::boton_mostrarlibresActionPerformed);
+        cboxListar.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Listar Todos", "Listar Por Ruta/Viaje", "Listar Ocupados", "Listar Desocupados" }));
+        cboxListar.addActionListener(this::cboxListarActionPerformed);
+
+        lblListar.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblListar.setText("Listar Por:");
 
         javax.swing.GroupLayout PanelBotonesLayout = new javax.swing.GroupLayout(PanelBotones);
         PanelBotones.setLayout(PanelBotonesLayout);
@@ -226,58 +381,54 @@ public class GestionLugares extends javax.swing.JInternalFrame {
             PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelBotonesLayout.createSequentialGroup()
                 .addContainerGap()
+                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(lblBuscar, javax.swing.GroupLayout.DEFAULT_SIZE, 141, Short.MAX_VALUE)
+                    .addComponent(btnLimpiarCampos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(btnAgregarLugar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(dato_buscar))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(btnModificar, javax.swing.GroupLayout.DEFAULT_SIZE, 129, Short.MAX_VALUE)
+                    .addComponent(btnBuscar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(5, 5, 5)
+                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(lblListar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnCancelar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PanelBotonesLayout.createSequentialGroup()
-                        .addComponent(boton_limpar)
+                        .addComponent(btnOcupar, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(boton_guardar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(boton_eliminar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(boton_ocupar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(boton_Desocupar))
-                    .addGroup(PanelBotonesLayout.createSequentialGroup()
-                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtnum)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(boton_buscar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(boton_mostrartodo)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(boton_mostrarlibres)))
-                .addContainerGap())
+                        .addComponent(btnDesocupar, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cboxListar, javax.swing.GroupLayout.PREFERRED_SIZE, 202, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-
-        PanelBotonesLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {boton_Desocupar, boton_buscar, boton_eliminar, boton_limpar, boton_mostrarlibres, boton_mostrartodo, boton_ocupar});
-
         PanelBotonesLayout.setVerticalGroup(
             PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelBotonesLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(boton_limpar)
-                        .addComponent(boton_guardar))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(boton_ocupar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(boton_Desocupar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(boton_eliminar)))
+                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnLimpiarCampos)
+                    .addComponent(btnAgregarLugar)
+                    .addComponent(btnModificar)
+                    .addComponent(btnCancelar)
+                    .addComponent(btnOcupar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnDesocupar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel4)
-                    .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(txtnum, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(boton_buscar)
-                        .addComponent(boton_mostrartodo)
-                        .addComponent(boton_mostrarlibres)))
+                .addGroup(PanelBotonesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblBuscar)
+                    .addComponent(dato_buscar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnBuscar)
+                    .addComponent(lblListar)
+                    .addComponent(cboxListar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        PanelBotonesLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {boton_Desocupar, boton_buscar, boton_eliminar, boton_guardar, boton_limpar, boton_mostrarlibres, boton_mostrartodo, boton_ocupar});
+        PanelBotonesLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {btnAgregarLugar, btnBuscar, btnDesocupar, btnLimpiarCampos, btnOcupar});
 
-        jTableLugares.setModel(new javax.swing.table.DefaultTableModel(
+        TablaLugares.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -285,15 +436,16 @@ public class GestionLugares extends javax.swing.JInternalFrame {
                 {null, null, null, null}
             },
             new String [] {
-                "ID Lugar", "Numero Asiento", "ID Viaje", "Estado"
+                "ID Lugar", "ID Ruta", "Numero Asiento", "Estado"
             }
         ));
-        jTableLugares.addMouseListener(new java.awt.event.MouseAdapter() {
+        TablaLugares.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+        TablaLugares.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jTableLugaresMouseClicked(evt);
+                TablaLugaresMouseClicked(evt);
             }
         });
-        jScrollPane1.setViewportView(jTableLugares);
+        jScrollPane1.setViewportView(TablaLugares);
 
         javax.swing.GroupLayout PanelTablaLayout = new javax.swing.GroupLayout(PanelTabla);
         PanelTabla.setLayout(PanelTablaLayout);
@@ -350,240 +502,190 @@ public class GestionLugares extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void boton_limparActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_limparActionPerformed
+    private void btnLimpiarCamposActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarCamposActionPerformed
         limpiarCampos();
-    }//GEN-LAST:event_boton_limparActionPerformed
+    }//GEN-LAST:event_btnLimpiarCamposActionPerformed
 
-    private void boton_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_guardarActionPerformed
+    private void btnAgregarLugarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarLugarActionPerformed
+        Lugar nuevoLugar = obtenerYValidarDatos(0);
 
-        if (txtnumeroasiento.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debes completar el numero de asiento.", "Campo Vacío", JOptionPane.WARNING_MESSAGE);
-            txtnumeroasiento.requestFocusInWindow();
+        if (nuevoLugar == null) {
             return;
         }
 
-        try {
+        int opcion = JOptionPane.showConfirmDialog(this, "¿Desea agregar este asiento?", "Confirmar alta", JOptionPane.YES_NO_OPTION);
 
-            int numeroasiento = Integer.parseInt(txtnumeroasiento.getText().trim());
-
-            RutaViaje viajeseleccionado = (RutaViaje) dato_viaje.getSelectedItem();
-
-            int estado = jCheckBoxEstado.isSelected() ? 1 : 0;
-
-            Lugar nuevoLugar = new Lugar();
-            nuevoLugar.setID_ruta(viajeseleccionado.getID_ruta());
-            nuevoLugar.setNumeroAsiento(numeroasiento);
-            nuevoLugar.setEstado(estado);
-
-            LugarData lugarData = new LugarData();
-            lugarData.guardarLugar(nuevoLugar);
-
-            //Limpiamos los campos y recargamos la tabla
-            limpiarCampos();
-
-            if (viajeseleccionado != null) {
-                cargarTablaAsientos(viajeseleccionado.getID_ruta());
-            }
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Los campos de Lugar, Ruta y numero de asiento deben contener valores numéricos válidos.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
-        }
-    }//GEN-LAST:event_boton_guardarActionPerformed
-
-    private void jTableLugaresMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableLugaresMouseClicked
-        // TODO add your handling code here:
-        int filaSeleccionada = jTableLugares.getSelectedRow();
-        if (filaSeleccionada != -1) {
-            dato_lugar.setText(jTableLugares.getValueAt(filaSeleccionada, 0).toString());
-            txtnumeroasiento.setText(jTableLugares.getValueAt(filaSeleccionada, 1).toString());
-            int idViajeBuscado = Integer.parseInt(jTableLugares.getValueAt(filaSeleccionada, 2).toString());
-            String estado = jTableLugares.getValueAt(filaSeleccionada, 3).toString();
-            jCheckBoxEstado.setSelected(estado.equalsIgnoreCase("Activo"));
-
-            seleccionandoDesdeTabla = true;
-            // Recorremos el JComboBox para encontrar el objeto RutaViaje que coincida con ese ID
-            for (int i = 0; i < dato_viaje.getItemCount(); i++) {
-                RutaViaje viajeCombo = (RutaViaje) dato_viaje.getItemAt(i);
-
-                if (viajeCombo.getID_ruta() == idViajeBuscado) {
-
-                    dato_viaje.setSelectedItem(viajeCombo);
-                    break;
-                }
-            }
-            seleccionandoDesdeTabla = false;
-            boton_guardar.setEnabled(false);
-            boton_eliminar.setEnabled(true);
-            boton_ocupar.setEnabled(true);
-            boton_Desocupar.setEnabled(true);
-        }
-
-
-    }//GEN-LAST:event_jTableLugaresMouseClicked
-
-    private void boton_eliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_eliminarActionPerformed
-        int filaSeleccionada = jTableLugares.getSelectedRow();
-        if (filaSeleccionada == -1) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar un pasaje de la tabla para actualizar sus datos.", "Ningún pasaje seleccionado", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        int confirmacion = JOptionPane.showConfirmDialog(this, "¿Está seguro de que desea eliminar este lugar?", "Confirmar eliminación", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-
-        if (confirmacion == JOptionPane.YES_OPTION) {
-            try {
-
-                int idLugar = (int) jTableLugares.getValueAt(filaSeleccionada, 0);
-                RutaViaje viajeseleccionado = (RutaViaje) dato_viaje.getSelectedItem();
-
-                LugarData lugarData = new LugarData();
-                lugarData.eliminarLugar(idLugar);
-
-                JOptionPane.showMessageDialog(this, "Lugar eliminado con éxito.", "Operación Exitosa", JOptionPane.INFORMATION_MESSAGE);
-
+        if (opcion == JOptionPane.YES_OPTION) {
+            if (lugarData.guardarLugar(nuevoLugar)) {
+                JOptionPane.showMessageDialog(this, "Asiento agregado correctamente.");
                 limpiarCampos();
-
-                if (viajeseleccionado != null) {
-                    cargarTablaAsientos(viajeseleccionado.getID_ruta());
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Los campos de id_lugar, numero de asiento y viaje deben contener valores numéricos válidos.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+                cargarTablaSegunFiltro();
+            } else {
+                JOptionPane.showMessageDialog(this, "No se pudo agregar el asiento.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
+    }//GEN-LAST:event_btnAgregarLugarActionPerformed
 
-    }//GEN-LAST:event_boton_eliminarActionPerformed
+    private void TablaLugaresMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TablaLugaresMouseClicked
+        cargarDatosSeleccionados();
+        habilitarBotones(TablaLugares.getSelectedRow() != -1);
+    }//GEN-LAST:event_TablaLugaresMouseClicked
 
-    private void boton_ocuparActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_ocuparActionPerformed
-        int filaSeleccionada = jTableLugares.getSelectedRow();
-        if (filaSeleccionada == -1) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar un lugar de la tabla para actualizar sus datos.", "Ningún pasaje seleccionado", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        RutaViaje viajeseleccionado = (RutaViaje) dato_viaje.getSelectedItem();
-        int idLugar = Integer.parseInt(jTableLugares.getValueAt(filaSeleccionada, 0).toString());
-        LugarData lugarData = new LugarData();
-        lugarData.ocuparLugar(idLugar);
-
-        cargarTablaAsientos(viajeseleccionado.getID_ruta());
-    }//GEN-LAST:event_boton_ocuparActionPerformed
-
-    private void boton_DesocuparActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_DesocuparActionPerformed
-        int filaSeleccionada = jTableLugares.getSelectedRow();
-        if (filaSeleccionada == -1) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar un lugar de la tabla para actualizar sus datos.", "Ningún pasaje seleccionado", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        RutaViaje viajeseleccionado = (RutaViaje) dato_viaje.getSelectedItem();
-        int idLugar = Integer.parseInt(jTableLugares.getValueAt(filaSeleccionada, 0).toString());
-        LugarData lugarData = new LugarData();
-        lugarData.desocuparLugar(idLugar);
-
-        cargarTablaAsientos(viajeseleccionado.getID_ruta());
-    }//GEN-LAST:event_boton_DesocuparActionPerformed
-
-    private void boton_mostrartodoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_mostrartodoActionPerformed
-        cargarTablaTodos();
-    }//GEN-LAST:event_boton_mostrartodoActionPerformed
-
-    private void boton_buscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_buscarActionPerformed
-        String textoAsiento = txtnum.getText().trim();
+    private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
+        String textoAsiento = dato_buscar.getText().trim();
 
         if (textoAsiento.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Por favor, ingrese un número de asiento.", "Campo vacío", JOptionPane.WARNING_MESSAGE);
+            dato_buscar.requestFocusInWindow();
             return;
         }
-        RutaViaje viajeseleccionado = (RutaViaje) dato_viaje.getSelectedItem();
-        if (viajeseleccionado == null) {
+
+        RutaViaje viajeSeleccionado = (RutaViaje) cboxDato_viaje.getSelectedItem();
+
+        if (viajeSeleccionado == null) {
             JOptionPane.showMessageDialog(this, "Debe seleccionar un viaje del combo para buscar.", "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
+
         try {
-            int numeroasiento = Integer.parseInt(txtnum.getText().trim());
-            DefaultTableModel modelo = (DefaultTableModel) jTableLugares.getModel();
+            int numeroAsiento = Integer.parseInt(textoAsiento);
+
+            if (numeroAsiento <= 0) {
+                JOptionPane.showMessageDialog(this, "El número de asiento debe ser mayor que cero.", "Valor inválido", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            limpiarCampos();
             modelo.setRowCount(0);
 
-            LugarData lugarData = new LugarData();
-            Lugar lugar = lugarData.buscarLugarPorNumero(viajeseleccionado.getID_ruta(), numeroasiento);
-            if (lugar != null) {
-                String estadoTexto = (lugar.getEstado() == 1) ? "Libre" : "Ocupado";
+            Lugar lugar = lugarData.buscarLugarPorNumero(viajeSeleccionado.getID_ruta(), numeroAsiento);
 
+            String filtro = (String) cboxListar.getSelectedItem();
+
+            if (lugar != null && "Listar Ocupados".equals(filtro) && lugar.getEstado() != LugarData.OCUPADO) {
+                lugar = null;
+            }
+
+            if (lugar != null && "Listar Desocupados".equals(filtro) && lugar.getEstado() != LugarData.LIBRE) {
+                lugar = null;
+            }
+
+            if (lugar != null) {
                 modelo.addRow(new Object[]{
                     lugar.getID_lugar(),
-                    lugar.getNumeroAsiento(),
                     lugar.getID_ruta(),
-                    estadoTexto
+                    lugar.getNumeroAsiento(),
+                    lugar.getEstado() == LugarData.OCUPADO ? "Ocupado" : "Libre"
                 });
             } else {
-                JOptionPane.showMessageDialog(this, "No se encontró el asiento N° " + numeroasiento + " para este viaje.", "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
-                // si no encuentra nada, podés volver a cargar los del viaje para que la tabla no quede vacía
+                JOptionPane.showMessageDialog(this, "No se encontró el asiento N° " + numeroAsiento + " para este viaje.", "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
             }
-        } catch (NumberFormatException e) {
+
+        } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "El número de asiento debe ser un valor numérico válido.", "Error de formato", JOptionPane.ERROR_MESSAGE);
         }
-    }//GEN-LAST:event_boton_buscarActionPerformed
+    }//GEN-LAST:event_btnBuscarActionPerformed
 
-    private void boton_mostrarlibresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_mostrarlibresActionPerformed
-        RutaViaje viajeseleccionado = (RutaViaje) dato_viaje.getSelectedItem();
-        DefaultTableModel modelo = (DefaultTableModel) jTableLugares.getModel();
-        modelo.setRowCount(0);
-        if (viajeseleccionado == null) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar un viaje.", "Aviso", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        LugarData lugarData = new LugarData();
-        int IDruta = viajeseleccionado.getID_ruta();
-        List<Lugar> listaLibres = lugarData.listarLugaresLibresPorRuta(IDruta);
-
-        for (Lugar lugar : listaLibres) {
-            String estadoTexto = "Libre";
-
-            modelo.addRow(new Object[]{
-                lugar.getID_lugar(),
-                lugar.getNumeroAsiento(),
-                lugar.getID_ruta(),
-                estadoTexto
-            });
-        }
-    }//GEN-LAST:event_boton_mostrarlibresActionPerformed
-
-    private void jCheckBoxEstadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxEstadoActionPerformed
+    private void checkEstadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkEstadoActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jCheckBoxEstadoActionPerformed
+    }//GEN-LAST:event_checkEstadoActionPerformed
 
-    private void dato_viajeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dato_viajeActionPerformed
-        if (seleccionandoDesdeTabla) {
+    private void cboxDato_viajeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboxDato_viajeActionPerformed
+        if (cargandoCombo || seleccionandoDesdeTabla) {
             return;
         }
 
-        RutaViaje viajeSeleccionado = (RutaViaje) dato_viaje.getSelectedItem();
-        if (viajeSeleccionado != null) {
-            cargarTablaAsientos(viajeSeleccionado.getID_ruta());
+        if (cboxDato_viaje.getSelectedItem() != null) {
+            limpiarCampos();
+            cargarTablaSegunFiltro();
         }
-    }//GEN-LAST:event_dato_viajeActionPerformed
+    }//GEN-LAST:event_cboxDato_viajeActionPerformed
+
+    private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
+        if (dato_lugar.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un asiento para modificar.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            int idLugar = Integer.parseInt(dato_lugar.getText().trim());
+            Lugar lugarModificado = obtenerYValidarDatos(idLugar);
+
+            if (lugarModificado == null) {
+                return;
+            }
+
+            int opcion = JOptionPane.showConfirmDialog(this, "¿Desea modificar este asiento?", "Confirmar modificación", JOptionPane.YES_NO_OPTION);
+
+            if (opcion == JOptionPane.YES_OPTION) {
+                if (lugarData.modificarLugar(lugarModificado)) {
+                    JOptionPane.showMessageDialog(this, "Asiento modificado correctamente.");
+                    limpiarCampos();
+                    cargarTablaSegunFiltro();
+                } else {
+                    JOptionPane.showMessageDialog(this, "No se pudo modificar el asiento.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "El ID del asiento debe ser numérico.", "Error de formato", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnModificarActionPerformed
+
+    private void btnDesocuparActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDesocuparActionPerformed
+        cambiarEstado(false);
+    }//GEN-LAST:event_btnDesocuparActionPerformed
+
+    private void btnOcuparActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOcuparActionPerformed
+        cambiarEstado(true);
+    }//GEN-LAST:event_btnOcuparActionPerformed
+
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        int filaSeleccionada = TablaLugares.getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            return;
+        }
+
+        int opcion = JOptionPane.showConfirmDialog(this, "¿Desea descartar los cambios realizados?", "Cancelar", JOptionPane.YES_NO_OPTION);
+
+        if (opcion != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        cargarDatosSeleccionados();
+        habilitarBotones(true);
+    }//GEN-LAST:event_btnCancelarActionPerformed
+
+    private void cboxListarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboxListarActionPerformed
+        limpiarCampos();
+        cargarTablaSegunFiltro();
+    }//GEN-LAST:event_cboxListarActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel PanelBotones;
     private javax.swing.JPanel PanelDatos;
     private javax.swing.JPanel PanelPrincipal;
     private javax.swing.JPanel PanelTabla;
-    private javax.swing.JButton boton_Desocupar;
-    private javax.swing.JButton boton_buscar;
-    private javax.swing.JButton boton_eliminar;
-    private javax.swing.JButton boton_guardar;
-    private javax.swing.JButton boton_limpar;
-    private javax.swing.JButton boton_mostrarlibres;
-    private javax.swing.JButton boton_mostrartodo;
-    private javax.swing.JButton boton_ocupar;
+    private javax.swing.JTable TablaLugares;
+    private javax.swing.JButton btnAgregarLugar;
+    private javax.swing.JButton btnBuscar;
+    private javax.swing.JButton btnCancelar;
+    private javax.swing.JButton btnDesocupar;
+    private javax.swing.JButton btnLimpiarCampos;
+    private javax.swing.JButton btnModificar;
+    private javax.swing.JButton btnOcupar;
+    private javax.swing.JComboBox cboxDato_viaje;
+    private javax.swing.JComboBox<String> cboxListar;
+    private javax.swing.JCheckBox checkEstado;
+    private javax.swing.JTextField dato_buscar;
     private javax.swing.JTextField dato_lugar;
-    private javax.swing.JComboBox dato_viaje;
-    private javax.swing.JCheckBox jCheckBoxEstado;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel4;
+    private javax.swing.JTextField dato_numeroAsiento;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTableLugares;
+    private javax.swing.JLabel lblBuscar;
+    private javax.swing.JLabel lblEstado;
+    private javax.swing.JLabel lblListar;
     private javax.swing.JLabel lblLugar;
+    private javax.swing.JLabel lblNumeroAsiento;
     private javax.swing.JLabel lblRutaViaje;
-    private javax.swing.JLabel lblRutaViaje1;
-    private javax.swing.JTextField txtnum;
-    private javax.swing.JTextField txtnumeroasiento;
     // End of variables declaration//GEN-END:variables
 }

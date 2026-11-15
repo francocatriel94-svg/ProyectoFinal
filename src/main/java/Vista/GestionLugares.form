@@ -87,7 +87,7 @@
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="lblRutaViaje" linkSize="1" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="dato_viaje" linkSize="2" max="32767" attributes="0"/>
+                              <Component id="cboxDato_viaje" linkSize="2" max="32767" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="lblLugar" linkSize="1" min="-2" max="-2" attributes="0"/>
@@ -95,20 +95,20 @@
                               <Component id="dato_lugar" linkSize="2" min="-2" pref="200" max="-2" attributes="0"/>
                           </Group>
                       </Group>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                      <EmptySpace pref="82" max="32767" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
-                              <Component id="jLabel2" linkSize="1" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="lblNumeroAsiento" linkSize="1" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
-                              <Component id="txtnumeroasiento" linkSize="2" min="-2" pref="128" max="-2" attributes="0"/>
+                              <Component id="dato_numeroAsiento" linkSize="2" min="-2" pref="128" max="-2" attributes="0"/>
                           </Group>
-                          <Group type="102" attributes="0">
-                              <Component id="lblRutaViaje1" linkSize="1" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="lblEstado" linkSize="1" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
-                              <Component id="jCheckBoxEstado" linkSize="2" min="-2" pref="135" max="-2" attributes="0"/>
+                              <Component id="checkEstado" linkSize="2" min="-2" pref="135" max="-2" attributes="0"/>
                           </Group>
                       </Group>
-                      <EmptySpace pref="75" max="32767" attributes="0"/>
+                      <EmptySpace min="-2" pref="56" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -118,15 +118,15 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="lblLugar" alignment="0" min="-2" pref="19" max="-2" attributes="0"/>
-                          <Component id="txtnumeroasiento" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="dato_numeroAsiento" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="dato_lugar" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="lblNumeroAsiento" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="dato_viaje" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="lblRutaViaje1" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jCheckBoxEstado" alignment="3" min="-2" pref="33" max="-2" attributes="0"/>
+                          <Component id="cboxDato_viaje" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="lblEstado" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="checkEstado" alignment="3" min="-2" pref="33" max="-2" attributes="0"/>
                           <Component id="lblRutaViaje" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="32767" attributes="0"/>
@@ -144,7 +144,7 @@
             <Component class="javax.swing.JLabel" name="lblRutaViaje">
               <Properties>
                 <Property name="horizontalAlignment" type="int" value="0"/>
-                <Property name="text" type="java.lang.String" value="Viaje:"/>
+                <Property name="text" type="java.lang.String" value="Ruta/Viaje:"/>
               </Properties>
             </Component>
             <Component class="javax.swing.JTextField" name="dato_lugar">
@@ -155,38 +155,38 @@
                 <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="dato_lugar.setText(&quot;el ID se autogenera&quot;);&#xa;dato_lugar.setHorizontalAlignment(javax.swing.JTextField.CENTER);&#xa;&#xa;dato_lugar.setFocusable(false);"/>
               </AuxValues>
             </Component>
-            <Component class="javax.swing.JCheckBox" name="jCheckBoxEstado">
+            <Component class="javax.swing.JCheckBox" name="checkEstado">
               <Properties>
                 <Property name="selected" type="boolean" value="true"/>
-                <Property name="text" type="java.lang.String" value="Activo"/>
+                <Property name="text" type="java.lang.String" value="Ocupado"/>
                 <Property name="enabled" type="boolean" value="false"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jCheckBoxEstadoActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkEstadoActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JComboBox" name="dato_viaje">
+            <Component class="javax.swing.JComboBox" name="cboxDato_viaje">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                   <StringArray count="0"/>
                 </Property>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="dato_viajeActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cboxDato_viajeActionPerformed"/>
               </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value=""/>
               </AuxValues>
             </Component>
-            <Component class="javax.swing.JTextField" name="txtnumeroasiento">
+            <Component class="javax.swing.JTextField" name="dato_numeroAsiento">
             </Component>
-            <Component class="javax.swing.JLabel" name="jLabel2">
+            <Component class="javax.swing.JLabel" name="lblNumeroAsiento">
               <Properties>
                 <Property name="horizontalAlignment" type="int" value="0"/>
                 <Property name="text" type="java.lang.String" value="Numero Asiento :"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JLabel" name="lblRutaViaje1">
+            <Component class="javax.swing.JLabel" name="lblEstado">
               <Properties>
                 <Property name="horizontalAlignment" type="int" value="0"/>
                 <Property name="text" type="java.lang.String" value="Estado:"/>
@@ -210,31 +210,35 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
-                              <Component id="boton_limpar" linkSize="3" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="boton_guardar" max="32767" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="boton_eliminar" linkSize="3" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="boton_ocupar" linkSize="3" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="boton_Desocupar" linkSize="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" attributes="0">
-                              <Component id="jLabel4" min="-2" pref="143" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="txtnum" max="32767" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="boton_buscar" linkSize="3" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="boton_mostrartodo" linkSize="3" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="boton_mostrarlibres" linkSize="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="lblBuscar" pref="141" max="32767" attributes="0"/>
+                          <Component id="btnLimpiarCampos" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="btnAgregarLugar" max="32767" attributes="0"/>
+                          <Component id="dato_buscar" max="32767" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="btnModificar" pref="129" max="32767" attributes="0"/>
+                          <Component id="btnBuscar" max="32767" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="lblListar" max="32767" attributes="0"/>
+                          <Component id="btnCancelar" max="32767" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" attributes="0">
+                              <Component id="btnOcupar" min="-2" pref="90" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="btnDesocupar" min="-2" pref="106" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="cboxListar" min="-2" pref="202" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -242,26 +246,21 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                              <Component id="boton_limpar" linkSize="4" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="boton_guardar" linkSize="4" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="103" alignment="1" groupAlignment="3" attributes="0">
-                              <Component id="boton_ocupar" linkSize="4" alignment="3" max="32767" attributes="0"/>
-                              <Component id="boton_Desocupar" linkSize="4" alignment="3" max="32767" attributes="0"/>
-                              <Component id="boton_eliminar" linkSize="4" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="btnLimpiarCampos" linkSize="4" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnAgregarLugar" linkSize="4" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnModificar" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnCancelar" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnOcupar" linkSize="4" alignment="3" max="32767" attributes="0"/>
+                          <Component id="btnDesocupar" linkSize="4" alignment="3" max="32767" attributes="0"/>
                       </Group>
-                      <EmptySpace type="unrelated" min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="txtnum" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="boton_buscar" linkSize="4" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="boton_mostrartodo" linkSize="4" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="boton_mostrarlibres" linkSize="4" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="lblBuscar" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="dato_buscar" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnBuscar" linkSize="4" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="lblListar" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="cboxListar" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="32767" attributes="0"/>
                   </Group>
@@ -269,31 +268,23 @@
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="javax.swing.JButton" name="boton_limpar">
+            <Component class="javax.swing.JButton" name="btnLimpiarCampos">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Limpiar campos"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boton_limparActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnLimpiarCamposActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JButton" name="boton_guardar">
+            <Component class="javax.swing.JButton" name="btnAgregarLugar">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Guardar"/>
+                <Property name="text" type="java.lang.String" value="Agregar Lugar"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boton_guardarActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAgregarLugarActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JButton" name="boton_eliminar">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Eliminar"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boton_eliminarActionPerformed"/>
-              </Events>
-            </Component>
-            <Component class="javax.swing.JButton" name="boton_ocupar">
+            <Component class="javax.swing.JButton" name="btnOcupar">
               <Properties>
                 <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="0" green="66" red="0" type="rgb"/>
@@ -301,10 +292,10 @@
                 <Property name="text" type="java.lang.String" value="Ocupar "/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boton_ocuparActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnOcuparActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JButton" name="boton_Desocupar">
+            <Component class="javax.swing.JButton" name="btnDesocupar">
               <Properties>
                 <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="0" green="0" red="99" type="rgb"/>
@@ -312,39 +303,63 @@
                 <Property name="text" type="java.lang.String" value="Desocupar"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boton_DesocuparActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnDesocuparActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JButton" name="boton_mostrartodo">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Mostrar Todo"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boton_mostrartodoActionPerformed"/>
-              </Events>
-            </Component>
-            <Component class="javax.swing.JLabel" name="jLabel4">
+            <Component class="javax.swing.JLabel" name="lblBuscar">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Buscar Por N&#xb0; Asiento:"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JTextField" name="txtnum">
+            <Component class="javax.swing.JTextField" name="dato_buscar">
             </Component>
-            <Component class="javax.swing.JButton" name="boton_buscar">
+            <Component class="javax.swing.JButton" name="btnBuscar">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Buscar"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boton_buscarActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnBuscarActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JButton" name="boton_mostrarlibres">
+            <Component class="javax.swing.JButton" name="btnCancelar">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Mostrar Libres"/>
+                <Property name="text" type="java.lang.String" value="Cancelar"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boton_mostrarlibresActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCancelarActionPerformed"/>
               </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="btnModificar">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Modificar"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnModificarActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JComboBox" name="cboxListar">
+              <Properties>
+                <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                  <StringArray count="4">
+                    <StringItem index="0" value="Listar Todos"/>
+                    <StringItem index="1" value="Listar Por Ruta/Viaje"/>
+                    <StringItem index="2" value="Listar Ocupados"/>
+                    <StringItem index="3" value="Listar Desocupados"/>
+                  </StringArray>
+                </Property>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cboxListarActionPerformed"/>
+              </Events>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+              </AuxValues>
+            </Component>
+            <Component class="javax.swing.JLabel" name="lblListar">
+              <Properties>
+                <Property name="horizontalAlignment" type="int" value="0"/>
+                <Property name="text" type="java.lang.String" value="Listar Por:"/>
+              </Properties>
             </Component>
           </SubComponents>
         </Container>
@@ -378,16 +393,17 @@
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
               <SubComponents>
-                <Component class="javax.swing.JTable" name="jTableLugares">
+                <Component class="javax.swing.JTable" name="TablaLugares">
                   <Properties>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                       <Table columnCount="4" rowCount="4">
                         <Column editable="true" title="ID Lugar" type="java.lang.Object"/>
+                        <Column editable="true" title="ID Ruta" type="java.lang.Object"/>
                         <Column editable="true" title="Numero Asiento" type="java.lang.Object"/>
-                        <Column editable="true" title="ID Viaje" type="java.lang.Object"/>
                         <Column editable="true" title="Estado" type="java.lang.Object"/>
                       </Table>
                     </Property>
+                    <Property name="autoResizeMode" type="int" value="4"/>
                     <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
                       <TableColumnModel selectionModel="0">
                         <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
@@ -417,7 +433,7 @@
                     </Property>
                   </Properties>
                   <Events>
-                    <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jTableLugaresMouseClicked"/>
+                    <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="TablaLugaresMouseClicked"/>
                   </Events>
                 </Component>
               </SubComponents>

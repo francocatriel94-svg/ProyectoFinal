@@ -280,6 +280,22 @@ public class PasajeData {
         }
     }
 
+    // Comprueba si un asiento tiene algún pasaje activo.
+    public boolean tienePasajeActivo(int idLugar) {
+        String sql = "SELECT 1 FROM pasaje WHERE ID_lugar = ? AND estado = 1 LIMIT 1";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idLugar);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al comprobar los pasajes activos del asiento.", ex);
+            return true;
+        }
+    }
+
     // Método auxiliar para listar pasajes según un ID.
     private List<Pasaje> listarPasajesPorId(String sql, int id) {
         List<Pasaje> pasajes = new ArrayList<>();
