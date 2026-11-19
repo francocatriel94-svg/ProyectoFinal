@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.time.LocalTime;
+import java.time.LocalDate;
 
 public class RutaViajeData {
 
@@ -128,7 +130,8 @@ public class RutaViajeData {
 
     // Modifica los datos de una ruta.
     public boolean modificarRutaViaje(RutaViaje ruta) {
-        String sql = "UPDATE rutaViaje SET origen = ?, destino = ?, fechaSalida = ?, fechaLlegada = ?, horaSalida = ?, horaLlegada = ?, ID_colectivo = ?, precio = ?, estado = ? WHERE ID_ruta = ?";
+        String sql = "UPDATE rutaViaje SET origen = ?, destino = ?, fechaSalida = ?, fechaLlegada = ?, horaSalida = ?, horaLlegada = ?, ID_colectivo = ?, precio = ?, estado = ? WHERE ID_ruta = ? "
+                + "AND EXISTS (SELECT 1 FROM colectivo cActual JOIN colectivo cNuevo ON cNuevo.ID_colectivo = ? WHERE cActual.ID_colectivo = rutaViaje.ID_colectivo AND cActual.capacidad = cNuevo.capacidad)";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, ruta.getOrigen());
@@ -141,6 +144,7 @@ public class RutaViajeData {
             ps.setBigDecimal(8, ruta.getPrecio());
             ps.setInt(9, ruta.getEstado());
             ps.setInt(10, ruta.getID_ruta());
+            ps.setInt(11, ruta.getID_colectivo());
 
             return ps.executeUpdate() == 1;
 
@@ -234,6 +238,104 @@ public class RutaViajeData {
             return rutas;
         }
         return rutas;
+    }
+
+    // Lista viajes hacia un destino, mostrando su capacidad y filtrando por horario.
+    public List<Object[]> listarViajesYCapacidad(String destino, LocalTime hora, boolean porSalida) {
+        List<Object[]> resultados = new ArrayList<>();
+
+        String sql = "SELECT r.ID_ruta, r.origen, r.destino, r.fechaSalida, r.horaSalida, r.horaLlegada, COUNT(l.ID_lugar) AS capacidad FROM rutaViaje r LEFT JOIN lugar l ON r.ID_ruta = l.ID_ruta WHERE r.destino LIKE ? ";
+
+        if (hora != null) {
+            sql += porSalida ? "AND r.horaSalida = ? " : "AND r.horaLlegada = ? ";
+        }
+
+        sql += "GROUP BY r.ID_ruta, r.origen, r.destino, r.fechaSalida, r.horaSalida, r.horaLlegada ORDER BY r.fechaSalida, r.horaSalida";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, "%" + destino.trim() + "%");
+
+            if (hora != null) {
+                ps.setTime(2, Time.valueOf(hora));
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    resultados.add(new Object[]{
+                        rs.getInt("ID_ruta"),
+                        rs.getString("origen"),
+                        rs.getString("destino"),
+                        rs.getDate("fechaSalida").toLocalDate(),
+                        rs.getTime("horaSalida").toLocalTime(),
+                        rs.getTime("horaLlegada").toLocalTime(),
+                        rs.getInt("capacidad")
+                    });
+                }
+            }
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al consultar viajes y capacidad por destino.", ex);
+        }
+        return resultados;
+    }
+
+    // Lista los colectivos y choferes asignados a cada viaje.
+    public List<Object[]> listarColectivosPorViaje() {
+        List<Object[]> resultados = new ArrayList<>();
+
+        String sql = "SELECT r.ID_ruta, r.origen, r.destino, r.fechaSalida, r.horaSalida, c.matricula, c.marca, c.modelo, c.chofer FROM rutaViaje r "
+                + "JOIN colectivo c ON r.ID_colectivo = c.ID_colectivo ORDER BY r.horaSalida ASC, r.fechaSalida ASC";
+
+        try (PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                resultados.add(new Object[]{
+                    rs.getInt("ID_ruta"),
+                    rs.getString("origen"),
+                    rs.getString("destino"),
+                    rs.getDate("fechaSalida").toLocalDate(),
+                    rs.getTime("horaSalida").toLocalTime(),
+                    rs.getString("matricula"),
+                    rs.getString("marca"),
+                    rs.getString("modelo"),
+                    rs.getString("chofer")
+                });
+            }
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al listar colectivos y choferes por viaje.", ex);
+        }
+        return resultados;
+    }
+
+// Lista los colectivos asignados a viajes hacia un destino en una fecha determinada.
+    public List<Object[]> listarColectivosPorDestinoYFecha(String destino, LocalDate fecha) {
+        List<Object[]> resultados = new ArrayList<>();
+
+        String sql = "SELECT r.ID_ruta, r.origen, r.destino, r.fechaSalida, r.horaSalida, c.matricula, c.marca, c.modelo, c.chofer FROM rutaViaje r "
+                + "JOIN colectivo c ON r.ID_colectivo = c.ID_colectivo WHERE r.destino LIKE ? AND r.fechaSalida = ? ORDER BY r.horaSalida ASC";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, "%" + destino.trim() + "%");
+            ps.setDate(2, java.sql.Date.valueOf(fecha));
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    resultados.add(new Object[]{
+                        rs.getInt("ID_ruta"),
+                        rs.getString("origen"),
+                        rs.getString("destino"),
+                        rs.getDate("fechaSalida").toLocalDate(),
+                        rs.getTime("horaSalida").toLocalTime(),
+                        rs.getString("matricula"),
+                        rs.getString("marca"),
+                        rs.getString("modelo"),
+                        rs.getString("chofer")
+                    });
+                }
+            }
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al consultar colectivos por destino y fecha.", ex);
+        }
+        return resultados;
     }
 
     // Convierte una fila del ResultSet en un objeto RutaViaje.

@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class GestionPasajes extends javax.swing.JInternalFrame {
@@ -35,6 +36,7 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
         lugarData = new LugarData();
 
         modeloTabla = (DefaultTableModel) tablaPasajes.getModel();
+
         limpiarCampos();
         cargarTabla();
         cargarComboPasajeros();
@@ -99,8 +101,28 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
     private void cargarComboRutas() {
         ComboRutas.removeAllItems();
 
+        LocalDateTime ahora = LocalDateTime.now();
+
+        int idRutaSeleccionada = -1;
+        int fila = tablaPasajes.getSelectedRow();
+
+        if (fila != -1) {
+            idRutaSeleccionada = (int) tablaPasajes.getValueAt(fila, 3);
+        }
+
         for (RutaViaje r : rutaData.listarRutas()) {
-            ComboRutas.addItem(r);
+
+            boolean disponible = r.getEstado() == 1
+                    && r.getFechaSalida() != null
+                    && r.getHoraSalida() != null
+                    && LocalDateTime.of(
+                            r.getFechaSalida(),
+                            r.getHoraSalida()
+                    ).isAfter(ahora);
+
+            if (disponible || r.getID_ruta() == idRutaSeleccionada) {
+                ComboRutas.addItem(r);
+            }
         }
     }
 
@@ -182,6 +204,7 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
 
         txtPasaje.setText(tablaPasajes.getValueAt(fila, 0).toString());
 
+        cargarComboRutas();
         seleccionarRutaEnCombo(tablaPasajes.getValueAt(fila, 3).toString());
         cargarLugaresDisponibles();
         seleccionarPasajeroEnCombo(tablaPasajes.getValueAt(fila, 1).toString());
@@ -362,7 +385,7 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
                     .addComponent(ComboLugares, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(ComboRutas, javax.swing.GroupLayout.Alignment.LEADING, 0, 200, Short.MAX_VALUE)
                     .addComponent(txtPasaje))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 102, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PanelDatosLayout.createSequentialGroup()
                         .addComponent(lblPrecio)
@@ -482,7 +505,7 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnListarTodos, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnRecargar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(btnRecargar, javax.swing.GroupLayout.DEFAULT_SIZE, 314, Short.MAX_VALUE))
                     .addGroup(PanelBotonesLayout.createSequentialGroup()
                         .addComponent(btnModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -584,11 +607,17 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(PanelPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(PanelPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(PanelPrincipal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(PanelPrincipal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
@@ -604,6 +633,7 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
             }
         }
         limpiarCampos();
+        cargarComboRutas();
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
@@ -773,7 +803,7 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
             cargarTabla();
             cargarLugaresDisponibles();
         } else {
-            JOptionPane.showMessageDialog(this, "No se pudo dar de alta el pasaje. Compruebe que el asiento esté disponible.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "No se pudo dar de alta el pasaje. Verifique que la ruta esté activa, que el viaje no haya salido y que el asiento esté disponible.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnDarAltaActionPerformed
 

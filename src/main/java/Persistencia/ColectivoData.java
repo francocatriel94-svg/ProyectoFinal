@@ -49,9 +49,9 @@ public class ColectivoData {
         }
     }
 
-    //Modificamos los valores de un colectico.
+    // Modificamos los valores de un colectivo.
     public boolean modificarColectivo(Colectivo colectivo) {
-        String sql = "UPDATE colectivo SET matricula = ?, marca = ?, modelo = ?, capacidad = ?, " + "chofer = ?, estado = ? WHERE ID_colectivo = ?";
+        String sql = "UPDATE colectivo SET matricula = ?, marca = ?, modelo = ?, capacidad = ?, chofer = ?, estado = ? WHERE ID_colectivo = ? AND (capacidad = ? OR NOT EXISTS (SELECT 1 FROM rutaViaje WHERE ID_colectivo = ?))";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, colectivo.getMatricula());
@@ -61,6 +61,8 @@ public class ColectivoData {
             ps.setString(5, colectivo.getChofer());
             ps.setInt(6, colectivo.getEstado());
             ps.setInt(7, colectivo.getID_colectivo());
+            ps.setInt(8, colectivo.getCapacidad());
+            ps.setInt(9, colectivo.getID_colectivo());
 
             return ps.executeUpdate() == 1;
 

@@ -81,6 +81,8 @@ public class VistaGestion extends javax.swing.JFrame {
         itemRuta = new javax.swing.JMenuItem();
         itemLugar = new javax.swing.JMenuItem();
         itemPasaje = new javax.swing.JMenuItem();
+        jMenu1 = new javax.swing.JMenu();
+        jMenuItem2 = new javax.swing.JMenuItem();
 
         jMenuItem1.setText("jMenuItem1");
 
@@ -298,6 +300,14 @@ public class VistaGestion extends javax.swing.JFrame {
 
         JMenuBar.add(menuGestion);
 
+        jMenu1.setText("Consultas");
+
+        jMenuItem2.setText("Consultas");
+        jMenuItem2.addActionListener(this::jMenuItem2ActionPerformed);
+        jMenu1.add(jMenuItem2);
+
+        JMenuBar.add(jMenu1);
+
         setJMenuBar(JMenuBar);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -350,6 +360,13 @@ public class VistaGestion extends javax.swing.JFrame {
         ventana.setVisible(true);
     }//GEN-LAST:event_itemPasajeActionPerformed
 
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        VistaConsultas consultas = new VistaConsultas();
+        escritorio.add(consultas);
+        consultas.setLocation(20, 20);
+        consultas.setVisible(true);
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
+
     public static void main(String args[]) {
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -373,7 +390,9 @@ public class VistaGestion extends javax.swing.JFrame {
     private javax.swing.JMenuItem itemPasaje;
     private javax.swing.JMenuItem itemPasajero;
     private javax.swing.JMenuItem itemRuta;
+    private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel lblCantidadColectivos;
     private javax.swing.JLabel lblCantidadPasajeros;

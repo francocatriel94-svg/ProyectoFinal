@@ -5,6 +5,7 @@ import Modelo.RutaViaje;
 import Persistencia.LugarData;
 import Persistencia.RutaViajeData;
 import Persistencia.PasajeData;
+import Persistencia.ColectivoData;
 import Validaciones.ValidacionLugar;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -15,6 +16,7 @@ public class GestionLugares extends javax.swing.JInternalFrame {
     private RutaViajeData rutaData = new RutaViajeData();
     private LugarData lugarData = new LugarData();
     private PasajeData pasajeData = new PasajeData();
+    private ColectivoData colectivoData = new ColectivoData();
     private DefaultTableModel modelo;
     private boolean seleccionandoDesdeTabla = false;
     private boolean cargandoCombo = false;
@@ -143,8 +145,8 @@ public class GestionLugares extends javax.swing.JInternalFrame {
             Lugar lugar = (idActual == 0)
                     ? new Lugar(viajeSeleccionado, numeroAsiento, estado)
                     : new Lugar(idActual, viajeSeleccionado, numeroAsiento, estado);
-
-            String error = ValidacionLugar.validarLugar(lugar, idActual, rutaData, lugarData);
+            
+            String error = ValidacionLugar.validarLugar(lugar, idActual, rutaData, lugarData, colectivoData);
 
             if (error != null) {
                 JOptionPane.showMessageDialog(this, error, "Error de validación", JOptionPane.WARNING_MESSAGE);
@@ -616,6 +618,12 @@ public class GestionLugares extends javax.swing.JInternalFrame {
 
         try {
             int idLugar = Integer.parseInt(dato_lugar.getText().trim());
+            
+            if (pasajeData.tienePasajeActivo(idLugar)) {
+                JOptionPane.showMessageDialog(this, "No se puede modificar el asiento porque tiene un pasaje activo.", "Modificación no permitida", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
             Lugar lugarModificado = obtenerYValidarDatos(idLugar);
 
             if (lugarModificado == null) {

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.time.LocalTime;
 
 public class LugarData {
 
@@ -49,7 +50,7 @@ public class LugarData {
 
     // Modificamos los valores de un lugar.
     public boolean modificarLugar(Lugar asiento) {
-        String sql = "UPDATE lugar SET ID_ruta = ?, numeroAsiento = ?, estado = ? WHERE ID_lugar = ?";
+        String sql = "UPDATE lugar SET ID_ruta = ?, numeroAsiento = ?, estado = ? WHERE ID_lugar = ? AND NOT EXISTS (SELECT 1 FROM pasaje p WHERE p.ID_lugar = lugar.ID_lugar AND p.estado = 1)";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, asiento.getID_ruta());
@@ -75,9 +76,9 @@ public class LugarData {
         return cambiarEstado(id, LIBRE);
     }
 
-    // Borra un lugar.
+    // Borra un lugar que no tenga pasajes asociados.
     public boolean eliminarLugar(int id) {
-        String sql = "DELETE FROM lugar WHERE ID_lugar = ?";
+        String sql = "DELETE FROM lugar WHERE ID_lugar = ? AND NOT EXISTS (SELECT 1 FROM pasaje p WHERE p.ID_lugar = lugar.ID_lugar)";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -253,6 +254,66 @@ public class LugarData {
         return asientos;
     }
 
+    // Lista los asientos disponibles y vendidos de los viajes que salen a una hora determinada.
+    public List<Object[]> listarAsientosPorHora(LocalTime hora) {
+        List<Object[]> resultados = new ArrayList<>();
+
+        String sql = "SELECT r.ID_ruta, r.origen, r.destino, r.fechaSalida, r.horaSalida, r.ID_colectivo, l.numeroAsiento, CASE WHEN l.estado = 1 THEN 'Libre' "
+                + "ELSE 'Ocupado' END AS estadoAsiento FROM lugar l JOIN rutaViaje r ON l.ID_ruta = r.ID_ruta WHERE r.horaSalida = ? ORDER BY r.fechaSalida, r.ID_ruta, l.numeroAsiento";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setTime(1, java.sql.Time.valueOf(hora));
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    resultados.add(new Object[]{
+                        rs.getInt("ID_ruta"),
+                        rs.getString("origen"),
+                        rs.getString("destino"),
+                        rs.getDate("fechaSalida").toLocalDate(),
+                        rs.getTime("horaSalida").toLocalTime(),
+                        rs.getInt("ID_colectivo"),
+                        rs.getInt("numeroAsiento"),
+                        rs.getString("estadoAsiento")
+                    });
+                }
+            }
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al consultar asientos por horario.", ex);
+        }
+        return resultados;
+    }
+
+    // Lista los asientos libres y ocupados de una ruta específica.
+    public List<Object[]> listarAsientosPorRuta(int idRuta) {
+        List<Object[]> resultados = new ArrayList<>();
+
+        String sql = "SELECT r.ID_ruta, r.origen, r.destino, r.fechaSalida, r.horaSalida, l.numeroAsiento, CASE WHEN l.estado = 1 THEN 'Libre' ELSE 'Ocupado' END AS estadoAsiento, p.ID_pasaje "
+                + "FROM lugar l JOIN rutaViaje r ON l.ID_ruta = r.ID_ruta LEFT JOIN pasaje p ON p.ID_lugar = l.ID_lugar AND p.ID_ruta = r.ID_ruta AND p.estado = 1 WHERE r.ID_ruta = ? ORDER BY l.numeroAsiento";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idRuta);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    resultados.add(new Object[]{
+                        rs.getInt("ID_ruta"),
+                        rs.getString("origen"),
+                        rs.getString("destino"),
+                        rs.getDate("fechaSalida").toLocalDate(),
+                        rs.getTime("horaSalida").toLocalTime(),
+                        rs.getInt("numeroAsiento"),
+                        rs.getString("estadoAsiento"),
+                        rs.getObject("ID_pasaje")
+                    });
+                }
+            }
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al consultar asientos por ruta.", ex);
+        }
+        return resultados;
+    }
+
     // Ocupa un lugar dentro de una transacción externa.
     void ocuparLugar(Connection conexion, int idLugar, int idRuta) throws SQLException {
         String sql = "UPDATE lugar SET estado = ? WHERE ID_lugar = ? AND ID_ruta = ? AND estado = ?";
@@ -288,6 +349,10 @@ public class LugarData {
     // Cambia el estado de un lugar.
     private boolean cambiarEstado(int id, int estado) {
         String sql = "UPDATE lugar SET estado = ? WHERE ID_lugar = ? AND estado <> ?";
+
+        if (estado == LIBRE) {
+            sql += " AND NOT EXISTS (SELECT 1 FROM pasaje p WHERE p.ID_lugar = lugar.ID_lugar AND p.estado = 1)";
+        }
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, estado);

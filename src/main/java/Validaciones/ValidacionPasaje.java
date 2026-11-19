@@ -8,6 +8,7 @@ import Persistencia.PasajeroData;
 import Persistencia.RutaViajeData;
 import Persistencia.LugarData;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 public class ValidacionPasaje {
 
@@ -43,6 +44,19 @@ public class ValidacionPasaje {
 
         if (ruta.getEstado() != 1) {
             return "La ruta seleccionada está dada de baja.";
+        }
+
+        // Comprobar que el viaje todavía no haya salido.
+        if (pasaje.getEstado() == 1) {
+            if (ruta.getFechaSalida() == null || ruta.getHoraSalida() == null) {
+                return "La ruta no tiene una fecha y hora de salida válida.";
+            }
+
+            LocalDateTime salida = LocalDateTime.of(ruta.getFechaSalida(), ruta.getHoraSalida());
+
+            if (!salida.isAfter(LocalDateTime.now())) {
+                return "No se pueden emitir pasajes para un viaje que ya salió.";
+            }
         }
 
         // Comprobar asiento.

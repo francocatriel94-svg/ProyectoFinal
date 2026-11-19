@@ -4,10 +4,12 @@ import Modelo.Lugar;
 import Modelo.RutaViaje;
 import Persistencia.LugarData;
 import Persistencia.RutaViajeData;
+import Modelo.Colectivo;
+import Persistencia.ColectivoData;
 
 public class ValidacionLugar {
 
-    public static String validarLugar(Lugar lugar, int idLugarActual, RutaViajeData rutaData, LugarData lugarData) {
+    public static String validarLugar(Lugar lugar, int idLugarActual, RutaViajeData rutaData, LugarData lugarData, ColectivoData colectivoData) {
         if (lugar == null) {
             return "No se recibieron los datos del asiento.";
         }
@@ -30,6 +32,36 @@ public class ValidacionLugar {
         // Comprobar número de asiento.
         if (lugar.getNumeroAsiento() <= 0) {
             return "El número de asiento debe ser mayor que cero.";
+        }
+
+        // Comprobar la capacidad del colectivo asignado a la ruta.
+        Colectivo colectivo = colectivoData.buscarColectivo(ruta.getID_colectivo());
+
+        if (colectivo == null) {
+            return "No se encontró el colectivo asignado a esta ruta.";
+        }
+
+        int capacidad = colectivo.getCapacidad();
+
+        if (lugar.getNumeroAsiento() > capacidad) {
+            return "El número de asiento no puede superar la capacidad del colectivo (" + capacidad + ").";
+        }
+
+        // Comprobar si estamos agregando un asiento a la ruta.
+        boolean nuevoAsientoEnRuta = idLugarActual == 0;
+
+        if (idLugarActual != 0) {
+            Lugar asientoActual = lugarData.buscarLugar(idLugarActual);
+
+            if (asientoActual == null) {
+                return "No se encontró el asiento que desea modificar.";
+            }
+            nuevoAsientoEnRuta = asientoActual.getID_ruta() != lugar.getID_ruta();
+        }
+
+        // Impedir que la ruta tenga más asientos que la capacidad disponible.
+        if (nuevoAsientoEnRuta && lugarData.listarLugaresPorRuta(ruta.getID_ruta()).size() >= capacidad) {
+            return "La ruta ya alcanzó la capacidad máxima de " + capacidad + " asientos.";
         }
 
         // Comprobar estado.

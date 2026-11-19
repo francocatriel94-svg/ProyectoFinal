@@ -69,7 +69,7 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
         dato_modelo.setText(modelo.getValueAt(fila, 3).toString());
         dato_capacidad.setText(modelo.getValueAt(fila, 4).toString());
         dato_chofer.setText(modelo.getValueAt(fila, 5).toString());
-        boolean activo = TablaColectivos.getValueAt(fila, 7).toString().equals("Activo");
+        boolean activo = TablaColectivos.getValueAt(fila, 6).toString().equals("Activo");
         checkEstado.setSelected(activo);
     }
 
@@ -498,6 +498,8 @@ public class GestionColectivos extends javax.swing.JInternalFrame {
         if (colectivoData.modificarColectivo(colectivo)) {
             JOptionPane.showMessageDialog(this, "Colectivo modificado.");
             cargarTabla();
+        } else {
+            JOptionPane.showMessageDialog(this, "No se pudo modificar el colectivo. Si tiene rutas asignadas, no se puede cambiar su capacidad.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnModificarActionPerformed
 

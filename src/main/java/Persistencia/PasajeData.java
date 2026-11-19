@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class PasajeData {
 
@@ -314,6 +316,43 @@ public class PasajeData {
         return pasajes;
     }
 
+    // Lista los pasajes comprados por un pasajero durante un mes determinado.
+    public List<Object[]> listarPasajesPorPasajeroYMes(int idPasajero, int mes, int anio) {
+        List<Object[]> resultados = new ArrayList<>();
+
+        LocalDate inicio = LocalDate.of(anio, mes, 1);
+        LocalDate fin = inicio.plusMonths(1);
+
+        String sql = "SELECT p.ID_pasaje, pa.dni, pa.nombre, pa.apellido, p.ID_ruta, p.ID_lugar, p.fechaVenta, p.horaVenta, p.precio, p.estado FROM pasaje p "
+                + "JOIN pasajero pa ON p.ID_pasajero = pa.ID_pasajero WHERE pa.ID_pasajero = ? AND p.fechaVenta >= ? AND p.fechaVenta < ? ORDER BY p.fechaVenta, p.horaVenta";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idPasajero);
+            ps.setDate(2, Date.valueOf(inicio));
+            ps.setDate(3, Date.valueOf(fin));
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    resultados.add(new Object[]{
+                        rs.getInt("ID_pasaje"),
+                        rs.getString("dni"),
+                        rs.getString("nombre"),
+                        rs.getString("apellido"),
+                        rs.getInt("ID_ruta"),
+                        rs.getInt("ID_lugar"),
+                        rs.getDate("fechaVenta").toLocalDate(),
+                        rs.getTime("horaVenta").toLocalTime(),
+                        rs.getBigDecimal("precio"),
+                        rs.getInt("estado") == 1 ? "Emitido" : "Anulado"
+                    });
+                }
+            }
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al listar pasajes por pasajero y mes.", ex);
+        }
+        return resultados;
+    }
+
     // Cambia el estado de un pasaje y actualiza la disponibilidad del asiento.
     private boolean cambiarEstado(int id, int estado) {
         if (estado != 0 && estado != 1) {
@@ -355,9 +394,39 @@ public class PasajeData {
             }
 
             // Actualizamos la disponibilidad del asiento.
+            // Actualizamos la disponibilidad del asiento.
             if (estado == 0) {
                 lugarData.desocuparLugar(con, idLugar, idRuta);
             } else {
+                // Comprobamos que la ruta todavía no haya salido.
+                String sqlRuta = "SELECT fechaSalida, horaSalida, estado FROM rutaViaje WHERE ID_ruta = ?";
+
+                try (PreparedStatement ps = con.prepareStatement(sqlRuta)) {
+                    ps.setInt(1, idRuta);
+
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (!rs.next()) {
+                            throw new SQLException("La ruta del pasaje no existe.");
+                        }
+
+                        if (rs.getInt("estado") != 1) {
+                            throw new SQLException("La ruta está dada de baja.");
+                        }
+
+                        Date fecha = rs.getDate("fechaSalida");
+                        Time hora = rs.getTime("horaSalida");
+
+                        if (fecha == null || hora == null) {
+                            throw new SQLException("La ruta no tiene fecha u hora de salida válida.");
+                        }
+
+                        LocalDateTime salida = LocalDateTime.of(fecha.toLocalDate(), hora.toLocalTime());
+
+                        if (!salida.isAfter(LocalDateTime.now())) {
+                            throw new SQLException("No se puede reactivar un pasaje de un viaje que ya salió.");
+                        }
+                    }
+                }
                 lugarData.ocuparLugar(con, idLugar, idRuta);
             }
 
