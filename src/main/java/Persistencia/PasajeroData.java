@@ -224,7 +224,6 @@ public class PasajeroData {
     // Convierte una fila del ResultSet en un objeto Pasajero.
     private Pasajero armarPasajero(ResultSet rs) throws SQLException {
         Pasajero p = new Pasajero();
-
         p.setID_pasajero(rs.getInt("ID_pasajero"));
         p.setDni(rs.getString("dni"));
         p.setNombre(rs.getString("nombre"));

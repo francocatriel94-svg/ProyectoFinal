@@ -198,7 +198,6 @@ public class LugarData {
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, "Error al listar los asientos por ruta.", ex);
         }
-
         return asientos;
     }
 

@@ -89,15 +89,8 @@ public class Pasajero {
         this.estado = estado;
     }
 
-    @Override
-    public String toString() {
-        return "Pasajero: " + 
-                "\n idPasajero: " + ID_pasajero 
-                + "\n dni: " + dni 
-                + "\n nombre: " + nombre 
-                + "\n apellido: " + apellido 
-                + "\n correo: " + correo 
-                + "\n telefono: " + telefono 
-                + "\n estado: " + estado;
-    }
+@Override
+public String toString() {
+    return nombre + " " + apellido + " (ID: " + ID_pasajero + ")";
+}
 }

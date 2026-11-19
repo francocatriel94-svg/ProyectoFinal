@@ -59,10 +59,16 @@ public class Lugar {
     
     @Override
     public String toString() {
-        return "Lugar: " + 
-                "\n idLugar: " + ID_lugar
-                + "\n idRuta: " + ID_ruta 
-                + "\n numeroAsiento: " + numeroAsiento 
-                + "\n estado: " + estado;
+        String libre;
+        if(estado==1)
+        {
+         libre="libre";   
+        }else
+        {
+            libre="ocupado";
+        }
+        return 
+                "\n numeroAsiento: " + numeroAsiento 
+                + "\n estado: " + libre;
     }
 }

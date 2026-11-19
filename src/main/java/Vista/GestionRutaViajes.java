@@ -1,5 +1,4 @@
 package Vista;
-
 import Modelo.Colectivo;
 import Modelo.RutaViaje;
 import Persistencia.ColectivoData;
@@ -641,6 +640,7 @@ public class GestionRutaViajes extends javax.swing.JInternalFrame {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Ocurrió un error al intentar guardar el viaje: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
+        
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
@@ -696,6 +696,7 @@ public class GestionRutaViajes extends javax.swing.JInternalFrame {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Ocurrió un error al modificar el viaje: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
+        
     }//GEN-LAST:event_btnModificarActionPerformed
 
     private void btnDarAltaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDarAltaActionPerformed
