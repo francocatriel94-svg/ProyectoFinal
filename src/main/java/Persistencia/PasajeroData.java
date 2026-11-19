@@ -8,10 +8,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PasajeroData {
 
     private Connection con = null;
+    private static final Logger LOGGER = Logger.getLogger(PasajeroData.class.getName());
 
     public PasajeroData() {
         con = Conexion.getConexion();
@@ -49,6 +52,7 @@ public class PasajeroData {
                 return true;
             }
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al guardar el pasajero.", ex);
             return false;
         }
     }
@@ -73,6 +77,7 @@ public class PasajeroData {
                 return ps.executeUpdate() == 1;
             }
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al modificar el pasajero.", ex);
             return false;
         }
     }
@@ -113,6 +118,7 @@ public class PasajeroData {
                 }
             }
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al buscar el pasajero por ID.", ex);
             return null;
         }
         return null;
@@ -144,6 +150,7 @@ public class PasajeroData {
                 }
             }
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al buscar el pasajero por DNI.", ex);
             return null;
         }
         return null;
@@ -160,6 +167,7 @@ public class PasajeroData {
                 pasajeros.add(armarPasajero(rs));
             }
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al listar todos los pasajeros.", ex);
             return pasajeros;
         }
         return pasajeros;
@@ -176,7 +184,7 @@ public class PasajeroData {
         String sql = "SELECT * FROM pasajero WHERE estado = 0";
         return listarPorEstado(sql);
     }
-    
+
     // Cambia el estado de un pasajero.
     private boolean cambiarEstado(int id, int estado) {
         String sql = "UPDATE pasajero SET estado = ? WHERE ID_pasajero = ?";
@@ -188,10 +196,11 @@ public class PasajeroData {
             return ps.executeUpdate() == 1;
 
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al cambiar el estado del pasajero.", ex);
             return false;
         }
     }
-    
+
     // Método auxiliar para listar según el estado.
     private List<Pasajero> listarPorEstado(String sql) {
         List<Pasajero> pasajeros = new ArrayList<>();
@@ -202,6 +211,7 @@ public class PasajeroData {
                 pasajeros.add(armarPasajero(rs));
             }
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al listar los pasajeros por estado.", ex);
             return pasajeros;
         }
         return pasajeros;

@@ -1,11 +1,12 @@
 package Modelo;
 
 public class Lugar {
+
     private int ID_lugar;
     private int ID_ruta;
     private int numeroAsiento;
     private int estado;
-    
+
     //Constructor Vacio.
     public Lugar() {
     }
@@ -56,19 +57,16 @@ public class Lugar {
     public void setEstado(int estado) {
         this.estado = estado;
     }
-    
+
     @Override
     public String toString() {
         String libre;
-        if(estado==1)
-        {
-         libre="libre";   
-        }else
-        {
-            libre="ocupado";
+        if (estado == 1) {
+            libre = "libre";
+        } else {
+            libre = "ocupado";
         }
-        return 
-                "\n numeroAsiento: " + numeroAsiento 
-                + "\n estado: " + libre;
+        return "\n Nº Asiento: " + numeroAsiento
+                + "\n Estado: " + libre;
     }
 }

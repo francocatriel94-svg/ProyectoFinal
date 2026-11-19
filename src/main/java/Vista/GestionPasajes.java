@@ -17,7 +17,7 @@ import javax.swing.table.DefaultTableModel;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import javax.swing.JComboBox;
+
 public class GestionPasajes extends javax.swing.JInternalFrame {
 
     private PasajeData pasajeData;
@@ -33,7 +33,7 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
         pasajeroData = new PasajeroData();
         rutaData = new RutaViajeData();
         lugarData = new LugarData();
-        
+
         modeloTabla = (DefaultTableModel) tablaPasajes.getModel();
         limpiarCampos();
         cargarTabla();
@@ -41,41 +41,69 @@ public class GestionPasajes extends javax.swing.JInternalFrame {
         cargarComboRutas();
         cargarLugaresDisponibles();
     }
-private void cargarComboPasajeros() {
-    ComboPasajeros.removeAllItems();
-    PasajeroData pasajeroData = new PasajeroData();
-    for (Pasajero p : pasajeroData.listarTodosLosPasajeros()) {
-        ComboPasajeros.addItem(p);
-    }
-}
-private void cargarLugaresDisponibles() {
-    ComboLugares.removeAllItems();
-    Object seleccionado = ComboRutas.getSelectedItem();
-    if (!(seleccionado instanceof RutaViaje)) {
-        return;
-    }
-    RutaViaje rutaSeleccionada = (RutaViaje) seleccionado;
-    int idRuta = rutaSeleccionada.getID_ruta();
-     System.out.println("ID RUTA: "+idRuta);
-    // Ajusta el nombre de tu clase DAO y método según lo tengas en Persistencia
-    LugarData lugarData = new LugarData();
-    List<Lugar> lugaresDisponibles = lugarData.listarLugaresLibresPorRuta(idRuta);
-    for (Lugar lugar : lugaresDisponibles) {
-        ComboLugares.addItem(lugar);
-        System.out.println("ID: RUTA DEL LUGAR: "+lugar.getID_ruta());
+
+    private void cargarComboPasajeros() {
+        ComboPasajeros.removeAllItems();
+
+        for (Pasajero p : pasajeroData.listarTodosLosPasajeros()) {
+            ComboPasajeros.addItem(p);
+        }
     }
 
-    if (ComboLugares.getItemCount() > 0) {
-        ComboLugares.setSelectedIndex(0);
+    private void cargarLugaresDisponibles() {
+        ComboLugares.removeAllItems();
+
+        RutaViaje rutaSeleccionada = (RutaViaje) ComboRutas.getSelectedItem();
+
+        if (rutaSeleccionada == null) {
+            return;
+        }
+
+        int idRuta = rutaSeleccionada.getID_ruta();
+
+        List<Lugar> lugaresDisponibles = lugarData.listarLugaresLibresPorRuta(idRuta);
+
+        // Si estamos modificando un pasaje activo, incluimos su asiento actual.
+        int fila = tablaPasajes.getSelectedRow();
+
+        if (fila != -1) {
+            boolean pasajeActivo = "Activo".equals(tablaPasajes.getValueAt(fila, 7).toString());
+            int idRutaActual = (int) tablaPasajes.getValueAt(fila, 3);
+            int idLugarActual = (int) tablaPasajes.getValueAt(fila, 2);
+
+            if (pasajeActivo && idRutaActual == idRuta) {
+                Lugar lugarActual = lugarData.buscarLugar(idLugarActual);
+
+                boolean existe = false;
+
+                for (Lugar lugar : lugaresDisponibles) {
+                    if (lugar.getID_lugar() == idLugarActual) {
+                        existe = true;
+                        break;
+                    }
+                }
+
+                if (lugarActual != null && !existe) {
+                    lugaresDisponibles.add(lugarActual);
+                }
+            }
+        }
+        for (Lugar lugar : lugaresDisponibles) {
+            ComboLugares.addItem(lugar);
+        }
+        if (ComboLugares.getItemCount() > 0) {
+            ComboLugares.setSelectedIndex(0);
+        }
     }
-}
-private void cargarComboRutas() {
-    ComboRutas.removeAllItems();
-    RutaViajeData RutaVData = new RutaViajeData();
-    for (RutaViaje r : RutaVData.listarRutas()) {
-        ComboRutas.addItem(r);
+
+    private void cargarComboRutas() {
+        ComboRutas.removeAllItems();
+
+        for (RutaViaje r : rutaData.listarRutas()) {
+            ComboRutas.addItem(r);
+        }
     }
-}
+
     private void cargarTabla() {
         limpiarCampos();
         modeloTabla.setRowCount(0);
@@ -95,6 +123,7 @@ private void cargarComboRutas() {
             });
         }
     }
+
     private void limpiarCampos() {
         txtPasaje.setText("");
         txtFechaVenta.setText("");
@@ -105,52 +134,63 @@ private void cargarComboRutas() {
         habilitarBotones(false);
         ComboPasajeros.requestFocusInWindow();
     }
-   private void seleccionarPasajeroEnCombo(String valor) {
-    ComboPasajeros.setSelectedIndex(-1);   // limpia si no encuentra nada
-    for (int i = 0; i < ComboPasajeros.getItemCount(); i++) {
-        Pasajero p;
-        p = (Pasajero) ComboPasajeros.getItemAt(i);
-        if (String.valueOf(p.getID_pasajero()).equals(valor) || p.toString().equals(valor)) {
-            ComboPasajeros.setSelectedIndex(i);
-            return;
+
+    private void seleccionarPasajeroEnCombo(String valor) {
+        ComboPasajeros.setSelectedIndex(-1);   // limpia si no encuentra nada
+        for (int i = 0; i < ComboPasajeros.getItemCount(); i++) {
+            Pasajero p;
+            p = (Pasajero) ComboPasajeros.getItemAt(i);
+            if (String.valueOf(p.getID_pasajero()).equals(valor) || p.toString().equals(valor)) {
+                ComboPasajeros.setSelectedIndex(i);
+                return;
+            }
         }
     }
-}
-      private void seleccionarRutaEnCombo(String valor) {
-    ComboRutas.setSelectedIndex(-1);   // limpia si no encuentra nada
-    for (int i = 0; i < ComboRutas.getItemCount(); i++) {
-        RutaViaje p;
-        p = (RutaViaje) ComboRutas.getItemAt(i);
-        if (String.valueOf(p.getID_ruta()).equals(valor) || p.toString().equals(valor)) {
-            ComboRutas.setSelectedIndex(i);
-            String precio = String.valueOf(p.getPrecio());
-            return;
+
+    private void seleccionarRutaEnCombo(String valor) {
+        ComboRutas.setSelectedIndex(-1); // limpia si no encuentra nada
+
+        for (int i = 0; i < ComboRutas.getItemCount(); i++) {
+            RutaViaje ruta = (RutaViaje) ComboRutas.getItemAt(i);
+
+            if (String.valueOf(ruta.getID_ruta()).equals(valor) || ruta.toString().equals(valor)) {
+                ComboRutas.setSelectedIndex(i);
+                return;
+            }
         }
     }
-}
+
     private void seleccionarLugar(String valor) {
-    ComboLugares.setSelectedIndex(-1);   // limpia si no encuentra nada
-    for (int i = 0; i < ComboLugares.getItemCount(); i++) {
-        Lugar p;
-        p = (Lugar) ComboLugares.getItemAt(i);
-        if (String.valueOf(p.getID_ruta()).equals(valor) || p.toString().equals(valor)) {
-            ComboRutas.setSelectedIndex(i);
-            return;
+        ComboLugares.setSelectedIndex(-1);
+
+        for (int i = 0; i < ComboLugares.getItemCount(); i++) {
+            Lugar lugar = (Lugar) ComboLugares.getItemAt(i);
+
+            if (String.valueOf(lugar.getID_lugar()).equals(valor)) {
+                ComboLugares.setSelectedIndex(i);
+                return;
+            }
         }
     }
-}
+
     private void cargarDatosSeleccionados() {
         int fila = tablaPasajes.getSelectedRow();
+
         if (fila == -1) {
             return;
         }
+
         txtPasaje.setText(tablaPasajes.getValueAt(fila, 0).toString());
+
+        seleccionarRutaEnCombo(tablaPasajes.getValueAt(fila, 3).toString());
+        cargarLugaresDisponibles();
         seleccionarPasajeroEnCombo(tablaPasajes.getValueAt(fila, 1).toString());
-        seleccionarLugar(tablaPasajes.getValueAt(fila,2).toString());
-        seleccionarRutaEnCombo(tablaPasajes.getValueAt(fila,3).toString());
+        seleccionarLugar(tablaPasajes.getValueAt(fila, 2).toString());
+
         txtFechaVenta.setText(tablaPasajes.getValueAt(fila, 4).toString());
         txtHoraVenta.setText(tablaPasajes.getValueAt(fila, 5).toString());
         txtPrecio.setText(tablaPasajes.getValueAt(fila, 6).toString());
+
         boolean activo = tablaPasajes.getValueAt(fila, 7).toString().equals("Activo");
         checkEstado.setSelected(activo);
     }
@@ -166,11 +206,11 @@ private void cargarComboRutas() {
     }
 
     private Pasaje obtenerYValidarDatos(int idActual) {
-        // Comprobar campos obligatorios.
-        Pasajero p = (Pasajero)ComboPasajeros.getSelectedItem();
-        RutaViaje r = (RutaViaje)ComboRutas.getSelectedItem();
-        Lugar l = (Lugar)ComboLugares.getSelectedItem();
-        if (p==null||txtPrecio.getText().trim().isEmpty()) {
+        Pasajero p = (Pasajero) ComboPasajeros.getSelectedItem();
+        RutaViaje r = (RutaViaje) ComboRutas.getSelectedItem();
+        Lugar l = (Lugar) ComboLugares.getSelectedItem();
+
+        if (p == null || r == null || l == null || txtPrecio.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Complete todos los campos obligatorios.", "Campos incompletos", JOptionPane.WARNING_MESSAGE);
             return null;
         }
@@ -182,13 +222,19 @@ private void cargarComboRutas() {
             Pasaje pasaje = new Pasaje();
 
             if (idActual == 0) {
-                pasaje.setFechaVenta(java.time.LocalDate.now());
-                pasaje.setHoraVenta(java.time.LocalTime.now());
+                pasaje.setFechaVenta(LocalDate.now());
+                pasaje.setHoraVenta(LocalTime.now());
             } else {
                 int fila = tablaPasajes.getSelectedRow();
+
+                if (fila == -1) {
+                    JOptionPane.showMessageDialog(this, "Debe seleccionar un pasaje de la tabla.", "Aviso", JOptionPane.WARNING_MESSAGE);
+                    return null;
+                }
+
                 pasaje.setID_pasaje(idActual);
-                pasaje.setFechaVenta((java.time.LocalDate) tablaPasajes.getValueAt(fila, 4));
-                pasaje.setHoraVenta((java.time.LocalTime) tablaPasajes.getValueAt(fila, 5));
+                pasaje.setFechaVenta((LocalDate) tablaPasajes.getValueAt(fila, 4));
+                pasaje.setHoraVenta((LocalTime) tablaPasajes.getValueAt(fila, 5));
             }
 
             pasaje.setID_pasajero(p.getID_pasajero());
@@ -203,9 +249,11 @@ private void cargarComboRutas() {
                 JOptionPane.showMessageDialog(this, error, "Error de validación", JOptionPane.WARNING_MESSAGE);
                 return null;
             }
+
             return pasaje;
+
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Los IDs deben ser números enteros y el precio debe ser numérico.", "Error de formato", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "El precio debe ser numérico.", "Error de formato", JOptionPane.ERROR_MESSAGE);
             return null;
         }
     }
@@ -255,9 +303,13 @@ private void cargarComboRutas() {
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaPasajes = new javax.swing.JTable();
 
+        setClosable(true);
+        setIconifiable(true);
+        setMaximizable(true);
+        setResizable(true);
         setTitle("Gestión De Pasajes");
 
-        PanelDatos.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos Del Pasaje", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(0, 0, 0))); // NOI18N
+        PanelDatos.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos Del Pasaje", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14), new java.awt.Color(0, 0, 0))); // NOI18N
 
         lblPasaje.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblPasaje.setText("Pasaje:");
@@ -288,6 +340,7 @@ private void cargarComboRutas() {
         checkEstado.setEnabled(false);
 
         txtPasaje.setEditable(false);
+        txtPasaje.setFocusable(false);
 
         ComboRutas.addActionListener(this::ComboRutasActionPerformed);
 
@@ -297,36 +350,37 @@ private void cargarComboRutas() {
             PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelDatosLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(lblPasajero, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(lblPasaje, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(lblRuta))
                     .addComponent(lblLugar)
-                    .addComponent(lblRuta)
-                    .addComponent(lblPasaje, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(lblPasajero, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
-                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(txtPasaje, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                    .addComponent(ComboPasajeros, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(ComboRutas, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(ComboLugares, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(ComboPasajeros, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(ComboLugares, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(ComboRutas, javax.swing.GroupLayout.Alignment.LEADING, 0, 200, Short.MAX_VALUE)
+                    .addComponent(txtPasaje))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 102, Short.MAX_VALUE)
+                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PanelDatosLayout.createSequentialGroup()
                         .addComponent(lblPrecio)
-                        .addGap(18, 18, 18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(txtPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(PanelDatosLayout.createSequentialGroup()
                         .addComponent(lblEstado)
-                        .addGap(18, 18, 18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(checkEstado))
                     .addGroup(PanelDatosLayout.createSequentialGroup()
                         .addComponent(lblFechaVenta)
-                        .addGap(18, 18, 18)
-                        .addComponent(txtFechaVenta))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txtFechaVenta, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(PanelDatosLayout.createSequentialGroup()
                         .addComponent(lblHoraVenta)
-                        .addGap(18, 18, 18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(txtHoraVenta, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(73, 73, 73))
+                .addGap(79, 79, 79))
         );
 
         PanelDatosLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {lblEstado, lblFechaVenta, lblHoraVenta, lblLugar, lblPasaje, lblPasajero, lblPrecio, lblRuta});
@@ -342,26 +396,30 @@ private void cargarComboRutas() {
                     .addComponent(txtFechaVenta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblPasajero)
                     .addComponent(lblHoraVenta)
                     .addComponent(txtHoraVenta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(ComboPasajeros, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(ComboRutas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblRuta))
                 .addGap(18, 18, 18)
-                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblLugar)
-                    .addComponent(lblPrecio)
-                    .addComponent(txtPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(ComboLugares, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblRuta)
-                    .addComponent(lblEstado)
-                    .addComponent(checkEstado)
-                    .addComponent(ComboRutas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(7, Short.MAX_VALUE))
+                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(ComboLugares, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblLugar))
+                    .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(txtPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblPrecio)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(checkEstado)
+                        .addComponent(lblEstado))
+                    .addGroup(PanelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(ComboPasajeros, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblPasajero)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        PanelBotones.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Funciones", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(0, 0, 0))); // NOI18N
+        PanelBotones.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Funciones", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14), new java.awt.Color(0, 0, 0))); // NOI18N
 
         lblBuscar.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblBuscar.setText("Buscar por:");
@@ -537,7 +595,7 @@ private void cargarComboRutas() {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-        if (!txtPasaje.getText().trim().isEmpty()||!txtPrecio.getText().trim().isEmpty()) {
+        if (!txtPasaje.getText().trim().isEmpty() || !txtPrecio.getText().trim().isEmpty()) {
 
             int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea descartar los datos actuales y comenzar un nuevo pasaje?", "Nuevo pasaje", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
@@ -550,18 +608,19 @@ private void cargarComboRutas() {
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
         Pasaje nuevoPasaje = obtenerYValidarDatos(0);
+
         if (nuevoPasaje == null) {
             return;
         }
+
         if (pasajeData.guardarPasaje(nuevoPasaje)) {
             JOptionPane.showMessageDialog(this, "Pasaje guardado correctamente.");
-            limpiarCampos();
-            cargarLugaresDisponibles();
             cargarTabla();
+            cargarLugaresDisponibles();
         } else {
             JOptionPane.showMessageDialog(this, "No se pudo guardar el pasaje.", "Error", JOptionPane.ERROR_MESSAGE);
         }
-        
+
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
@@ -583,6 +642,7 @@ private void cargarComboRutas() {
         if (pasajeData.modificarPasaje(pasajeModificado)) {
             JOptionPane.showMessageDialog(this, "Pasaje modificado correctamente.");
             cargarTabla();
+            cargarLugaresDisponibles();
         } else {
             JOptionPane.showMessageDialog(this, "No se pudo modificar el pasaje.", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -657,8 +717,8 @@ private void cargarComboRutas() {
 
             if (pasajeData.darDeBaja(idPasaje)) {
                 JOptionPane.showMessageDialog(this, "Pasaje dado de baja correctamente.", "Operación Exitosa", JOptionPane.INFORMATION_MESSAGE);
-                limpiarCampos();
                 cargarTabla();
+                cargarLugaresDisponibles();
             } else {
                 JOptionPane.showMessageDialog(this, "No se pudo dar de baja el pasaje.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -666,13 +726,13 @@ private void cargarComboRutas() {
     }//GEN-LAST:event_btnDarBajaActionPerformed
 
     private void btnRecargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRecargarActionPerformed
-        limpiarCampos();
         cargarTabla();
+        cargarLugaresDisponibles();
     }//GEN-LAST:event_btnRecargarActionPerformed
 
     private void btnListarTodosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListarTodosActionPerformed
-        limpiarCampos();
         cargarTabla();
+        cargarLugaresDisponibles();
     }//GEN-LAST:event_btnListarTodosActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
@@ -690,8 +750,8 @@ private void cargarComboRutas() {
 
             if (pasajeData.eliminarPasaje(idPasaje)) {
                 JOptionPane.showMessageDialog(this, "Pasaje eliminado correctamente.", "Operación Exitosa", JOptionPane.INFORMATION_MESSAGE);
-                limpiarCampos();
                 cargarTabla();
+                cargarLugaresDisponibles();
             } else {
                 JOptionPane.showMessageDialog(this, "No se pudo eliminar el pasaje.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -710,8 +770,8 @@ private void cargarComboRutas() {
 
         if (pasajeData.darDeAlta(idPasaje)) {
             JOptionPane.showMessageDialog(this, "Pasaje dado de alta correctamente.", "Operación Exitosa", JOptionPane.INFORMATION_MESSAGE);
-            limpiarCampos();
             cargarTabla();
+            cargarLugaresDisponibles();
         } else {
             JOptionPane.showMessageDialog(this, "No se pudo dar de alta el pasaje. Compruebe que el asiento esté disponible.", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -741,18 +801,21 @@ private void cargarComboRutas() {
 
     private void ComboRutasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ComboRutasActionPerformed
         RutaViaje ruta = (RutaViaje) ComboRutas.getSelectedItem();
-    if (ruta != null) {
-        txtPrecio.setText(String.valueOf(ruta.getPrecio()));
-    }
-    cargarLugaresDisponibles();
 
-LocalDate fecha = LocalDate.now();
-String fechaString = fecha.toString();
-LocalTime hora2 = LocalTime.now(); 
-DateTimeFormatter formatoHora = DateTimeFormatter.ofPattern("HH:mm");
-String hora = hora2.format(formatoHora); 
-txtFechaVenta.setText(fechaString);
-txtHoraVenta.setText(hora);
+        if (ruta != null) {
+            txtPrecio.setText(String.valueOf(ruta.getPrecio()));
+        }
+
+        cargarLugaresDisponibles();
+
+        if (txtPasaje.getText().trim().isEmpty()) {
+            LocalDate fecha = LocalDate.now();
+            LocalTime hora = LocalTime.now();
+            DateTimeFormatter formatoHora = DateTimeFormatter.ofPattern("HH:mm");
+
+            txtFechaVenta.setText(fecha.toString());
+            txtHoraVenta.setText(hora.format(formatoHora));
+        }
     }//GEN-LAST:event_ComboRutasActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

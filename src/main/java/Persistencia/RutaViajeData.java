@@ -105,6 +105,7 @@ public class RutaViajeData {
             return true;
 
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al guardar la ruta.", ex);
             if (transaccionIniciada) {
                 try {
                     con.rollback();
@@ -144,6 +145,7 @@ public class RutaViajeData {
             return ps.executeUpdate() == 1;
 
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al modificar la ruta.", ex);
             return false;
         }
     }
@@ -170,6 +172,7 @@ public class RutaViajeData {
             return ps.executeUpdate() == 1;
 
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al cambiar el estado de la ruta.", ex);
             return false;
         }
     }
@@ -188,6 +191,7 @@ public class RutaViajeData {
             }
 
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al buscar la ruta.", ex);
             return null;
         }
         return null;
@@ -208,6 +212,7 @@ public class RutaViajeData {
             }
 
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al buscar rutas por destino.", ex);
             return rutas;
         }
         return rutas;
@@ -225,6 +230,7 @@ public class RutaViajeData {
             }
 
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al listar las rutas.", ex);
             return rutas;
         }
         return rutas;

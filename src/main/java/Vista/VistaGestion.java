@@ -1,16 +1,47 @@
 package Vista;
 
+import Persistencia.PasajeroData;
+import Persistencia.ColectivoData;
+import Persistencia.RutaViajeData;
+import Persistencia.PasajeData;
+
 public class VistaGestion extends javax.swing.JFrame {
-    
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(VistaGestion.class.getName());
 
-    /**
-     * Creates new form VistaGestion
-     */
     public VistaGestion() {
         initComponents();
         escritorio.setLayout(null);
-        setExtendedState(java.awt.Frame.NORMAL);
+        centrarPanel();
+        cargarEstadisticas();
+
+        escritorio.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                centrarPanel();
+            }
+        });
+
+        setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
+    }
+
+    private void centrarPanel() {
+        int x = (escritorio.getWidth() - panelInicio.getWidth()) / 2;
+        int y = (escritorio.getHeight() - panelInicio.getHeight()) / 2;
+
+        panelInicio.setLocation(x, y);
+    }
+
+    private void cargarEstadisticas() {
+        PasajeroData pasajeroData = new PasajeroData();
+        ColectivoData colectivoData = new ColectivoData();
+        RutaViajeData rutaData = new RutaViajeData();
+        PasajeData pasajeData = new PasajeData();
+
+        lblCantidadPasajeros.setText(String.valueOf(pasajeroData.listarTodosLosPasajeros().size()));
+        lblCantidadColectivos.setText(String.valueOf(colectivoData.listarColectivos().size()));
+        lblCantidadRutas.setText(String.valueOf(rutaData.listarRutas().size()));
+        lblCantidadPasajes.setText(String.valueOf(pasajeData.listarPasajes().size()));
     }
 
     /**
@@ -22,115 +53,304 @@ public class VistaGestion extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        escritorio = new javax.swing.JDesktopPane();
-        jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
-        jMenuItem7 = new javax.swing.JMenuItem();
-        jMenu2 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
-        jMenuItem2 = new javax.swing.JMenuItem();
-        jMenuItem3 = new javax.swing.JMenuItem();
-        jMenuItem4 = new javax.swing.JMenuItem();
-        jMenuItem5 = new javax.swing.JMenuItem();
+        escritorio = new javax.swing.JDesktopPane();
+        panelInicio = new javax.swing.JPanel();
+        lblSubTitulo = new javax.swing.JLabel();
+        jSeparator1 = new javax.swing.JSeparator();
+        lblDescripcion = new javax.swing.JLabel();
+        lblResumen = new javax.swing.JLabel();
+        panelPasajeros = new javax.swing.JPanel();
+        lblPasajeros = new javax.swing.JLabel();
+        lblCantidadPasajeros = new javax.swing.JLabel();
+        panelRutas = new javax.swing.JPanel();
+        lblRutas = new javax.swing.JLabel();
+        lblCantidadRutas = new javax.swing.JLabel();
+        panelColectivos = new javax.swing.JPanel();
+        lblColectivos = new javax.swing.JLabel();
+        lblCantidadColectivos = new javax.swing.JLabel();
+        panelPasajes = new javax.swing.JPanel();
+        lblPasajes = new javax.swing.JLabel();
+        lblCantidadPasajes = new javax.swing.JLabel();
+        lblPie = new javax.swing.JLabel();
+        JMenuBar = new javax.swing.JMenuBar();
+        Titulo = new javax.swing.JMenu();
+        menuGestion = new javax.swing.JMenu();
+        itemPasajero = new javax.swing.JMenuItem();
+        itemColectivo = new javax.swing.JMenuItem();
+        itemRuta = new javax.swing.JMenuItem();
+        itemLugar = new javax.swing.JMenuItem();
+        itemPasaje = new javax.swing.JMenuItem();
+
+        jMenuItem1.setText("jMenuItem1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        escritorio.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        panelInicio.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 204, 204), 2, true));
 
-        jMenu1.setText("Archivo");
+        lblSubTitulo.setFont(new java.awt.Font("Segoe UI", 3, 18)); // NOI18N
+        lblSubTitulo.setForeground(new java.awt.Color(0, 0, 0));
+        lblSubTitulo.setText("Panel De Datos");
 
-        jMenuItem7.setText("jMenuItem7");
-        jMenu1.add(jMenuItem7);
+        lblDescripcion.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
+        lblDescripcion.setText("Administración y control del servicio de transporte.");
 
-        jMenuBar1.add(jMenu1);
+        lblResumen.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        lblResumen.setText("Resumen General");
 
-        jMenu2.setText("Gestión");
-        jMenu2.addActionListener(this::jMenu2ActionPerformed);
+        panelPasajeros.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(51, 51, 51), 2, true));
 
-        jMenuItem1.setText("Pasajeros");
-        jMenuItem1.addActionListener(this::jMenuItem1ActionPerformed);
-        jMenu2.add(jMenuItem1);
+        lblPasajeros.setFont(new java.awt.Font("Segoe UI", 3, 12)); // NOI18N
+        lblPasajeros.setText("Pasajeros");
 
-        jMenuItem2.setText("Colectivos");
-        jMenuItem2.addActionListener(this::jMenuItem2ActionPerformed);
-        jMenu2.add(jMenuItem2);
+        lblCantidadPasajeros.setText("jLabel1");
 
-        jMenuItem3.setText("Viajes (Rutas)");
-        jMenuItem3.addActionListener(this::jMenuItem3ActionPerformed);
-        jMenu2.add(jMenuItem3);
+        javax.swing.GroupLayout panelPasajerosLayout = new javax.swing.GroupLayout(panelPasajeros);
+        panelPasajeros.setLayout(panelPasajerosLayout);
+        panelPasajerosLayout.setHorizontalGroup(
+            panelPasajerosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelPasajerosLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelPasajerosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblPasajeros)
+                    .addComponent(lblCantidadPasajeros))
+                .addContainerGap(235, Short.MAX_VALUE))
+        );
+        panelPasajerosLayout.setVerticalGroup(
+            panelPasajerosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelPasajerosLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblPasajeros)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblCantidadPasajeros)
+                .addContainerGap(16, Short.MAX_VALUE))
+        );
 
-        jMenuItem4.setText("Lugares (Asientos)");
-        jMenuItem4.addActionListener(this::jMenuItem4ActionPerformed);
-        jMenu2.add(jMenuItem4);
+        panelRutas.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(51, 51, 51), 2, true));
 
-        jMenuItem5.setText("Pasajes");
-        jMenuItem5.addActionListener(this::jMenuItem5ActionPerformed);
-        jMenu2.add(jMenuItem5);
+        lblRutas.setFont(new java.awt.Font("Segoe UI", 3, 12)); // NOI18N
+        lblRutas.setText("Rutas");
 
-        jMenuBar1.add(jMenu2);
+        lblCantidadRutas.setText("jLabel1");
 
-        setJMenuBar(jMenuBar1);
+        javax.swing.GroupLayout panelRutasLayout = new javax.swing.GroupLayout(panelRutas);
+        panelRutas.setLayout(panelRutasLayout);
+        panelRutasLayout.setHorizontalGroup(
+            panelRutasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelRutasLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelRutasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblRutas)
+                    .addComponent(lblCantidadRutas))
+                .addContainerGap(245, Short.MAX_VALUE))
+        );
+        panelRutasLayout.setVerticalGroup(
+            panelRutasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelRutasLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblRutas)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblCantidadRutas)
+                .addContainerGap(16, Short.MAX_VALUE))
+        );
+
+        panelColectivos.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(51, 51, 51), 2, true));
+
+        lblColectivos.setFont(new java.awt.Font("Segoe UI", 3, 12)); // NOI18N
+        lblColectivos.setText("Colectivos");
+
+        lblCantidadColectivos.setText("jLabel1");
+
+        javax.swing.GroupLayout panelColectivosLayout = new javax.swing.GroupLayout(panelColectivos);
+        panelColectivos.setLayout(panelColectivosLayout);
+        panelColectivosLayout.setHorizontalGroup(
+            panelColectivosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelColectivosLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelColectivosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblColectivos)
+                    .addComponent(lblCantidadColectivos))
+                .addContainerGap(230, Short.MAX_VALUE))
+        );
+        panelColectivosLayout.setVerticalGroup(
+            panelColectivosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelColectivosLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblColectivos)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblCantidadColectivos)
+                .addContainerGap(16, Short.MAX_VALUE))
+        );
+
+        panelPasajes.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(51, 51, 51), 2, true));
+
+        lblPasajes.setFont(new java.awt.Font("Segoe UI", 3, 12)); // NOI18N
+        lblPasajes.setText("Pasajes");
+
+        lblCantidadPasajes.setText("jLabel1");
+
+        javax.swing.GroupLayout panelPasajesLayout = new javax.swing.GroupLayout(panelPasajes);
+        panelPasajes.setLayout(panelPasajesLayout);
+        panelPasajesLayout.setHorizontalGroup(
+            panelPasajesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelPasajesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelPasajesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblPasajes)
+                    .addComponent(lblCantidadPasajes))
+                .addContainerGap(245, Short.MAX_VALUE))
+        );
+        panelPasajesLayout.setVerticalGroup(
+            panelPasajesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelPasajesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblPasajes)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblCantidadPasajes)
+                .addContainerGap(16, Short.MAX_VALUE))
+        );
+
+        lblPie.setFont(new java.awt.Font("Segoe UI", 2, 12)); // NOI18N
+        lblPie.setForeground(new java.awt.Color(153, 153, 153));
+        lblPie.setText("Sistema De Gestión De Transporte");
+
+        javax.swing.GroupLayout panelInicioLayout = new javax.swing.GroupLayout(panelInicio);
+        panelInicio.setLayout(panelInicioLayout);
+        panelInicioLayout.setHorizontalGroup(
+            panelInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelInicioLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jSeparator1)
+                    .addGroup(panelInicioLayout.createSequentialGroup()
+                        .addGroup(panelInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblSubTitulo)
+                            .addComponent(lblDescripcion)
+                            .addComponent(lblResumen)
+                            .addGroup(panelInicioLayout.createSequentialGroup()
+                                .addGroup(panelInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(panelPasajeros, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(panelRutas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(panelInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(panelPasajes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(panelColectivos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(lblPie))
+                        .addGap(0, 2, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+
+        panelInicioLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {panelColectivos, panelPasajeros, panelPasajes, panelRutas});
+
+        panelInicioLayout.setVerticalGroup(
+            panelInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelInicioLayout.createSequentialGroup()
+                .addComponent(lblSubTitulo)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblDescripcion)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblResumen)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panelInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(panelColectivos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(panelPasajeros, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panelInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(panelRutas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(panelPasajes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblPie)
+                .addContainerGap(7, Short.MAX_VALUE))
+        );
+
+        panelInicioLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {panelColectivos, panelPasajeros, panelPasajes, panelRutas});
+
+        escritorio.add(panelInicio);
+        panelInicio.setBounds(210, 160, 620, 280);
+
+        Titulo.setText("FlechaFlash");
+        Titulo.setEnabled(false);
+        JMenuBar.add(Titulo);
+
+        menuGestion.setText("Gestión");
+
+        itemPasajero.setText("Pasajeros");
+        itemPasajero.addActionListener(this::itemPasajeroActionPerformed);
+        menuGestion.add(itemPasajero);
+
+        itemColectivo.setText("Colectivos");
+        itemColectivo.addActionListener(this::itemColectivoActionPerformed);
+        menuGestion.add(itemColectivo);
+
+        itemRuta.setText("Rutas/Viajes");
+        itemRuta.addActionListener(this::itemRutaActionPerformed);
+        menuGestion.add(itemRuta);
+
+        itemLugar.setText("Asientos");
+        itemLugar.addActionListener(this::itemLugarActionPerformed);
+        menuGestion.add(itemLugar);
+
+        itemPasaje.setText("Pasajes");
+        itemPasaje.addActionListener(this::itemPasajeActionPerformed);
+        menuGestion.add(itemPasaje);
+
+        JMenuBar.add(menuGestion);
+
+        setJMenuBar(JMenuBar);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(escritorio, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1000, Short.MAX_VALUE)
+            .addComponent(escritorio, javax.swing.GroupLayout.DEFAULT_SIZE, 1000, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(escritorio, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 721, Short.MAX_VALUE)
+            .addComponent(escritorio, javax.swing.GroupLayout.DEFAULT_SIZE, 650, Short.MAX_VALUE)
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        GestionPasajeros f = new GestionPasajeros();
-        escritorio.add(f);
-        f.setLocation(20, 20);
-        f.setVisible(true);
-    }//GEN-LAST:event_jMenuItem1ActionPerformed
+    private void itemPasajeroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemPasajeroActionPerformed
+        GestionPasajeros ventana = new GestionPasajeros();
+        escritorio.add(ventana);
+        ventana.setLocation(20, 20);
+        ventana.setVisible(true);
+    }//GEN-LAST:event_itemPasajeroActionPerformed
 
-    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        GestionColectivos f = new GestionColectivos();
-        escritorio.add(f);
-        f.setLocation(20, 20);
-        f.setVisible(true);
-    }//GEN-LAST:event_jMenuItem2ActionPerformed
+    private void itemColectivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemColectivoActionPerformed
+        GestionColectivos ventana = new GestionColectivos();
+        escritorio.add(ventana);
+        ventana.setLocation(20, 20);
+        ventana.setVisible(true);
+    }//GEN-LAST:event_itemColectivoActionPerformed
 
-    private void jMenu2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu2ActionPerformed
+    private void itemRutaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemRutaActionPerformed
+        GestionRutaViajes ventana = new GestionRutaViajes();
+        escritorio.add(ventana);
+        ventana.setLocation(20, 20);
+        ventana.setVisible(true);
+    }//GEN-LAST:event_itemRutaActionPerformed
 
-    }//GEN-LAST:event_jMenu2ActionPerformed
+    private void itemLugarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemLugarActionPerformed
+        GestionLugares ventana = new GestionLugares();
+        escritorio.add(ventana);
+        ventana.setLocation(20, 20);
+        ventana.setVisible(true);
+    }//GEN-LAST:event_itemLugarActionPerformed
 
-    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
-        GestionRutaViajes f = new GestionRutaViajes();
-        escritorio.add(f);
-        f.setLocation(20, 20);
-        f.setVisible(true);
-    }//GEN-LAST:event_jMenuItem3ActionPerformed
+    private void itemPasajeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemPasajeActionPerformed
+        GestionPasajes ventana = new GestionPasajes();
+        escritorio.add(ventana);
+        ventana.setLocation(20, 20);
+        ventana.setVisible(true);
+    }//GEN-LAST:event_itemPasajeActionPerformed
 
-    private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
-        GestionPasajes f = new GestionPasajes();
-        escritorio.add(f);
-        f.setVisible(true);
-    }//GEN-LAST:event_jMenuItem5ActionPerformed
-
-    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
-        GestionLugares f = new GestionLugares();
-        escritorio.add(f);
-        f.setVisible(true);
-    }//GEN-LAST:event_jMenuItem4ActionPerformed
-
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -141,22 +361,37 @@ public class VistaGestion extends javax.swing.JFrame {
         } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
             logger.log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-
-        /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> new VistaGestion().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuBar JMenuBar;
+    private javax.swing.JMenu Titulo;
     private javax.swing.JDesktopPane escritorio;
-    private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenu jMenu2;
-    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem itemColectivo;
+    private javax.swing.JMenuItem itemLugar;
+    private javax.swing.JMenuItem itemPasaje;
+    private javax.swing.JMenuItem itemPasajero;
+    private javax.swing.JMenuItem itemRuta;
     private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem2;
-    private javax.swing.JMenuItem jMenuItem3;
-    private javax.swing.JMenuItem jMenuItem4;
-    private javax.swing.JMenuItem jMenuItem5;
-    private javax.swing.JMenuItem jMenuItem7;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JLabel lblCantidadColectivos;
+    private javax.swing.JLabel lblCantidadPasajeros;
+    private javax.swing.JLabel lblCantidadPasajes;
+    private javax.swing.JLabel lblCantidadRutas;
+    private javax.swing.JLabel lblColectivos;
+    private javax.swing.JLabel lblDescripcion;
+    private javax.swing.JLabel lblPasajeros;
+    private javax.swing.JLabel lblPasajes;
+    private javax.swing.JLabel lblPie;
+    private javax.swing.JLabel lblResumen;
+    private javax.swing.JLabel lblRutas;
+    private javax.swing.JLabel lblSubTitulo;
+    private javax.swing.JMenu menuGestion;
+    private javax.swing.JPanel panelColectivos;
+    private javax.swing.JPanel panelInicio;
+    private javax.swing.JPanel panelPasajeros;
+    private javax.swing.JPanel panelPasajes;
+    private javax.swing.JPanel panelRutas;
     // End of variables declaration//GEN-END:variables
 }

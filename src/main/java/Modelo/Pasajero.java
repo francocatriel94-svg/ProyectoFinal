@@ -1,6 +1,7 @@
 package Modelo;
 
 public class Pasajero {
+
     private int ID_pasajero;
     private String dni;
     private String nombre;
@@ -10,8 +11,9 @@ public class Pasajero {
     private int estado;
 
     //Constructor Vacio.
-    public Pasajero(){}
-    
+    public Pasajero() {
+    }
+
     //Constructor Con ID_pasajero.
     public Pasajero(int idPasajero, String dni, String nombre, String apellido, String correo, String telefono, int estado) {
         this.ID_pasajero = idPasajero;
@@ -22,7 +24,7 @@ public class Pasajero {
         this.telefono = telefono;
         this.estado = estado;
     }
-    
+
     //Constructor Sin ID_pasajero.
     public Pasajero(String dni, String nombre, String apellido, String correo, String telefono, int estado) {
         this.dni = dni;
@@ -32,7 +34,7 @@ public class Pasajero {
         this.telefono = telefono;
         this.estado = estado;
     }
-    
+
     public int getID_pasajero() {
         return ID_pasajero;
     }
@@ -89,8 +91,8 @@ public class Pasajero {
         this.estado = estado;
     }
 
-@Override
-public String toString() {
-    return nombre + " " + apellido + " (ID: " + ID_pasajero + ")";
-}
+    @Override
+    public String toString() {
+        return nombre + " " + apellido + " (ID: " + ID_pasajero + ")";
+    }
 }

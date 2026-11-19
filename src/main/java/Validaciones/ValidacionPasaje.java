@@ -66,6 +66,15 @@ public class ValidacionPasaje {
             }
         }
 
+        // Comprobar fecha y hora de venta.
+        if (pasaje.getFechaVenta() == null) {
+            return "La fecha de venta es obligatoria.";
+        }
+
+        if (pasaje.getHoraVenta() == null) {
+            return "La hora de venta es obligatoria.";
+        }
+
         // Comprobar precio.
         if (pasaje.getPrecio() == null
                 || pasaje.getPrecio().compareTo(BigDecimal.ZERO) <= 0) {

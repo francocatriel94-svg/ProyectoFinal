@@ -41,6 +41,7 @@ public class LugarData {
                 }
             }
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al guardar el asiento.", ex);
             return false;
         }
         return false;
@@ -59,6 +60,7 @@ public class LugarData {
             return ps.executeUpdate() == 1;
 
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al modificar el asiento.", ex);
             return false;
         }
     }
@@ -83,6 +85,7 @@ public class LugarData {
             return ps.executeUpdate() == 1;
 
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al eliminar el asiento.", ex);
             return false;
         }
     }
@@ -123,6 +126,7 @@ public class LugarData {
             }
 
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al comprobar la disponibilidad del asiento.", ex);
             return false;
         }
     }
@@ -141,6 +145,7 @@ public class LugarData {
                 }
             }
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al buscar el asiento por ID.", ex);
             return null;
         }
         return asiento;
@@ -161,6 +166,7 @@ public class LugarData {
                 }
             }
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al buscar el asiento por número y ruta.", ex);
             return null;
         }
         return asiento;
@@ -177,6 +183,7 @@ public class LugarData {
                 asientos.add(armarLugar(rs));
             }
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al listar los asientos.", ex);
             return asientos;
         }
         return asientos;
@@ -216,6 +223,7 @@ public class LugarData {
                 }
             }
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al listar los asientos libres por ruta.", ex);
             return asientos;
         }
         return asientos;
@@ -289,6 +297,7 @@ public class LugarData {
             return ps.executeUpdate() == 1;
 
         } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Error al cambiar el estado del asiento.", ex);
             return false;
         }
     }
